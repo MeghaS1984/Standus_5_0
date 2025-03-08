@@ -1,0 +1,84 @@
+﻿@model IEnumerable<Standus_5_0.Areas.HumanResource.Models.LoanSanction>
+
+@{
+    ViewData["Title"] = "Index";
+    Layout = "~/Areas/HumanResource/Views/Shared/_Layout.cshtml";
+}
+
+<h1>Index</h1>
+
+<p>
+    <a asp-action="Create">Create New</a>
+</p>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.Date)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Amount)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Interest)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.DeductionType)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Installment)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.InstallmentNo)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.InstallmentDate)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.DeductionId)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Reuqest)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model) {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.Date)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Amount)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Interest)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.DeductionType)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Installment)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.InstallmentNo)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.InstallmentDate)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.DeductionId)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Reuqest.RequestID)
+            </td>
+            <td>
+                <a asp-action="Edit" asp-route-id="@item.SanctionId">Edit</a> |
+                <a asp-action="Details" asp-route-id="@item.SanctionId">Details</a> |
+                <a asp-action="Delete" asp-route-id="@item.SanctionId">Delete</a>
+            </td>
+        </tr>
+}
+    </tbody>
+</table>

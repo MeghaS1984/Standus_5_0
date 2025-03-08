@@ -1,0 +1,35 @@
+﻿
+.menu-container {
+    position:sticky;
+    width:20%;
+    height:87vh;
+    overflow-y:auto; 
+    top:70px;
+    left:0px;
+    border:1px solid #ddd;
+}
+
+.menu_item > ul {
+    list-style-type: none; /* Remove default bullets */
+    padding: 0; /* Remove default padding */
+}
+
+    .menu_item > ul > li {
+        font-family: Arial, sans-serif !important ; /* Change font */
+        font-size: 14px !important; /* Set font size */
+        color: #333; /* Text color */
+        padding: 5px; /* Add padding */
+        border-bottom: 1px solid #ddd; /* Add border between items */
+    }
+
+        /*li:last-child {
+                border-bottom: none;*/ /* Remove border from last item */
+        /*}*/
+
+        .menu_item > ul > li:hover {
+            background-color: #f0f0f0; /* Highlight item on hover */
+        }
+
+.menu_item > ul > li > a {
+    color:black;
+}

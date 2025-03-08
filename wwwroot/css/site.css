@@ -1,0 +1,168 @@
+html {
+  font-size: 14px;
+}
+
+@media (min-width: 768px) {
+  html {
+    font-size: 14px;
+  }
+}
+
+.btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
+  box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
+}
+
+html {
+  position: relative;
+  min-height: 100%;
+}
+
+body {
+    /*margin-bottom: 0px 0px 60px 5px;*/
+    font-family: Arial, sans-serif !important;
+}
+
+a {
+    text-decoration: none;
+}
+
+.flex-header-container {
+    display:flex;
+    flex-direction:row;
+}
+
+    .flex-header-container > div {
+        margin: 0px 10px 0px 0px;
+    }
+
+    .flex-header-container > div:first-child {
+        padding:5px 0px 0px 5px;
+    }
+        .flex-header-container > div > a {
+            text-decoration: none;
+            background-color: #f44336;
+            color: white;
+            padding: 5px 5px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            border-radius:5px;
+        }
+
+.data-flow{
+    width:20%;
+}
+.form-container {
+    margin: 0 auto 0 auto;
+    border: 1px solid #808080;
+    width:60%;
+    /*box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);*/
+    /*padding:15px;*/
+}
+
+.form-header {
+    background-color:lightseagreen;
+    min-height:50px;
+    color:white;
+    padding:15px 0px 0px 10px;
+}
+
+.form-body {
+    padding:15px;
+}
+
+.form-footer {
+    /*min-height: 50px;*/
+    color: white;
+    padding: 15px 0px 5px 10px;
+}
+
+.staff-menu > ul > li { 
+    position:relative;
+    padding:0 0 5px 0px;
+    left:-17px;
+    position:relative;  
+    color:black;
+    font-weight:bold;
+    left:-35px;
+}
+
+.staff-menu > ul > li > a  {
+    color:orangered !important;
+}
+    
+    .staff-menu > ul > li:before {
+    position:relative;
+    content:".";
+    font-size:70px;
+    line-height:20px;
+    left:-4px;
+    top:0px;
+    color:lightseagreen;
+}
+.staff-menu > ul {
+    border-left: 2px solid green;
+    margin-left:10px;
+}
+
+/* Add additional styles to the sticky navbar */
+.sticky-top {
+    position:sticky;
+    top: 0px; /* Make sure it sticks at the top */
+    z-index: 1050; /* Higher than other elements */
+    width: 100%;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Optional shadow effect */
+}
+
+.data-container {
+    width:80%;
+    padding:10px;
+}
+
+/* Target the scrollbar for the entire page */
+::-webkit-scrollbar {
+    width: 8px; /* Width of the scrollbar */
+    height: 8px; /* Height of horizontal scrollbar */
+}
+
+::-webkit-scrollbar-track {
+    background: #f1f1f1; /* Background of the track (the part the thumb moves within) */
+    border-radius: 10px; /* Optional: Makes the track corners rounded */
+}
+
+::-webkit-scrollbar-thumb {
+    background: #888; /* Color of the scrollbar thumb (the draggable part) */
+    border-radius: 10px; /* Optional: Makes the thumb corners rounded */
+}
+
+    ::-webkit-scrollbar-thumb:hover {
+        background: #555; /* Color of the thumb when hovered */
+    }
+
+.standard-row-container {
+    display:flex;
+    flex-direction:row;
+}
+
+.text-danger {
+    color:red;
+    font-size:20px;
+    margin-top:20px;
+}
+
+.input-container {
+    display: flex; /* Use flexbox to align items horizontally */
+    align-items: center; /* Align items vertically in the center */
+    width:100%;
+}
+
+    .input-container > span:first-child {
+        flex-grow: 6;
+    }
+
+.text-close {
+    margin-left: 8px; /* Add some space between the input and the 'X' */
+    cursor: pointer; /* Change the cursor to indicate the 'X' is clickable */
+    color: red; /* You can customize the color for the 'X' */
+    font-weight: bold; /* Optionally make the 'X' bold */
+}

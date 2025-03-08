@@ -1,0 +1,45 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+}
+
+<div style="display:flex;flex-direction:row">
+    <div id="allowance" class="box">
+    </div>
+    <div id="deduction" class="box">
+    </div>
+</div>
+<script>
+
+    $(document).ready(function() {
+            $.ajax({
+            url: "/HumanResource/allowances/SlabSetup",
+            type:"GET",
+            success: function(result) {
+                    $("#allowance").html(result);
+                }
+            })
+        }
+    );
+
+    $(document).ready(function() {
+            $.ajax({
+            url: "/HumanResource/deductions/SlabSetup",
+            type:"GET",
+            success: function(result) {
+                    $("#deduction").html(result);
+                }
+            })
+        }
+    );
+
+</script>
+
+<style>
+    .box {
+        height:75vh;
+        overflow-y:auto;
+        width:40vw !important;
+    }
+</style

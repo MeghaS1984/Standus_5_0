@@ -1,0 +1,36 @@
+﻿@model IEnumerable<dynamic>  
+<!-- Define the model as a dynamic collection -->
+@{
+    ViewData["Title"] = "Slab Setup";
+}
+
+<div class="table-responsive">
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>Allowance Name</th>
+                <th>Status</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>@item.Allowance</td>
+                    <td>
+                        @if (item.Status == "Done") {
+                            <span><a href="">@item.Status</a></span>
+                        } else{
+                            <span>@item.Status</span>
+                        }
+
+                    </td>
+                    <td>
+                        <a href="">Create Slab</a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>

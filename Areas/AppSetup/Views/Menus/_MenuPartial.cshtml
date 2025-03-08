@@ -1,0 +1,12 @@
+﻿@model IEnumerable<Standus_5_0.Areas.AppSetup.Models.Menu> 
+
+<div class="menu_item">
+    <ul>
+        @foreach (var item in Model)
+        {
+            <li>
+                <a href="@item.UrlPath">@item.MenuName</a>
+            </li> 
+        }
+    </ul>
+</div>

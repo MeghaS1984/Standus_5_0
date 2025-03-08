@@ -1,0 +1,60 @@
+﻿@model IEnumerable<Standus_5_0.Areas.HumanResource.Models.Payroll>
+
+@{
+    ViewData["Title"] = "Index";
+    Layout = "~/Areas/HumanResource/Views/Shared/_Layout.cshtml";
+}
+
+<h1>Index</h1>
+
+<p>
+    <a asp-action="Create">Create New</a>
+</p>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.ForTheMonth)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Date)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.ProcessNo)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Processed)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.VoucherNo)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model) {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.ForTheMonth)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Date)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.ProcessNo)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Processed)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.VoucherNo)
+            </td>
+            <td>
+                <a asp-action="Edit" asp-route-id="@item.PayID">Edit</a> |
+                <a asp-action="Details" asp-route-id="@item.PayID">Details</a> |
+                <a asp-action="Delete" asp-route-id="@item.PayID">Delete</a>
+            </td>
+        </tr>
+}
+    </tbody>
+</table>

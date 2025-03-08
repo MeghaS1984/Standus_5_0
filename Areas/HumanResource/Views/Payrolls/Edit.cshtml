@@ -1,0 +1,52 @@
+﻿@model Standus_5_0.Areas.HumanResource.Models.Payroll
+
+@{
+    ViewData["Title"] = "Edit";
+    Layout = "~/Areas/HumanResource/Views/Shared/_Layout.cshtml";
+}
+
+<h1>Edit</h1>
+
+<h4>Payroll</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="Edit">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <input type="hidden" asp-for="PayID" />
+            <div class="form-group">
+                <label asp-for="ForTheMonth" class="control-label"></label>
+                <input asp-for="ForTheMonth" class="form-control" />
+                <span asp-validation-for="ForTheMonth" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Date" class="control-label"></label>
+                <input asp-for="Date" class="form-control" />
+                <span asp-validation-for="Date" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="ProcessNo" class="control-label"></label>
+                <input asp-for="ProcessNo" class="form-control" />
+                <span asp-validation-for="ProcessNo" class="text-danger"></span>
+            </div>
+            <div class="form-group form-check">
+                <label class="form-check-label">
+                    <input class="form-check-input" asp-for="Processed" /> @Html.DisplayNameFor(model => model.Processed)
+                </label>
+            </div>
+            <div class="form-group">
+                <label asp-for="VoucherNo" class="control-label"></label>
+                <input asp-for="VoucherNo" class="form-control" />
+                <span asp-validation-for="VoucherNo" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Save" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>
+

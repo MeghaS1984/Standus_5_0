@@ -1,0 +1,138 @@
+﻿@model IEnumerable<Standus_5_0.Areas.HumanResource.Models.Allowance>
+
+@{
+    ViewData["Title"] = "Index";
+    Layout = "~/Areas/HumanResource/Views/Shared/_Layout.cshtml";
+}
+
+<h1>Index</h1>
+
+<p>
+    <a asp-action="Create">Create New</a>
+</p>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.Name)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Description)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.CutOffType)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Period)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.DaysPresent)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.AuthorisedLeave)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.GeneralHoliday)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.CutOff)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.RoundOf)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.AccountID)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Month)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Day)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Variable)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.PayrollSlNO)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.InActive)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Fixed)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.DebitTo)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.CreditTo)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model) {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.Name)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Description)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.CutOffType)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Period)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.DaysPresent)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.AuthorisedLeave)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.GeneralHoliday)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.CutOff)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.RoundOf)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.AccountID)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Month)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Day)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Variable)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.PayrollSlNO)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.InActive)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Fixed)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.DebitTo)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.CreditTo)
+            </td>
+            <td>
+                <a asp-action="Edit" asp-route-id="@item.ID">Edit</a> |
+                <a asp-action="Details" asp-route-id="@item.ID">Details</a> |
+                <a asp-action="Delete" asp-route-id="@item.ID">Delete</a>
+            </td>
+        </tr>
+}
+    </tbody>
+</table>

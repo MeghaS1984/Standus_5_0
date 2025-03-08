@@ -1,0 +1,108 @@
+﻿@model Standus_5_0.Areas.HumanResource.Models.EAndDSetting
+
+@{
+    ViewData["Title"] = "Create";
+    Layout = "~/Areas/HumanResource/Views/Shared/_Layout.cshtml";
+}
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="form-group">
+            @* @Html.Raw(@TempData["Alert"]) *@
+        </div>
+    </div>
+</div>
+
+<h5>Allowance And Deduction Setting</h5>
+<hr />
+<form asp-action="Create">
+<div class="standard-row-container">
+
+<div class="row " style="width:60%">
+    <div class="col-md-6">
+        
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div>
+                <label asp-for="AllowanceID" class="control-label">Allowance</label>
+                <select asp-for="AllowanceID" class="form-control"  asp-items="ViewBag.AllowanceID"></select>
+                <span asp-validation-for="Query" class="text-danger"></span>
+            </div>
+            <div>
+                <label asp-for="DeductionID" class="control-label">Deduction</label>
+                <select asp-for="DeductionID" class="form-control" asp-items="ViewBag.DeductionID"></select>
+                <span asp-validation-for="Query" class="text-danger"></span>
+            </div>
+    </div>
+            <div class="col-md-10">
+            <div class="form-group">
+                    @if (ViewData.ModelMetadata.Properties.FirstOrDefault(p => p.PropertyName == "Query")?.IsRequired == true)
+                    {
+                        <span class="text-danger">*</span>  <!-- Asterisk for required fields -->
+                    }
+                <label asp-for="Query" class="control-label"></label>
+                <textarea asp-for="Query" class="form-control" rows="10" ></textarea>
+                <span asp-validation-for="Query" class="text-danger"></span>
+            </div>
+        </div>
+        </div>
+        <div style="width:40%">
+            <div class="row">
+                <div class="form-group col-md-8">
+                    <label>Query Parameters</label>
+                    <input type="text" id="queryParamInput" class="form-control" />                
+                </div>
+                <div class="col">
+                    <label></label>
+                    <button type="button" id="addQueryParam" class="btn btn-info">Add Parameter</button>
+                </div>
+            </div>
+            <div id="queryParamList" style="margin-top:8px;">
+
+                @if (Model != null && Model.EAndDSettingParams.Count > 0)
+                {
+                int i = 0;
+                foreach(var param in Model.EAndDSettingParams){
+                    <div>
+                            <input name="EAndDSettingParams[@i].QueryParam" class="form-control" value="@param.QueryParam" />
+                    </div>
+                    i++;
+                }
+            }
+            </div>
+        </div>
+</div>
+</form>
+<br>
+<div class="form-group">
+    <input type="submit" value="Create" class="btn btn-primary" />
+    <a asp-action="Index">Back to List</a>
+</div>
+
+<script>
+    $(document).ready(function () {
+        $('#addQueryParam').click(function () {
+            var paramValue = $('#queryParamInput').val();
+            if (paramValue) {
+                var index = $('#queryParamList div').length;
+                $('#queryParamList').append('<div class="input-container"><span><input name="EAndDSettingParams[' + index + '].QueryParam" class="form-control col-wd-8" value="' + paramValue + '"/></span><span class="text-close param">X</span></div>');
+                $('#queryParamInput').val('');  // Clear the input after adding
+            } 
+        });
+
+        $('#queryParamList').on('click','.param', function (event) {
+            
+            let index = 0;
+            
+            this.closest('div').remove();
+
+            $('#queryParamList input').each(function (index) {
+                // Update the 'name' attribute dynamically
+                var newName = 'EAndDSettingParams[' + index + '].QueryParam';
+                $(this).attr('name', newName);
+                index++;
+            });
+        })
+    });
+
+    
+</script>

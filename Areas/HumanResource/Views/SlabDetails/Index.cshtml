@@ -1,0 +1,57 @@
+﻿@model IEnumerable<Standus_5_0.Areas.HumanResource.Models.SlabDetails>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.SlabID)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.FromAmount)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.ToAmount)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Type)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Employee)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Employer)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Category)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model) {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.SlabID)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.FromAmount)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.ToAmount)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Type)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Employee)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Employer)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Category.CategoryName)
+            </td>
+        </tr>
+}
+    </tbody>
+</table>

@@ -1,0 +1,54 @@
+﻿@model Standus_5_0.Areas.HumanResource.Models.SlabDetails
+
+<h4>SlabDetails</h4>
+<hr />
+<form asp-action="_Create">
+<div asp-validation-summary="ModelOnly" class="text-danger"></div>
+    <input asp-for="SlabID" class="form-control" type=hidden />
+    <input type="hidden" asp-for="CategoryID" class="form-control" >
+<div class="row">               
+   
+        <div class="col-md-2">
+            <div class="form-group">
+                <label asp-for="FromAmount" class="control-label"></label>
+                <input asp-for="FromAmount" class="form-control" />
+                <span asp-validation-for="FromAmount" class="text-danger"></span>
+            </div>
+            </div>
+        <div class="col-md-2">
+            <div class="form-group">
+                <label asp-for="ToAmount" class="control-label"></label>
+                <input asp-for="ToAmount" class="form-control" />
+                <span asp-validation-for="ToAmount" class="text-danger"></span>
+            </div>
+            </div>
+        <div class="col-md-2">
+            <div class="form-group">
+                <label asp-for="Type" class="control-label"></label>
+                <input asp-for="Type" class="form-control" />
+                <span asp-validation-for="Type" class="text-danger"></span>
+            </div>
+            </div>
+        <div class="col-md-2">
+            <div class="form-group">
+                <label asp-for="Employee" class="control-label"></label>
+                <input asp-for="Employee" class="form-control" />
+                <span asp-validation-for="Employee" class="text-danger"></span>
+            </div>
+            </div>
+        <div class="col-md-2">
+            <div class="form-group">
+                <label asp-for="Employer" class="control-label"></label>
+                <input asp-for="Employer" class="form-control" />
+                <span asp-validation-for="Employer" class="text-danger"></span>
+            </div>
+            </div>
+        
+        <div class="col-md-2">
+            <div class="form-group">
+                <label class="control-label"></label>
+                <input type="submit" value="Create" class="btn btn-primary" />
+            </div>
+        </div>
+    </div>
+</form>

@@ -1,0 +1,117 @@
+﻿@model Standus_5_0.Areas.HumanResource.Models.Allowance
+
+@{
+    ViewData["Title"] = "Edit";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h1>Edit</h1>
+
+<h4>Allowance</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="Edit">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <input type="hidden" asp-for="ID" />
+            <div class="form-group">
+                <label asp-for="Name" class="control-label"></label>
+                <input asp-for="Name" class="form-control" />
+                <span asp-validation-for="Name" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Description" class="control-label"></label>
+                <input asp-for="Description" class="form-control" />
+                <span asp-validation-for="Description" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="CutOffType" class="control-label"></label>
+                <input asp-for="CutOffType" class="form-control" />
+                <span asp-validation-for="CutOffType" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Period" class="control-label"></label>
+                <input asp-for="Period" class="form-control" />
+                <span asp-validation-for="Period" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="DaysPresent" class="control-label"></label>
+                <input asp-for="DaysPresent" class="form-control" />
+                <span asp-validation-for="DaysPresent" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="AuthorisedLeave" class="control-label"></label>
+                <input asp-for="AuthorisedLeave" class="form-control" />
+                <span asp-validation-for="AuthorisedLeave" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="GeneralHoliday" class="control-label"></label>
+                <input asp-for="GeneralHoliday" class="form-control" />
+                <span asp-validation-for="GeneralHoliday" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="CutOff" class="control-label"></label>
+                <input asp-for="CutOff" class="form-control" />
+                <span asp-validation-for="CutOff" class="text-danger"></span>
+            </div>
+            <div class="form-group form-check">
+                <label class="form-check-label">
+                    <input class="form-check-input" asp-for="RoundOf" /> @Html.DisplayNameFor(model => model.RoundOf)
+                </label>
+            </div>
+            <div class="form-group">
+                <label asp-for="AccountID" class="control-label"></label>
+                <input asp-for="AccountID" class="form-control" />
+                <span asp-validation-for="AccountID" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Month" class="control-label"></label>
+                <input asp-for="Month" class="form-control" />
+                <span asp-validation-for="Month" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Day" class="control-label"></label>
+                <input asp-for="Day" class="form-control" />
+                <span asp-validation-for="Day" class="text-danger"></span>
+            </div>
+            <div class="form-group form-check">
+                <label class="form-check-label">
+                    <input class="form-check-input" asp-for="Variable" /> @Html.DisplayNameFor(model => model.Variable)
+                </label>
+            </div>
+            <div class="form-group">
+                <label asp-for="PayrollSlNO" class="control-label"></label>
+                <input asp-for="PayrollSlNO" class="form-control" />
+                <span asp-validation-for="PayrollSlNO" class="text-danger"></span>
+            </div>
+            <div class="form-group form-check">
+                <label class="form-check-label">
+                    <input class="form-check-input" asp-for="InActive" /> @Html.DisplayNameFor(model => model.InActive)
+                </label>
+            </div>
+            <div class="form-group form-check">
+                <label class="form-check-label">
+                    <input class="form-check-input" asp-for="Fixed" /> @Html.DisplayNameFor(model => model.Fixed)
+                </label>
+            </div>
+            <div class="form-group">
+                <label asp-for="DebitTo" class="control-label"></label>
+                <input asp-for="DebitTo" class="form-control" />
+                <span asp-validation-for="DebitTo" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="CreditTo" class="control-label"></label>
+                <input asp-for="CreditTo" class="form-control" />
+                <span asp-validation-for="CreditTo" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Save" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>
+

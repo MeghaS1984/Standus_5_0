@@ -1,0 +1,50 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Globalization;
+using System.IO;
+using System.Linq;
+using System.Reflection;
+using System.Runtime.CompilerServices;
+using System.Security;
+using System.Text;
+using System.Threading.Tasks;
+using Microsoft.VisualBasic;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+
+namespace Standus_5_0.Areas.HumanResource.Models
+{
+
+    public class EmploymentHistory
+    {
+        [Key]
+        public int ID { get; set; }
+
+        // Foreign Key
+        public int EmployeeID { get; set; }
+
+        [Required]
+        [StringLength(100)]
+        public string CompanyName { get; set; }
+
+        [Required]
+        [StringLength(100)]
+        public string JobTitle { get; set; }
+
+        [Required]
+        [DataType(DataType.Date)]
+        public DateTime StartDate { get; set; }
+
+        [DataType(DataType.Date)]
+        public DateTime? EndDate { get; set; }
+
+        [StringLength(500)]
+        public string Responsibilities { get; set; }
+
+        // Navigation Property
+        [ForeignKey("EmployeeID")]
+        public virtual Employee Employee { get; set; }
+    }
+
+}
