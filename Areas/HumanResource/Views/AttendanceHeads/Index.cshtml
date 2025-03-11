@@ -5,61 +5,42 @@
     Layout = "~/Areas/HumanResource/Views/Shared/_Layout.cshtml";
 }
 
-<h1>Index</h1>
+<div class="flex-header-container">
+    <div>
+        <h5>Attendance Head</h5>
+    </div>
 
-<p>
-    <a asp-action="Create">Create New</a>
-</p>
-<table class="table">
+    <div>
+        <a asp-action="Create">Create New Head</a>
+    </div>
+</div>
+
+<table class="table table-striped">
     <thead>
         <tr>
             <th>
-                @Html.DisplayNameFor(model => model.HeadType)
+                Head Type
             </th>
             <th>
                 @Html.DisplayNameFor(model => model.Description)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.Paid)
+                Paid
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.IsLeave)
+                Leave
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.CarryForward)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.MaxAllowed)
+                Max Allowed
             </th>
             <th>
                 @Html.DisplayNameFor(model => model.Reimburse)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.FromDate)
+                Default
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.ToDate)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.IsInactive)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.IsDefault)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.IsHoliday)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.IsHalfDay)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.IsHalfDayLeave)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Priority)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.IsEncashment)
+                Holiday
             </th>
             <th></th>
         </tr>
@@ -80,40 +61,16 @@
                 @Html.DisplayFor(modelItem => item.IsLeave)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.CarryForward)
-            </td>
-            <td>
                 @Html.DisplayFor(modelItem => item.MaxAllowed)
             </td>
             <td>
                 @Html.DisplayFor(modelItem => item.Reimburse)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.FromDate)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.ToDate)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.IsInactive)
-            </td>
-            <td>
                 @Html.DisplayFor(modelItem => item.IsDefault)
             </td>
             <td>
                 @Html.DisplayFor(modelItem => item.IsHoliday)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.IsHalfDay)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.IsHalfDayLeave)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Priority)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.IsEncashment)
             </td>
             <td>
                 <a asp-action="Edit" asp-route-id="@item.ID">Edit</a> |

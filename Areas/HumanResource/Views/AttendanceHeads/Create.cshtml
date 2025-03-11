@@ -2,19 +2,26 @@
 
 @{
     ViewData["Title"] = "Create";
-    Layout = "~/Views/Shared/_Layout.cshtml";
+    Layout = "~/Areas/HumanResource/Views/Shared/_Layout.cshtml";
 }
 
-<h1>Create</h1>
-
-<h4>AttendanceHead</h4>
-<hr />
 <div class="row">
-    <div class="col-md-4">
-        <form asp-action="Create">
+    <div class="col-md-12">
+        <div class="form-group">
+             @Html.Raw(@TempData["Alert"]) 
+        </div>
+    </div>
+</div>
+
+<h4>Attendance Head</h4>
+<hr />
+<form asp-action="Create">
+<div class="standard-row-container">
+        <div class="row" style="width:60%">
+    <div class="col-md-8">        
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <div class="form-group">
-                <label asp-for="HeadType" class="control-label"></label>
+                <label asp-for="HeadType" class="control-label">Head Type</label>
                 <input asp-for="HeadType" class="form-control" />
                 <span asp-validation-for="HeadType" class="text-danger"></span>
             </div>
@@ -23,84 +30,93 @@
                 <input asp-for="Description" class="form-control" />
                 <span asp-validation-for="Description" class="text-danger"></span>
             </div>
-            <div class="form-group form-check">
-                <label class="form-check-label">
-                    <input class="form-check-input" asp-for="Paid" /> @Html.DisplayNameFor(model => model.Paid)
-                </label>
-            </div>
-            <div class="form-group form-check">
-                <label class="form-check-label">
-                    <input class="form-check-input" asp-for="IsLeave" /> @Html.DisplayNameFor(model => model.IsLeave)
-                </label>
-            </div>
-            <div class="form-group form-check">
-                <label class="form-check-label">
-                    <input class="form-check-input" asp-for="CarryForward" /> @Html.DisplayNameFor(model => model.CarryForward)
-                </label>
-            </div>
             <div class="form-group">
-                <label asp-for="MaxAllowed" class="control-label"></label>
+                <label asp-for="MaxAllowed" class="control-label">Max Allowed</label>
                 <input asp-for="MaxAllowed" class="form-control" />
                 <span asp-validation-for="MaxAllowed" class="text-danger"></span>
             </div>
-            <div class="form-group form-check">
-                <label class="form-check-label">
-                    <input class="form-check-input" asp-for="Reimburse" /> @Html.DisplayNameFor(model => model.Reimburse)
-                </label>
-            </div>
             <div class="form-group">
-                <label asp-for="FromDate" class="control-label"></label>
+                <label asp-for="FromDate" class="control-label">From Date</label>
                 <input asp-for="FromDate" class="form-control" />
                 <span asp-validation-for="FromDate" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <label asp-for="ToDate" class="control-label"></label>
+                <label asp-for="ToDate" class="control-label">To Date</label>
                 <input asp-for="ToDate" class="form-control" />
                 <span asp-validation-for="ToDate" class="text-danger"></span>
             </div>
-            <div class="form-group form-check">
-                <label class="form-check-label">
-                    <input class="form-check-input" asp-for="IsInactive" /> @Html.DisplayNameFor(model => model.IsInactive)
-                </label>
-            </div>
-            <div class="form-group form-check">
-                <label class="form-check-label">
-                    <input class="form-check-input" asp-for="IsDefault" /> @Html.DisplayNameFor(model => model.IsDefault)
-                </label>
-            </div>
-            <div class="form-group form-check">
-                <label class="form-check-label">
-                    <input class="form-check-input" asp-for="IsHoliday" /> @Html.DisplayNameFor(model => model.IsHoliday)
-                </label>
-            </div>
-            <div class="form-group form-check">
-                <label class="form-check-label">
-                    <input class="form-check-input" asp-for="IsHalfDay" /> @Html.DisplayNameFor(model => model.IsHalfDay)
-                </label>
-            </div>
-            <div class="form-group form-check">
-                <label class="form-check-label">
-                    <input class="form-check-input" asp-for="IsHalfDayLeave" /> @Html.DisplayNameFor(model => model.IsHalfDayLeave)
-                </label>
-            </div>
+            
             <div class="form-group">
                 <label asp-for="Priority" class="control-label"></label>
                 <input asp-for="Priority" class="form-control" />
                 <span asp-validation-for="Priority" class="text-danger"></span>
-            </div>
-            <div class="form-group form-check">
-                <label class="form-check-label">
-                    <input class="form-check-input" asp-for="IsEncashment" /> @Html.DisplayNameFor(model => model.IsEncashment)
-                </label>
-            </div>
-            <div class="form-group">
-                <input type="submit" value="Create" class="btn btn-primary" />
-            </div>
-        </form>
+            </div>      
     </div>
 </div>
+<div style="width:30%">
+    <div class="row">
+       <div class="col-md-6">
+                    <div class="form-group form-check">
+                        <label class="form-check-label">
+                            <input class="form-check-input" asp-for="Paid" /> Paid
+                        </label>
+                    </div>
+                    <div class="form-group form-check">
+                        <label class="form-check-label">
+                            <input class="form-check-input" asp-for="IsLeave" /> Leave
+                        </label>
+                    </div>
+                    <div class="form-group form-check">
+                        <label class="form-check-label">
+                            <input class="form-check-input" asp-for="CarryForward" /> Carry Forward
+                        </label>
+                    </div>
 
+                    <div class="form-group form-check">
+                        <label class="form-check-label">
+                            <input class="form-check-input" asp-for="Reimburse" /> Reimburse
+                        </label>
+                    </div>
+                    <div class="form-group form-check">
+                        <label class="form-check-label">
+                            <input class="form-check-input" asp-for="IsDefault" /> Default
+                        </label>
+                    </div>
+                    <div class="form-group form-check">
+                        <label class="form-check-label">
+                            <input class="form-check-input" asp-for="IsHoliday" /> Holiday
+                        </label>
+                    </div>
+                    <div class="form-group form-check">
+                        <label class="form-check-label">
+                            <input class="form-check-input" asp-for="IsHalfDay" /> Half Day
+                        </label>
+                    </div>
+                    <div class="form-group form-check">
+                        <label class="form-check-label">
+                            <input class="form-check-input" asp-for="IsHalfDayLeave" /> Halfday Leave
+                        </label>
+                    </div>
+                    <div class="form-group form-check">
+                        <label class="form-check-label">
+                            <input class="form-check-input" asp-for="IsEncashment" /> Encashment
+                        </label>
+                    </div>
+                    <div class="form-group form-check">
+                        <label class="form-check-label">
+                            <input class="form-check-input" asp-for="IsInactive" /> In Active
+                        </label>
+                    </div>
+       </div>
+    </div>
+</div>
+</div><br>
+
+    <div class="form-group">
+        <input type="submit" value="Create" class="btn btn-primary" /> | <a asp-action="Index">Back to List</a>
+    </div>
+</form>
 <div>
-    <a asp-action="Index">Back to List</a>
+    
 </div>
 

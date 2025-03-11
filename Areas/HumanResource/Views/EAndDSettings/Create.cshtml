@@ -8,7 +8,7 @@
 <div class="row">
     <div class="col-md-12">
         <div class="form-group">
-            @* @Html.Raw(@TempData["Alert"]) *@
+             @Html.Raw(@TempData["Alert"]) 
         </div>
     </div>
 </div>
@@ -19,27 +19,26 @@
 <div class="standard-row-container">
 
 <div class="row " style="width:60%">
-    <div class="col-md-6">
-        
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+    <div class="col-md-6">        
+            <div asp-validation-summary="All" class="text-danger"></div>
             <div>
                 <label asp-for="AllowanceID" class="control-label">Allowance</label>
                 <select asp-for="AllowanceID" class="form-control"  asp-items="ViewBag.AllowanceID"></select>
-                <span asp-validation-for="Query" class="text-danger"></span>
+                @* <span asp-validation-for="AllowanceID" class="text-danger"></span> *@
             </div>
             <div>
                 <label asp-for="DeductionID" class="control-label">Deduction</label>
                 <select asp-for="DeductionID" class="form-control" asp-items="ViewBag.DeductionID"></select>
-                <span asp-validation-for="Query" class="text-danger"></span>
+                @* <span asp-validation-for="DeductionID" class="text-danger"></span> *@
             </div>
     </div>
             <div class="col-md-10">
             <div class="form-group">
+                    <label asp-for="Query" class="control-label"></label>
                     @if (ViewData.ModelMetadata.Properties.FirstOrDefault(p => p.PropertyName == "Query")?.IsRequired == true)
                     {
                         <span class="text-danger">*</span>  <!-- Asterisk for required fields -->
                     }
-                <label asp-for="Query" class="control-label"></label>
                 <textarea asp-for="Query" class="form-control" rows="10" ></textarea>
                 <span asp-validation-for="Query" class="text-danger"></span>
             </div>
@@ -57,7 +56,6 @@
                 </div>
             </div>
             <div id="queryParamList" style="margin-top:8px;">
-
                 @if (Model != null && Model.EAndDSettingParams.Count > 0)
                 {
                 int i = 0;
@@ -71,12 +69,12 @@
             </div>
         </div>
 </div>
+    <br>
+    <div class="form-group">
+        <input type="submit" value="Create" class="btn btn-primary" />
+        <a asp-action="Index">Back to List</a>
+    </div>
 </form>
-<br>
-<div class="form-group">
-    <input type="submit" value="Create" class="btn btn-primary" />
-    <a asp-action="Index">Back to List</a>
-</div>
 
 <script>
     $(document).ready(function () {
@@ -102,7 +100,5 @@
                 index++;
             });
         })
-    });
-
-    
+    });    
 </script>

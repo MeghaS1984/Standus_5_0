@@ -7,6 +7,8 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Standus_5_0.Areas.HumanResource.Models;
 using Standus_5_0.Data;
+using Standus_5_0.Enums;
+using Standus_5_0.Services;
 
 namespace Standus_5_0.Areas.HumanResource.Controllers
 {
@@ -45,6 +47,7 @@ namespace Standus_5_0.Areas.HumanResource.Controllers
         }
 
         // GET: HumanResource/AttendanceHeads/Create
+        [HttpGet]
         public IActionResult Create()
         {
             return View();
@@ -55,18 +58,28 @@ namespace Standus_5_0.Areas.HumanResource.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("ID,HeadType,Description,Paid,IsLeave,CarryForward,MaxAllowed,Reimburse,FromDate,ToDate,IsInactive,IsDefault,IsHoliday,IsHalfDay,IsHalfDayLeave,Priority,IsEncashment")] AttendanceHead attendanceHead)
+        public async Task<IActionResult> Create(AttendanceHead attendanceHead)
         {
             if (ModelState.IsValid)
             {
                 _context.Add(attendanceHead);
                 await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
+
+                if (attendanceHead.ID > 0)
+                {
+                    TempData["Alert"] = CommonServices.ShowAlert(Alerts.Success, "Data Saved.");
+                }
+                else
+                {
+                    TempData["Alert"] = CommonServices.ShowAlert(Alerts.Danger, "Unknown error.");
+                }
+                return RedirectToAction(nameof(Create));
             }
             return View(attendanceHead);
         }
 
         // GET: HumanResource/AttendanceHeads/Edit/5
+        [HttpGet]
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
@@ -87,7 +100,7 @@ namespace Standus_5_0.Areas.HumanResource.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("ID,HeadType,Description,Paid,IsLeave,CarryForward,MaxAllowed,Reimburse,FromDate,ToDate,IsInactive,IsDefault,IsHoliday,IsHalfDay,IsHalfDayLeave,Priority,IsEncashment")] AttendanceHead attendanceHead)
+        public async Task<IActionResult> Edit(int id,  AttendanceHead attendanceHead)
         {
             if (id != attendanceHead.ID)
             {
@@ -100,6 +113,16 @@ namespace Standus_5_0.Areas.HumanResource.Controllers
                 {
                     _context.Update(attendanceHead);
                     await _context.SaveChangesAsync();
+
+                    if (attendanceHead.ID > 0)
+                    {
+                        TempData["Alert"] = CommonServices.ShowAlert(Alerts.Success, "Data Saved.");
+                    }
+                    else
+                    {
+                        TempData["Alert"] = CommonServices.ShowAlert(Alerts.Danger, "Unknown error.");
+                    }
+                    return RedirectToAction(nameof(Edit));
                 }
                 catch (DbUpdateConcurrencyException)
                 {
@@ -112,7 +135,6 @@ namespace Standus_5_0.Areas.HumanResource.Controllers
                         throw;
                     }
                 }
-                return RedirectToAction(nameof(Index));
             }
             return View(attendanceHead);
         }
@@ -141,6 +163,15 @@ namespace Standus_5_0.Areas.HumanResource.Controllers
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             var attendanceHead = await _context.AttendanceHead.FindAsync(id);
+
+            var dailyAttendance = _context.AttendanceDetails.Where(h => h.Half1 == id || h.Half2 == id).FirstOrDefault();
+
+            if (dailyAttendance != null)
+            {
+                TempData["Alert"] = CommonServices.ShowAlert(Alerts.Danger, attendanceHead.HeadType +  " is in use. Select Inactivate !");
+                return RedirectToAction(nameof(Delete));
+            }
+            
             if (attendanceHead != null)
             {
                 _context.AttendanceHead.Remove(attendanceHead);

@@ -10,7 +10,7 @@
     <link rel="stylesheet" href="~/css/menu_items.css" asp-append-version="true">
     <!-- Include jQuery from CDN -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-
+    <script src="~/js/site.js"></script>
 </head>
 <body>
     <div class="sticky-top">
@@ -70,7 +70,7 @@
 
         // Call the Index action to get the partial view (menu items)
         $.ajax({
-            url: '../../appsetup/menus/MenuList', // Change "Home" to your controller's name if needed
+            url: '/appsetup/menus/MenuList', // Change "Home" to your controller's name if needed
             type: 'GET',
             data: { ModuleName: 'Human Resource' }, // Pass the ModuleName here
             success: function (result) {

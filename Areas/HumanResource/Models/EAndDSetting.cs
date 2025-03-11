@@ -2,6 +2,9 @@
 using Standus_5_0.Data;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Runtime.InteropServices;
+using System.Runtime.Serialization;
+using Standus_5_0.ValidationAttributes;
 
 namespace Standus_5_0.Areas.HumanResource.Models
 {
@@ -15,7 +18,9 @@ namespace Standus_5_0.Areas.HumanResource.Models
         public int? AllowanceID { get; set; }
         public int? DeductionID { get; set; }
 
+        [EAndDValidation()]
         public Allowance Allowance { get; set; }
+        [EAndDValidation()]
         public Deduction Deduction { get; set; }
         public virtual ICollection<EAndDSettingParam> EAndDSettingParams { get; set; } = new List<EAndDSettingParam>();
     }

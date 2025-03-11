@@ -5,16 +5,28 @@
     Layout = "~/Areas/HumanResource/Views/Shared/_Layout.cshtml";
 }
 
-<h1>Index</h1>
 
-<p>
-    <a asp-action="Create">Create New</a>
-</p>
-<table class="table">
+<div class="flex-header-container">
+    <div>
+        <h5>Allowance And Deduction Settings</h5>
+    </div>
+
+    <div>
+        <a asp-action="Create">Create New</a>
+    </div>
+</div>
+
+<table class="table table-striped">
     <thead>
         <tr>
             <th>
                 @Html.DisplayNameFor(model => model.Query)
+            </th>
+            <th>
+                Allowance
+            </th>
+            <th>
+                Deductions
             </th>
             <th></th>
         </tr>
@@ -24,6 +36,12 @@
         <tr>
             <td>
                 @Html.DisplayFor(modelItem => item.Query)
+            </td>
+            <td>
+                @item.Allowance?.Name  
+            </td>
+            <td>
+                @item.Deduction?.Name
             </td>
             <td>
                 <a asp-action="Edit" asp-route-id="@item.ID">Edit</a> |

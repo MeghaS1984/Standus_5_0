@@ -146,8 +146,7 @@ a {
 
 .text-danger {
     color:red;
-    font-size:20px;
-    margin-top:20px;
+    font-size:14px;
 }
 
 .input-container {
@@ -166,3 +165,27 @@ a {
     color: red; /* You can customize the color for the 'X' */
     font-weight: bold; /* Optionally make the 'X' bold */
 }
+
+/*@keyframes fadeInOut {
+    0% {
+        opacity: 0;
+    }
+
+    50% {
+        opacity: 1;
+    }
+
+    100% {
+        opacity: 0;
+    }
+}*/
+
+#alert {
+    position:fixed;
+    bottom:0px;
+    right:30px;
+    z-index:1001;
+    width:300px;
+    /*animation:fadeInOut 4s normal ;*/
+}
+

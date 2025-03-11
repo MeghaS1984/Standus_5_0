@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using Standus_5_0.Areas.HumanResource.Models;
 using Standus_5_0.Data;
 using Standus_5_0.Enums;
@@ -25,7 +26,7 @@ namespace Standus_5_0.Areas.HumanResource.Controllers
         // GET: HumanResource/EAndDSettings
         public async Task<IActionResult> Index()
         {
-            return View(await _context.EAndDSetting.ToListAsync());
+            return View(await _context.EAndDSetting.Include(e => e.Allowance).Include(d=> d.Deduction).ToListAsync());
         }
 
         // GET: HumanResource/EAndDSettings/Details/5
@@ -37,6 +38,7 @@ namespace Standus_5_0.Areas.HumanResource.Controllers
             }
 
             var eAndDSetting = await _context.EAndDSetting
+                .Include(e => e.Allowance).Include(f => f.Deduction).Include(p => p.EAndDSettingParams)
                 .FirstOrDefaultAsync(m => m.ID == id);
             if (eAndDSetting == null)
             {
@@ -50,9 +52,19 @@ namespace Standus_5_0.Areas.HumanResource.Controllers
         [HttpGet]
         public IActionResult Create()
         {
+            DisplayEAndD(new EAndDSetting());
+            return View();
+        }
+
+        public void DisplayEAndD(EAndDSetting model)
+        {
+
+            int selectedEID = model ?.AllowanceID ?? 0;
+            int SelectedDID = model?.DeductionID ?? 0;
+
             var items = new List<SelectListItem>
-            {
-                new SelectListItem{ Text = "--Select Allowance--", Value = "0" }
+                        {
+                            new SelectListItem{ Text = "Select Allowance", Value = "0" }
             };
 
             items.AddRange(_context.Allowance.Select(a => new SelectListItem
@@ -61,16 +73,16 @@ namespace Standus_5_0.Areas.HumanResource.Controllers
                 Value = a.ID.ToString()
             }));
 
-            ViewData["AllowanceID"] = new SelectList(items, "Value", "Text");
+            ViewData["AllowanceID"] = new SelectList(items, "Value", "Text",selectedEID);
 
-            items = new List<SelectListItem> { new SelectListItem { Text = "Select Deduction" , Value = "0" } };
-            items.AddRange(_context.Deduction.Select(a => new SelectListItem{ 
+            items = new List<SelectListItem> { new SelectListItem { Text = "Select Deduction", Value = "0" } };
+            items.AddRange(_context.Deduction.Select(a => new SelectListItem
+            {
                 Text = a.Name,
-                Value = a.ID.ToString() 
+                Value = a.ID.ToString()
             }));
 
-            ViewData["DeductionID"] = new SelectList(items,"Value", "Text");
-            return View();
+            ViewData["DeductionID"] = new SelectList(items, "Value", "Text", SelectedDID );
         }
 
         // POST: HumanResource/EAndDSettings/Create
@@ -80,17 +92,44 @@ namespace Standus_5_0.Areas.HumanResource.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(EAndDSetting model)
         {
-            
+
+            bool isError = false;
+
+            ModelState.Remove("Allowance");
+            ModelState.Remove("Deduction");
+
+            if (model.AllowanceID > 0 && model.DeductionID > 0)
+            {
+                ModelState.AddModelError("AllowanceID", "Select Allowance or Deduction.");
+                isError = true;
+            }
+            else if (model.AllowanceID == 0 && model.DeductionID == 0)
+            {
+                ModelState.AddModelError("AllowanceID", "Select Allowance or Deduction.");
+                isError = true;
+            }
+
+            if (isError)
+            {
+                //return View(model);
+                DisplayEAndD(new EAndDSetting());
+                return View(model);
+            }
+
             if (ModelState.IsValid)
             {
-                if (model.AllowanceID > 0 && model.DeductionID > 0) {
-                    ModelState.AddModelError("AllowanceID","Select Allowance or Deduction.");
-                }
-                // Create the parent entity
+            
+                          // Create the parent entity
                 var eAndDSetting = new EAndDSetting
                 {
                     Query = model.Query,
+                    AllowanceID = model.AllowanceID,
+                    DeductionID = model.DeductionID
                 };
+
+                if (model.EAndDSettingParams == null) {
+                    model.EAndDSettingParams = new List<EAndDSettingParam>();
+                }
 
                 // Loop through the query parameters and ensure each one is treated as a new entity
                 foreach (var queryParam in model.EAndDSettingParams)
@@ -109,6 +148,8 @@ namespace Standus_5_0.Areas.HumanResource.Controllers
                 // Add the parent entity to the context
                 _context.EAndDSetting.Add(eAndDSetting);
 
+                await _context.SaveChangesAsync();
+
                 if (eAndDSetting.ID > 0)
                 {
                     TempData["Alert"] = CommonServices.ShowAlert(Alerts.Success, "Data Saved.");
@@ -118,14 +159,12 @@ namespace Standus_5_0.Areas.HumanResource.Controllers
                     TempData["Alert"] = CommonServices.ShowAlert(Alerts.Danger, "Unknown error.");
                 }
                 // Save changes to the database
-                await _context.SaveChangesAsync();
 
-                return RedirectToAction(nameof(Index));  // Redirect after saving
+            //return RedirectToAction(nameof(Index));  // Redirect after saving
+                return RedirectToAction(nameof(Create));
             }
-            else
-            {
-                TempData["Alert"] = CommonServices.ShowAlert(Alerts.Danger, "Unknown error");
-            }
+            
+            DisplayEAndD(new EAndDSetting());
             return View(model);  // Return view if model is not valid
         }
 
@@ -141,10 +180,19 @@ namespace Standus_5_0.Areas.HumanResource.Controllers
             }
 
             var eAndDSetting = await _context.EAndDSetting.FindAsync(id);
+
+            
+            //if (eAndDSetting.EAndDSettingParams == null || eAndDSetting.EAndDSettingParams.Count == 0)
+            //{
+            //    eAndDSetting.EAndDSettingParams = new List<EAndDSettingParam>();
+            //    eAndDSetting.EAndDSettingParams.Add(new EAndDSettingParam { QueryParam = "" });
+            //}
+
             if (eAndDSetting == null)
             {
                 return NotFound();
             }
+            DisplayEAndD(eAndDSetting);
             return View(eAndDSetting);
         }
 
@@ -153,8 +201,32 @@ namespace Standus_5_0.Areas.HumanResource.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("ID,Query")] EAndDSetting eAndDSetting)
+        public async Task<IActionResult> Edit(int id,  EAndDSetting eAndDSetting)
         {
+
+            bool isError = false;
+
+            ModelState.Remove("Allowance");
+            ModelState.Remove("Deduction");
+
+            if (eAndDSetting.AllowanceID > 0 && eAndDSetting.DeductionID > 0)
+            {
+                ModelState.AddModelError("AllowanceID", "Select Allowance or Deduction.");
+                isError = true;
+            }
+            else if (eAndDSetting.AllowanceID == 0 && eAndDSetting.DeductionID == 0)
+            {
+                ModelState.AddModelError("AllowanceID", "Select Allowance or Deduction.");
+                isError = true;
+            }
+
+            if (isError)
+            {
+                //return View(model);
+                DisplayEAndD(new EAndDSetting());
+                return View(eAndDSetting);
+            }
+
             if (id != eAndDSetting.ID)
             {
                 return NotFound();
@@ -164,8 +236,23 @@ namespace Standus_5_0.Areas.HumanResource.Controllers
             {
                 try
                 {
+                    int qid = id;
+                    var EAndDParams = _context.EAndDSettingParam.Where(p => p.QueryId == qid);
+
+                    _context.EAndDSettingParam.RemoveRange(EAndDParams);
+
                     _context.Update(eAndDSetting);
                     await _context.SaveChangesAsync();
+
+                    if (eAndDSetting.ID > 0)
+                    {
+                        TempData["Alert"] = CommonServices.ShowAlert(Alerts.Success, "Data Saved.");
+                    }
+                    else
+                    {
+                        TempData["Alert"] = CommonServices.ShowAlert(Alerts.Danger, "Unknown error.");
+                    }
+                    // Save changes to the database
                 }
                 catch (DbUpdateConcurrencyException)
                 {
@@ -178,8 +265,10 @@ namespace Standus_5_0.Areas.HumanResource.Controllers
                         throw;
                     }
                 }
-                return RedirectToAction(nameof(Index));
+                DisplayEAndD(new EAndDSetting());
+                return RedirectToAction(nameof(Edit));
             }
+            
             return View(eAndDSetting);
         }
 
@@ -192,7 +281,9 @@ namespace Standus_5_0.Areas.HumanResource.Controllers
             }
 
             var eAndDSetting = await _context.EAndDSetting
+                .Include(e => e.Allowance).Include(f => f.Deduction).Include(p => p.EAndDSettingParams)
                 .FirstOrDefaultAsync(m => m.ID == id);
+
             if (eAndDSetting == null)
             {
                 return NotFound();

@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using Standus_5_0.Areas.AppSetup.Models;
 using Standus_5_0.Areas.HumanResource.Models;
 using System.Reflection.Emit;
+using YourNamespace.Models;
 
 namespace Standus_5_0.Data
 {
@@ -45,7 +46,8 @@ namespace Standus_5_0.Data
             modelBuilder.Entity<LoanSchedule>().HasKey(ck => new { ck.SanctionID });
             modelBuilder.Entity<SlabDeductionExclude>().HasKey(ck => new { ck.EmployeeID , ck.DeductionID });
             modelBuilder.Entity<IncentiveSetting>().HasKey(ck => new { ck.EmployeeID });
-            
+            modelBuilder.Entity<AttendanceDetails>().HasNoKey();
+
             base.OnModelCreating(modelBuilder);
         }
         public DbSet<Standus_5_0.Areas.HumanResource.Models.Allowance> Allowance { get; set; } = default!;
@@ -75,8 +77,10 @@ namespace Standus_5_0.Data
         public DbSet<PaySheetSetting> paySheetSetting { get; set; } = default!;
 
         public DbSet<PaySheetSummarySetting> PaySheetSummarySetting { get; set; } = default!;
-        public DbSet<EAndDSetting> EAndDSetting { get; set; }
-        public DbSet<EAndDSettingParam> EAndDSettingParam { get; set; }
+        public DbSet<EAndDSetting> EAndDSetting { get; set; } = default!;
+        public DbSet<EAndDSettingParam> EAndDSettingParam { get; set; } = default!;
+
+        public DbSet<AttendanceDetails> AttendanceDetails { get; set; } = default!;
     }
 
     
