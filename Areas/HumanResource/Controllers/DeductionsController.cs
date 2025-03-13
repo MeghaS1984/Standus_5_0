@@ -7,6 +7,9 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Standus_5_0.Areas.HumanResource.Models;
 using Standus_5_0.Data;
+using Standus_5_0.Enums;
+using Standus_5_0.Migrations.Allowance;
+using Standus_5_0.Services;
 
 namespace Standus_5_0.Areas.HumanResource.Controllers
 {
@@ -61,6 +64,7 @@ namespace Standus_5_0.Areas.HumanResource.Controllers
         }
 
         // GET: HumanResource/Deductions/Create
+        [HttpGet]
         public IActionResult Create()
         {
             return View();
@@ -71,18 +75,27 @@ namespace Standus_5_0.Areas.HumanResource.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("ID,Name,Description,Period,CutOffType,CutOff,RoundOf,Month,Day,Variable,AccountID,OnYearlyIncome,PayRollSlNo,InActive,Fixed,DebitTo,CreditTo,EmployerDebitTo")] Deduction deduction)
+        public async Task<IActionResult> Create(Deduction deduction)
         {
             if (ModelState.IsValid)
             {
                 _context.Add(deduction);
                 await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
+                if (deduction.ID > 0)
+                {
+                    TempData["Alert"] = CommonServices.ShowAlert(Alerts.Success, "Data Saved.");
+                }
+                else
+                {
+                    TempData["Alert"] = CommonServices.ShowAlert(Alerts.Danger, "Unknown error.");
+                }
+                return RedirectToAction(nameof(Create));
             }
             return View(deduction);
         }
 
         // GET: HumanResource/Deductions/Edit/5
+        [HttpGet]
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
@@ -116,6 +129,16 @@ namespace Standus_5_0.Areas.HumanResource.Controllers
                 {
                     _context.Update(deduction);
                     await _context.SaveChangesAsync();
+
+                    if (deduction.ID > 0)
+                    {
+                        TempData["Alert"] = CommonServices.ShowAlert(Alerts.Success, "Data Saved.");
+                    }
+                    else
+                    {
+                        TempData["Alert"] = CommonServices.ShowAlert(Alerts.Danger, "Unknown error.");
+                    }
+                    return RedirectToAction(nameof(Edit));
                 }
                 catch (DbUpdateConcurrencyException)
                 {
@@ -128,7 +151,6 @@ namespace Standus_5_0.Areas.HumanResource.Controllers
                         throw;
                     }
                 }
-                return RedirectToAction(nameof(Index));
             }
             return View(deduction);
         }
@@ -157,6 +179,14 @@ namespace Standus_5_0.Areas.HumanResource.Controllers
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             var deduction = await _context.Deduction.FindAsync(id);
+
+            var slab = _context.Slab.FirstOrDefault(f => f.DeductionID == id);
+
+            if (slab != null)
+            {
+                TempData["Alert"] = CommonServices.ShowAlert(Alerts.Danger, deduction.Name + " is in use. Select Inactivate !");
+                return RedirectToAction(nameof(Delete));
+            }
             if (deduction != null)
             {
                 _context.Deduction.Remove(deduction);

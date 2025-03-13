@@ -11,8 +11,9 @@ using System.Text;
 using System.Threading.Tasks;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.ComponentModel;
 namespace Standus_5_0.Areas.HumanResource.Models
-{   
+{
 
     [Table("Holidays")]
     public class Holidays
@@ -20,12 +21,21 @@ namespace Standus_5_0.Areas.HumanResource.Models
         [Key]
         [Column("HolidayID")]
         public int ID { get; set; }
+        [Required]
         [Column("Date")]
-        public string sDate { get; set; }
+        [DisplayName("Date")]
+        [DataType(DataType.Date)]
+        public DateTime  sDate { get; set; }
         public string Reason { get; set; }
-        public string Reminder { get; set; }
+        [Required]
+        [DisplayName("Date")]
+        [DataType(DataType.Date)]
+        public DateTime Reminder { get; set; }
         public bool Paid { get; set; }
+        [DisplayName("Attendance Head")]
         public int HeadID { get; set; }
+
+        public AttendanceHead Head { get; set; }
     }
 
 }

@@ -1,4 +1,7 @@
-﻿namespace Standus_5_0.Areas.HumanResource.Models
+﻿using Microsoft.EntityFrameworkCore;
+using Standus_5_0.Areas.HumanResource.Models;
+
+namespace Standus_5_0.Areas.HumanResource.Models
 {
     using System;
     using System.ComponentModel.DataAnnotations;
@@ -11,15 +14,15 @@
         [Column("AllowanceID")]
         public int ID { get; set; }
 
-        [Required]
-        [StringLength(100)]
+        //[Required]
+        //[StringLength(100)]
         public string? Name { get; set; }
 
         [StringLength(500)]
         public string? Description { get; set; }
 
-        [Required]
-        [StringLength(50)]
+        //[Required]
+        //[StringLength(50)]
         public string? CutOffType { get; set; }
 
         public string? Period { get; set; } // Period can be stored as string, modify type as necessary
@@ -32,7 +35,7 @@
 
         public decimal? CutOff { get; set; }
 
-        public String? RoundOf { get; set; }
+        public String? RoundOff { get; set; }
 
         public int? AccountID { get; set; }
 
@@ -48,9 +51,9 @@
 
         public bool Fixed { get; set; }
 
-        public int DebitTo { get; set; }
+        public int? DebitTo { get; set; }
 
-        public int CreditTo { get; set; }
+        public int? CreditTo { get; set; }
 
         //// Navigation property for Account
         //[ForeignKey("AccountID")]
@@ -69,4 +72,10 @@
         public Employee? EmployeeDetails { get; set; }
     }
 
+}
+
+public class AllowanceContext : DbContext { 
+    public AllowanceContext(DbContextOptions option) : base(option) { }
+
+    public DbSet<Allowance> Allowance { get; set; } = default!;
 }

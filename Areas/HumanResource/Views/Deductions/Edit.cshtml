@@ -2,111 +2,73 @@
 
 @{
     ViewData["Title"] = "Edit";
-    Layout = "~/Views/Shared/_Layout.cshtml";
+    Layout = "~/Areas/HumanResource/Views/Shared/_Layout.cshtml";
 }
 
-<h1>Edit</h1>
-
-<h4>Deduction</h4>
-<hr />
 <div class="row">
-    <div class="col-md-4">
-        <form asp-action="Edit">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <input type="hidden" asp-for="ID" />
-            <div class="form-group">
-                <label asp-for="Name" class="control-label"></label>
-                <input asp-for="Name" class="form-control" />
-                <span asp-validation-for="Name" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Description" class="control-label"></label>
-                <input asp-for="Description" class="form-control" />
-                <span asp-validation-for="Description" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Period" class="control-label"></label>
-                <input asp-for="Period" class="form-control" />
-                <span asp-validation-for="Period" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="CutOffType" class="control-label"></label>
-                <input asp-for="CutOffType" class="form-control" />
-                <span asp-validation-for="CutOffType" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="CutOff" class="control-label"></label>
-                <input asp-for="CutOff" class="form-control" />
-                <span asp-validation-for="CutOff" class="text-danger"></span>
-            </div>
-            <div class="form-group form-check">
-                <label class="form-check-label">
-                    <input class="form-check-input" asp-for="RoundOf" /> @Html.DisplayNameFor(model => model.RoundOf)
-                </label>
-            </div>
-            <div class="form-group">
-                <label asp-for="Month" class="control-label"></label>
-                <input asp-for="Month" class="form-control" />
-                <span asp-validation-for="Month" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Day" class="control-label"></label>
-                <input asp-for="Day" class="form-control" />
-                <span asp-validation-for="Day" class="text-danger"></span>
-            </div>
-            <div class="form-group form-check">
-                <label class="form-check-label">
-                    <input class="form-check-input" asp-for="Variable" /> @Html.DisplayNameFor(model => model.Variable)
-                </label>
-            </div>
-            <div class="form-group">
-                <label asp-for="AccountID" class="control-label"></label>
-                <input asp-for="AccountID" class="form-control" />
-                <span asp-validation-for="AccountID" class="text-danger"></span>
-            </div>
-            <div class="form-group form-check">
-                <label class="form-check-label">
-                    <input class="form-check-input" asp-for="OnYearlyIncome" /> @Html.DisplayNameFor(model => model.OnYearlyIncome)
-                </label>
-            </div>
-            <div class="form-group">
-                <label asp-for="PayRollSlNo" class="control-label"></label>
-                <input asp-for="PayRollSlNo" class="form-control" />
-                <span asp-validation-for="PayRollSlNo" class="text-danger"></span>
-            </div>
-            <div class="form-group form-check">
-                <label class="form-check-label">
-                    <input class="form-check-input" asp-for="InActive" /> @Html.DisplayNameFor(model => model.InActive)
-                </label>
-            </div>
-            <div class="form-group form-check">
-                <label class="form-check-label">
-                    <input class="form-check-input" asp-for="Fixed" /> @Html.DisplayNameFor(model => model.Fixed)
-                </label>
-            </div>
-            <div class="form-group">
-                <label asp-for="DebitTo" class="control-label"></label>
-                <input asp-for="DebitTo" class="form-control" />
-                <span asp-validation-for="DebitTo" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="CreditTo" class="control-label"></label>
-                <input asp-for="CreditTo" class="form-control" />
-                <span asp-validation-for="CreditTo" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="EmployerDebitTo" class="control-label"></label>
-                <input asp-for="EmployerDebitTo" class="form-control" />
-                <span asp-validation-for="EmployerDebitTo" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <input type="submit" value="Save" class="btn btn-primary" />
-            </div>
-        </form>
+    <div class="col-md-12">
+        <div class="form-group">
+            @Html.Raw(@TempData["Alert"])
+        </div>
     </div>
 </div>
 
-<div>
-    <a asp-action="Index">Back to List</a>
-</div>
+<h5>Edit Deduction</h5>
+<hr />
+<form asp-action="Edit">
+    <div class="standard-row-container">
+        <div class="row" style="width:60%">
+            <div class="col-md-6">
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                <div class="form-group">
+                    <label asp-for="Name" class="control-label"></label>
+                    <input asp-for="Name" class="form-control" />
+                    <span asp-validation-for="Name" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="Description" class="control-label"></label>
+                    <input asp-for="Description" class="form-control" />
+                    <span asp-validation-for="Description" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="PayRollSlNo" class="control-label"></label>
+                    <input asp-for="PayRollSlNo" class="form-control" />
+                    <span asp-validation-for="PayRollSlNo" class="text-danger"></span>
+                </div>
+            </div>
+        </div>
+
+        <div class="row" style="width:30%">
+            <div class="col-md-8">
+                <div class="form-group form-check">
+                    <label class="form-check-label">
+                        <input class="form-check-input" asp-for="RoundOff" /> @Html.DisplayNameFor(model => model.RoundOff)
+                    </label>
+                </div>
+                <div class="form-group form-check">
+                    <label class="form-check-label">
+                        <input class="form-check-input" asp-for="OnYearlyIncome" /> @Html.DisplayNameFor(model => model.OnYearlyIncome)
+                    </label>
+                </div>
+
+                <div class="form-group form-check">
+                    <label class="form-check-label">
+                        <input class="form-check-input" asp-for="Fixed" /> @Html.DisplayNameFor(model => model.Fixed)
+                    </label>
+                </div>
+                <div class="form-group form-check">
+                    <label class="form-check-label">
+                        <input class="form-check-input" asp-for="InActive" /> @Html.DisplayNameFor(model => model.InActive)
+                    </label>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <br>
+    <div class="form-group">
+        <input type="submit" value="Save" class="btn btn-primary" /> |
+        <a asp-action="Index">Back to List</a>
+    </div>
+</form>
 

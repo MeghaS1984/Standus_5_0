@@ -29,15 +29,12 @@ namespace Standus_5_0.Data
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             // This configures the inheritance with a discriminator column to distinguish Employee and BankDetails
-            //modelBuilder.Entity<Employee>()
-            //    .HasDiscriminator<string>("Discriminator")
-            //    .HasValue<Employee>("Employee")
-            //    .HasValue<EmployementDetails>("EmployementDetails")
-            //    .HasValue<BankDetails>("BankDetails");
-
-            modelBuilder.Entity<EmployementDetails>();
-            modelBuilder.Entity<BankDetails>();
-            modelBuilder.Entity<Resigned>();
+            modelBuilder.Entity<Employee>()
+                .HasDiscriminator<string>("Discriminator")
+                .HasValue<EmployementDetails>("EmployementDetails")
+                .HasValue<BankDetails>("BankDetails") ;
+            
+            
 
             modelBuilder.Entity<SlabCategory>().HasKey(ck => new { ck.SlabID ,ck.CategoryID});
             modelBuilder.Entity<StandardDeduction>().HasKey(ck => new  { ck.EmployeeID, ck.DeductionID });
@@ -58,7 +55,7 @@ namespace Standus_5_0.Data
         public DbSet<Standus_5_0.Areas.HumanResource.Models.Grade> Grade { get; set; } = default!;
         public DbSet<Standus_5_0.Areas.HumanResource.Models.Holidays> Holidays { get; set; } = default!;
         public DbSet<Standus_5_0.Areas.HumanResource.Models.LeaveApplication> LeaveApplication { get; set; } = default!;
-        public DbSet<Standus_5_0.Areas.HumanResource.Models.LeaveAllocation> LeaveAllocation { get; set; } = default!;
+        public DbSet<Standus_5_0.Areas.HumanResource.Models.LeaveAllocationDetails> LeaveAllocationDetails { get; set; } = default!;
         public DbSet<Standus_5_0.Areas.AppSetup.Models.Menu> Menu { get; set; } = default!;
         public DbSet<Standus_5_0.Areas.HumanResource.Models.Slab> Slab { get; set; } = default!;
         public DbSet<Standus_5_0.Areas.HumanResource.Models.SlabCategory> SlabCategory { get; set; } = default!;

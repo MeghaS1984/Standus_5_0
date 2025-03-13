@@ -2,12 +2,18 @@
 
 @{
     ViewData["Title"] = "Create";
-    Layout = "~/Views/Shared/_Layout.cshtml";
+    Layout = "~/Areas/HumanResource/Views/Shared/_Layout.cshtml";
 }
 
-<h1>Create</h1>
+<div class="row">
+    <div class="col-md-12">
+        <div class="form-group">
+             @Html.Raw(@TempData["Alert"]) 
+        </div>
+    </div>
+</div>
 
-<h4>Holidays</h4>
+<h5>Holidays</h5>
 <hr />
 <div class="row">
     <div class="col-md-4">
@@ -35,17 +41,50 @@
             </div>
             <div class="form-group">
                 <label asp-for="HeadID" class="control-label"></label>
-                <input asp-for="HeadID" class="form-control" />
-                <span asp-validation-for="HeadID" class="text-danger"></span>
+                <Select asp-for="HeadID" class="form-control" asp-items="ViewBag.HeadID"></Select>
+                <span asp-validation-for="HeadID" class="text-danger" ></span>
             </div>
+            <br>
             <div class="form-group">
-                <input type="submit" value="Create" class="btn btn-primary" />
+                <input type="submit" value="Create" class="btn btn-primary" /> |
+                    <a asp-action="Index">Back to List</a>
             </div>
         </form>
     </div>
 </div>
 
-<div>
-    <a asp-action="Index">Back to List</a>
-</div>
+<script>
+    $(document).ready(function () {
 
+        // Set headid disabled
+
+        $("#HeadID").prop('readonly',true);
+
+        // Set the current date as default in the date input
+        let currentDate = new Date().toISOString().split('T')[0];
+        $("#sDate").val(currentDate);
+
+        currentDate = new Date();
+        currentDate.setDate(currentDate.getDate()-1);
+        $("#Reminder").val(currentDate.toISOString().split('T')[0]);
+
+        //$("#Reminder").css('disabled','disabled');
+        // Add focus event to the date input field
+
+        $('#sDate').on('change', function (event) {
+            let date = new Date($("#sDate").val());
+
+            // Subtract 1 day from the current date
+            date.setDate(date.getDate() - 1);
+
+            // Format the date to YYYY-MM-DD (for the input type="date")
+            let formattedDate = date.toISOString().split('T')[0];
+
+            // Set the value of the date input to the new date (previous day)
+            $("#Reminder").val(formattedDate);
+        });
+    });
+
+
+    
+</script>

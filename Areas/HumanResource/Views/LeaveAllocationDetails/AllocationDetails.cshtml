@@ -1,0 +1,69 @@
+﻿@model IEnumerable<Standus_5_0.Areas.HumanResource.Models.LeaveAllocationWithUsage>
+
+<div class="flex-header-container">
+    <div>
+        <h5>Accrual Details</h5>
+    </div>
+
+    <div>
+        <a href="/HumanResource/AttendanceHeads/LeaveTypes">Back to Leave Accrual</a>
+    </div>
+</div>
+<hr />
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.Allocation.Employee.Name)
+            </th>
+            <th>
+                Start Date
+            </th>
+            <th>
+                End Date
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Allocation.Days)
+            </th>
+            <th>
+                Used
+            </th>
+            <th>
+                Balance
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <form asp-action="Edit" method="post"> <!-- Ensure POST method for Edit -->
+            <tr>
+                <td>
+                        @Html.DisplayFor(modelItem => item.Allocation.Employee.Name)
+                </td>
+                <td>
+                        @String.Format("{0:dd-MM-yyyy}", item.Allocation.StartDate)
+                </td>
+                <td>
+                        @String.Format("{0:dd-MM-yyyy}", item.Allocation.EndDate)
+                </td>
+                <td>
+                    <!-- Add the name attribute for correct binding -->
+                    <input type="text" name="Days" value="@item.Allocation.Days" />
+                    <input type="hidden" name="ID" value="@item.Allocation.ID" />
+                </td>
+                <td>
+                        @item.Used 
+                </td>
+                <td>
+                        @item.Balance 
+                </td>
+                <td>
+                    <input type="submit" value="Save" class="btn btn-primary" />
+                </td>
+            </tr>
+            </form>
+        }
+    </tbody>
+</table>

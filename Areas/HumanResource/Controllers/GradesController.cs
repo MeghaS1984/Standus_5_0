@@ -7,6 +7,9 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Standus_5_0.Areas.HumanResource.Models;
 using Standus_5_0.Data;
+using Standus_5_0.Enums;
+using Standus_5_0.Migrations.Allowance;
+using Standus_5_0.Services;
 
 namespace Standus_5_0.Areas.HumanResource.Controllers
 {
@@ -45,6 +48,7 @@ namespace Standus_5_0.Areas.HumanResource.Controllers
         }
 
         // GET: HumanResource/Grades/Create
+        [HttpGet]
         public IActionResult Create()
         {
             return View();
@@ -61,12 +65,21 @@ namespace Standus_5_0.Areas.HumanResource.Controllers
             {
                 _context.Add(grade);
                 await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
+                if (grade.ID > 0)
+                {
+                    TempData["Alert"] = CommonServices.ShowAlert(Alerts.Success, "Data Saved.");
+                }
+                else
+                {
+                    TempData["Alert"] = CommonServices.ShowAlert(Alerts.Danger, "Unknown error.");
+                }
+                return RedirectToAction(nameof(Create)); ;
             }
             return View(grade);
         }
 
         // GET: HumanResource/Grades/Edit/5
+        [HttpGet]
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
@@ -100,6 +113,16 @@ namespace Standus_5_0.Areas.HumanResource.Controllers
                 {
                     _context.Update(grade);
                     await _context.SaveChangesAsync();
+
+                    if (grade.ID > 0)
+                    {
+                        TempData["Alert"] = CommonServices.ShowAlert(Alerts.Success, "Data Saved.");
+                    }
+                    else
+                    {
+                        TempData["Alert"] = CommonServices.ShowAlert(Alerts.Danger, "Unknown error.");
+                    }
+                    return RedirectToAction(nameof(Create));
                 }
                 catch (DbUpdateConcurrencyException)
                 {
@@ -141,6 +164,15 @@ namespace Standus_5_0.Areas.HumanResource.Controllers
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             var grade = await _context.Grade.FindAsync(id);
+
+            var empl = _context.Employee.OfType<EmployementDetails>().FirstOrDefault(f => f.GradeID == id);
+
+            if (empl != null)
+            {
+                TempData["Alert"] = CommonServices.ShowAlert(Alerts.Danger, grade.GradeName + " is in use. Select Inactivate !");
+                return RedirectToAction(nameof(Delete));
+            }
+
             if (grade != null)
             {
                 _context.Grade.Remove(grade);

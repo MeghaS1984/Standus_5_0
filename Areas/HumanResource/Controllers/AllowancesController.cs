@@ -9,6 +9,8 @@ using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Standus_5_0.Areas.HumanResource.Models;
 using Standus_5_0.Data;
+using Standus_5_0.Enums;
+using Standus_5_0.Services;
 
 namespace Standus_5_0.Areas.HumanResource.Controllers
 {
@@ -44,6 +46,7 @@ namespace Standus_5_0.Areas.HumanResource.Controllers
             return PartialView("_AllowanceSlabSetup",slabs);
         }
         // GET: HumanResource/Allowances/Details/5
+        
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null)
@@ -62,6 +65,7 @@ namespace Standus_5_0.Areas.HumanResource.Controllers
         }
 
         // GET: HumanResource/Allowances/Create
+        [HttpGet]
         public IActionResult Create()
         {
             return View();
@@ -72,18 +76,35 @@ namespace Standus_5_0.Areas.HumanResource.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("ID,Name,Description,CutOffType,Period,DaysPresent,AuthorisedLeave,GeneralHoliday,CutOff,RoundOf,AccountID,Month,Day,Variable,PayrollSlNO,InActive,Fixed,DebitTo,CreditTo")] Allowance allowance)
+        public async Task<IActionResult> Create(Allowance allowance)
         {
             if (ModelState.IsValid)
             {
+                string allName = _context.Allowance.Where(m => m.ID == allowance.ID).Select(m => m.Name).FirstOrDefault();
+
+                if (allName != null) {
+                    ModelState.AddModelError("Name", "Allwance exists.");
+                    return View(allowance);
+                }
+
                 _context.Add(allowance);
                 await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
+
+                if (allowance.ID > 0)
+                {
+                    TempData["Alert"] = CommonServices.ShowAlert(Alerts.Success, "Data Saved.");
+                }
+                else
+                {
+                    TempData["Alert"] = CommonServices.ShowAlert(Alerts.Danger, "Unknown error.");
+                }
+                return RedirectToAction(nameof(Create));
             }
             return View(allowance);
         }
 
         // GET: HumanResource/Allowances/Edit/5
+        [HttpGet]
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
@@ -104,7 +125,7 @@ namespace Standus_5_0.Areas.HumanResource.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("ID,Name,Description,CutOffType,Period,DaysPresent,AuthorisedLeave,GeneralHoliday,CutOff,RoundOf,AccountID,Month,Day,Variable,PayrollSlNO,InActive,Fixed,DebitTo,CreditTo")] Allowance allowance)
+        public async Task<IActionResult> Edit(int id, Allowance allowance)
         {
             if (id != allowance.ID)
             {
@@ -117,6 +138,16 @@ namespace Standus_5_0.Areas.HumanResource.Controllers
                 {
                     _context.Update(allowance);
                     await _context.SaveChangesAsync();
+
+                    if (allowance.ID > 0)
+                    {
+                        TempData["Alert"] = CommonServices.ShowAlert(Alerts.Success, "Data Saved.");
+                    }
+                    else
+                    {
+                        TempData["Alert"] = CommonServices.ShowAlert(Alerts.Danger, "Unknown error.");
+                    }
+                    return RedirectToAction(nameof(Edit));
                 }
                 catch (DbUpdateConcurrencyException)
                 {
@@ -158,6 +189,15 @@ namespace Standus_5_0.Areas.HumanResource.Controllers
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             var allowance = await _context.Allowance.FindAsync(id);
+
+            var slab = _context.Slab.FirstOrDefault(f => f.AllowanceID == id);
+
+            if (slab != null)
+            {
+                TempData["Alert"] = CommonServices.ShowAlert(Alerts.Danger, allowance.Name  + " is in use. Select Inactivate !");
+                return RedirectToAction(nameof(Delete));
+            }
+
             if (allowance != null)
             {
                 _context.Allowance.Remove(allowance);

@@ -2,12 +2,18 @@
 
 @{
     ViewData["Title"] = "Create";
-    Layout = "~/Views/Shared/_Layout.cshtml";
+    Layout = "~/Areas/HumanResource/Views/Shared/_Layout.cshtml";
 }
 
-<h1>Create</h1>
+<div class="row">
+    <div class="col-md-12">
+        <div class="form-group">
+            @Html.Raw(@TempData["Alert"])
+        </div>
+    </div>
+</div>
 
-<h4>Position</h4>
+<h5>Position</h5>
 <hr />
 <div class="row">
     <div class="col-md-4">
@@ -27,14 +33,13 @@
                 <label asp-for="DepartmentID" class="control-label"></label>
                 <select asp-for="DepartmentID" class ="form-control" asp-items="ViewBag.DepartmentID"></select>
             </div>
+            <br>
             <div class="form-group">
-                <input type="submit" value="Create" class="btn btn-primary" />
+                <input type="submit" value="Create" class="btn btn-primary" /> |
+                <a asp-action="Index">Back to List</a>
             </div>
         </form>
     </div>
 </div>
 
-<div>
-    <a asp-action="Index">Back to List</a>
-</div>
 

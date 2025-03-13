@@ -2,15 +2,20 @@
 
 @{
     ViewData["Title"] = "Index";
-    Layout = "~/Views/Shared/_Layout.cshtml";
+    Layout = "~/Areas/HumanResource/Views/Shared/_Layout.cshtml";
 }
 
-<h1>Index</h1>
+<div class="flex-header-container">
+    <div>
+        <h5>Grades</h5>
+    </div>
 
-<p>
-    <a asp-action="Create">Create New</a>
-</p>
-<table class="table">
+    <div>
+        <a asp-action="Create">Add New Grade</a>
+    </div>
+</div>
+
+<table class="table table-striped">
     <thead>
         <tr>
             <th>

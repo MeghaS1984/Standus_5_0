@@ -5,12 +5,17 @@
     Layout = "~/Areas/HumanResource/Views/Shared/_Layout.cshtml";
 }
 
-<h1>Index</h1>
+<div class="flex-header-container">
+    <div>
+        <h5>Allowance</h5>
+    </div>
 
-<p>
-    <a asp-action="Create">Create New</a>
-</p>
-<table class="table">
+    <div>
+        <a asp-action="Create">Add New Allowance</a>
+    </div>
+</div>
+
+<table class="table table-striped">
     <thead>
         <tr>
             <th>
@@ -20,52 +25,16 @@
                 @Html.DisplayNameFor(model => model.Description)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.CutOffType)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Period)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.DaysPresent)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.AuthorisedLeave)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.GeneralHoliday)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.CutOff)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.RoundOf)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.AccountID)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Month)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Day)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Variable)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.PayrollSlNO)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.InActive)
+                @Html.DisplayNameFor(model => model.RoundOff)
             </th>
             <th>
                 @Html.DisplayNameFor(model => model.Fixed)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.DebitTo)
+               Payroll Rank
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.CreditTo)
+                Inactive
             </th>
             <th></th>
         </tr>
@@ -80,52 +49,19 @@
                 @Html.DisplayFor(modelItem => item.Description)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.CutOffType)
+                @Html.DisplayFor(modelItem => item.RoundOff)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.Period)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.DaysPresent)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.AuthorisedLeave)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.GeneralHoliday)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.CutOff)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.RoundOf)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.AccountID)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Month)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Day)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Variable)
+                    @if (item.Fixed ) { 
+                        <span>Fixed</span> } else  {<span>  </span>}
             </td>
             <td>
                 @Html.DisplayFor(modelItem => item.PayrollSlNO)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.InActive)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Fixed)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.DebitTo)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.CreditTo)
+                    @if (!item.InActive) {
+                    <span style="color:mediumseagreen">Active</span> }
+                    else  {<span style="color:orangered"> Inactive </span>}
             </td>
             <td>
                 <a asp-action="Edit" asp-route-id="@item.ID">Edit</a> |

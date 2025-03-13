@@ -20,7 +20,7 @@ namespace Standus_5_0.Areas.HumanResource.Models
 
 
     [Table("Employee")]
-    public class Employee
+    public abstract class Employee
     {
         [Key]
         public int EmployeeID { get; set; }
@@ -52,14 +52,18 @@ namespace Standus_5_0.Areas.HumanResource.Models
         [Column("DOJ")]
         public DateTime HireDate { get; set; }
         public double? Salary { get; set; }
+        public DateTime? date { get; set; }
+        public int? resigned { get; set; }
         // Foreign Keys
         public int DepartmentID { get; set; }
         [Column("DesignationId")]
         public int PositionID { get; set; }
 
+
         // Navigation Properties
         //[ForeignKey("DepartmentID")]
         // public virtual Department Department { get; set; }
+
         public string? Discriminator { get; set; }
 
         [ForeignKey("PositionID")]

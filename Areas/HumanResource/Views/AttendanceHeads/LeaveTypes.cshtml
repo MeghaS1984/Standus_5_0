@@ -1,0 +1,73 @@
+﻿@model IEnumerable<Standus_5_0.Areas.HumanResource.Models.AttendanceHead>
+
+@{
+    ViewData["Title"] = "Index";
+    Layout = "~/Areas/HumanResource/Views/Shared/_Layout.cshtml";
+}
+
+<div class="flex-header-container">
+    <div>
+        <h5>Leave Accruals</h5>
+    </div>
+
+</div>
+<hr/>
+<table class="table table-striped" style="width:70%;margin:auto auto">
+    <thead>
+        <tr>
+            <th>
+                Head Type
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Description)
+            </th>
+            <th>
+                Calander Year
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model) {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.HeadType)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Description)
+            </td>
+            <td>
+                <input type="text" id="Year_@item.ID" value="@(item.FromDate.Value.Year == 1900 ? "": item.FromDate.Value.Year)">
+                @{
+                        int cYear = item.FromDate.Value.Year ;
+                }
+            </td>
+            <td>
+                <input type="hidden" asp-for="@item.ID">
+                <input type="hidden" value="@item.MaxAllowed" id="max_@item.ID">
+                <a href="javascript:void();" onclick="newAllocation(@item.ID)">New Allocation</a> |
+                <a href="/HumanResource/LeaveAllocationDetails/AllocationDetails?year=2025&headid=@item.ID">Details</a>
+            </td>
+        </tr>
+        }
+    </tbody>
+</table>
+<script>
+    // $(document).ready(function() {
+        
+    // });
+
+    function newAllocation(headid) {
+        let days = $('#max_' + headid).val();
+        let year = $('#Year_' + headid).val();
+        $.ajax({
+            url: '/HumanResource/LeaveAllocationDetails/NewAllocation',
+            type:'GET',
+            data : {year : year , days : days , headid : headid},
+            success : function(result){
+               
+            },
+            error: function (xhr,status,error) {}
+        })
+    }
+</script>

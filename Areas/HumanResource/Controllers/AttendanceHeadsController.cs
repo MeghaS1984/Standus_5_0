@@ -3,12 +3,15 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.DataAnnotations;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.CodeAnalysis.Operations;
 using Microsoft.EntityFrameworkCore;
 using Standus_5_0.Areas.HumanResource.Models;
 using Standus_5_0.Data;
 using Standus_5_0.Enums;
 using Standus_5_0.Services;
+using YourNamespace.Models;
 
 namespace Standus_5_0.Areas.HumanResource.Controllers
 {
@@ -26,6 +29,41 @@ namespace Standus_5_0.Areas.HumanResource.Controllers
         public async Task<IActionResult> Index()
         {
             return View(await _context.AttendanceHead.ToListAsync());
+        }
+
+        public async Task<IActionResult> LeaveTypes()
+        {
+            var years = from accrual in _context.LeaveAllocationDetails
+                        group accrual by accrual.HeadID into accrualGroup
+                        select new
+                        {
+                            HeadId = accrualGroup.Key,  // Group key is the HeadID
+                            cYear = accrualGroup.FirstOrDefault().StartDate
+                        };
+
+            var attendanceHeads = await _context.AttendanceHead
+                .Where(a => a.IsLeave)
+                .ToListAsync();
+
+            // Here, you could merge the `years` projection with the attendanceHeads
+            // For example, create a dictionary or a lookup for the `HeadId` and `cYear` values.
+            var headIdToYearMap = years.ToDictionary(y => y.HeadId, y => y.cYear);
+
+            // Now, if you want to access the year for each AttendanceHead:
+            foreach (var head in attendanceHeads)
+            {
+                if (headIdToYearMap.TryGetValue(head.ID, out var year))
+                {
+                    // You can now use `year` for the corresponding `HeadID` for each `AttendanceHead`.
+                    head.FromDate  = year; // Example: setting a property on AttendanceHead if required.
+                }
+            }
+
+            // Return the view
+            return View(attendanceHeads);
+
+
+            //return View(await _context.AttendanceHead.Where(a => a.IsLeave).ToListAsync());
         }
 
         // GET: HumanResource/AttendanceHeads/Details/5

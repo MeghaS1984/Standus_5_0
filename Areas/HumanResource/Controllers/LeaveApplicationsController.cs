@@ -70,11 +70,11 @@ namespace Standus_5_0.Areas.HumanResource.Controllers
         // GET: HumanResource/LeaveApplications/Create
         public IActionResult Create()
         {
-            var employees = _context.Employee.OfType<Resigned>().Select(e => new {
-                id = e.EmployeeID,
-                name = e.Name,
-                resigned = e.resigned
-            }).Where(f=> f.resigned == 0);
+            //var employees = _context.Employee.OfType<Resigned>().Select(e => new {
+            //    id = e.EmployeeID,
+            //    name = e.Name,
+            //    resigned = e.resigned
+            //}).Where(f=> f.resigned == 0);
 
             ViewData["EmployeeID"] = new SelectList(_context.Employee, "EmployeeID", "Name");
             ViewData["HeadID"] = new SelectList(_context.AttendanceHead, "ID", "HeadType");
