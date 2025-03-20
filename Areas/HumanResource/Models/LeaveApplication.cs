@@ -18,9 +18,8 @@
         [DataType(DataType.Date)]
         public DateTime Date { get; set; }
 
-        public int Days { get; set; }
+        public decimal Days { get; set; }
 
-        [StringLength(500)]
         public string? Description { get; set; }
 
         [DataType(DataType.Date)]
@@ -34,11 +33,11 @@
 
         public string? status { get; set; } 
         public string? comment { get; set; }
-        public int cancel {  get; set; }
+        public bool? cancel {  get; set; }
 
-        public int approverid { get; set; }
+        public int ApproverID { get; set; }
 
-        public string? pendingforapproval { get; set; }
+        public string? PendingForApproval { get; set; }
 
         // Navigation Properties
         [ForeignKey("EmployeeID")]

@@ -5,16 +5,24 @@
     Layout = "~/Areas/HumanResource/Views/Shared/_Layout.cshtml";
 }
 
-<h1>Index</h1>
+<div class="flex-header-container">
+    <div>
+        <h5>Leave Request</h5>
+    </div>
 
-<p>
-    <a asp-action="Create">Create New</a>
-</p>
+    <div>
+        <a asp-action="Create">Add New Request</a>
+    </div>
+</div>
+
 <table class="table">
     <thead>
         <tr>
             <th>
                 @Html.DisplayNameFor(model => model.Date)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Head)
             </th>
             <th>
                 @Html.DisplayNameFor(model => model.Days)
@@ -23,17 +31,13 @@
                 @Html.DisplayNameFor(model => model.Description)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.StartDate)
+                Start Date
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.EndDate)
+                End Date
             </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Employee)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Head)
-            </th>
+            <th>Status</th>
+            <th>Comment</th>
             <th></th>
         </tr>
     </thead>
@@ -42,7 +46,10 @@
         <tr>
             <td>
                 @Html.DisplayFor(modelItem => item.Date)
-            </td>
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Head.HeadType)
+                </td>
             <td>
                 @Html.DisplayFor(modelItem => item.Days)
             </td>
@@ -56,17 +63,60 @@
                 @Html.DisplayFor(modelItem => item.EndDate)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.Employee.Discriminator)
-            </td>
+                @if (item.status == "Approved") {
+                    <span style="color:green;font-weight:bold">
+                        @Html.DisplayFor(modelItem => item.status ) 
+                    </span>
+                    }
+                    else if (item.status == "Reject")
+                    {
+                        <span style="color:red;font-weight:bold">
+                            @Html.DisplayFor(modelItem => item.status)
+                        </span>
+                    } else {
+                        @Html.DisplayFor(modelItem => item.status)
+                    }
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.comment)
+                </td>
             <td>
-                @Html.DisplayFor(modelItem => item.Head.HeadType)
-            </td>
-            <td>
-                <a asp-action="Edit" asp-route-id="@item.id">Edit</a> |
+                    @if (item.status != "Approved" && item.status != "Reject" && (item?.cancel == false || item?.cancel == null))
+                    {
+                        <a href="javascript:void()" onclick="cancel_request(@item.id,this)">Cancel</a>
+                }
+                    else if (item?.cancel != null && item?.cancel == true)
+                    {
+                        @:Cancelled
+                    }
+                    else if (item.status == "Reject")
+                    {
+                        @:Rejected
+                    }
+                @* <a asp-action="Edit" asp-route-id="@item.id">Edit</a> |
                 <a asp-action="Details" asp-route-id="@item.id">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.id">Delete</a>
+                <a asp-action="Delete" asp-route-id="@item.id">Delete</a> *@
             </td>
         </tr>
 }
     </tbody>
 </table>
+
+<script>
+    // Move the function definition outside of $(document).ready
+    function cancel_request(id, obj) {
+        let td = $(obj).closest('tr').find('td').eq(8); // Fix: Using jQuery to find the td
+        $.ajax({
+            url: "/HumanResource/LeaveApplications/cancelRequest", // Ensure this URL is correct
+            type: 'GET',
+            data: { id: id },
+            success: function(result) {
+                td.text('Cancelled'); // Fix: Use jQuery .text() instead of innerText
+            },
+            error: function(xhr, status, error) {
+                console.error('Error:', error); // Add error handling for debugging
+            }
+        });
+    }
+</script>
+

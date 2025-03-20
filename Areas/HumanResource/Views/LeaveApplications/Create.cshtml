@@ -5,9 +5,15 @@
     Layout = "~/Areas/HumanResource/Views/Shared/_Layout.cshtml";
 }
 
-<h1>Create</h1>
+<div class="row">
+    <div class="col-md-12">
+        <div class="form-group">
+            @Html.Raw(@TempData["Alert"])
+        </div>
+    </div>
+</div>
 
-<h4>LeaveApplication</h4>
+<h5>Leave Request</h5>
 <hr />
 <div class="row">
     <div class="col-md-4">
@@ -15,7 +21,7 @@
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <div class="form-group">
                 <label asp-for="EmployeeID" class="control-label"></label>
-                <select asp-for="EmployeeID" class ="form-control" asp-items="ViewBag.EmployeeID"></select>
+                <select asp-for="EmployeeID" class="form-control" asp-items="ViewBag.EmployeeID" style="pointer-events: none;"></select>
             </div>
             <div class="form-group">
                 <label asp-for="Date" class="control-label"></label>
@@ -38,22 +44,50 @@
                 <span asp-validation-for="StartDate" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <label asp-for="EndDate" class="control-label"></label>
-                <input asp-for="EndDate" class="form-control" />
-                <span asp-validation-for="EndDate" class="text-danger"></span>
-            </div>
-            <div class="form-group">
                 <label asp-for="HeadID" class="control-label"></label>
                 <select asp-for="HeadID" class ="form-control" asp-items="ViewBag.HeadID"></select>
             </div>
+            <br>
             <div class="form-group">
-                <input type="submit" value="Create" class="btn btn-primary" />
+                <input type="submit" value="Create" class="btn btn-primary" /> |
+                <a asp-action="Index">Back to List</a>
             </div>
         </form>
     </div>
 </div>
 
-<div>
-    <a asp-action="Index">Back to List</a>
-</div>
 
+<script>
+    $(document).ready(function () {
+
+        // Set headid disabled
+
+        $("#EmployeeID").prop('readonly', true);
+        
+        $("#Date").prop('readonly', true);
+
+        // Set the current date as default in the date input
+        let currentDate = new Date().toISOString().split('T')[0];
+        $("#Date").val(currentDate);
+
+        // currentDate = new Date();
+        // currentDate.setDate(currentDate.getDate() - 1);
+        // $("#Reminder").val(currentDate.toISOString().split('T')[0]);
+
+        //$("#Reminder").css('disabled','disabled');
+        // Add focus event to the date input field
+
+        // $('#StartDate').on('change', function (event) {
+        //     let date = new Date($("#StartDate").val());
+        //     let days = $("#Days").val();
+        //     // Subtract 1 day from the current date
+        //     date.setDate(date.getDate() + Number(days));
+
+        //     // Format the date to YYYY-MM-DD (for the input type="date")
+        //     let formattedDate = date.toISOString().split('T')[0];
+
+        //     // Set the value of the date input to the new date (previous day)
+        //     $("#EndDate").val(formattedDate);
+        // });
+    });
+</script>

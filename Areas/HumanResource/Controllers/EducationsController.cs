@@ -21,10 +21,11 @@ namespace Standus_5_0.Areas.HumanResource.Controllers
         }
 
         // GET: HumanResource/Educations
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(int? id)
         {
-            var applicationDbContext = _context.Education.Include(e => e.Employee);
-            return View(await applicationDbContext.ToListAsync());
+            var applicationDbContext = _context.Education.Include(e => e.Employee)
+                .Where(e => e.EmployeeID == id);
+            return PartialView("Index",await applicationDbContext.ToListAsync());
         }
 
         // GET: HumanResource/Educations/Details/5
@@ -67,7 +68,7 @@ namespace Standus_5_0.Areas.HumanResource.Controllers
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["EmployeeID"] = new SelectList(_context.Employee, "EmployeeID", "Email", education.EmployeeID);
+            ViewData["EmployeeID"] = education.EmployeeID;
             return View(education);
         }
 

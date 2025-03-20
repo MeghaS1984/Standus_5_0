@@ -10,7 +10,6 @@ using Microsoft.EntityFrameworkCore;
 using Standus_5_0.Areas.HumanResource.Models;
 using Standus_5_0.Data;
 using Standus_5_0.Enums;
-using Standus_5_0.Migrations.Allowance;
 using Standus_5_0.Services;
 
 namespace Standus_5_0.Areas.HumanResource.Controllers

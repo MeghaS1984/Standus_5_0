@@ -21,10 +21,11 @@ namespace Standus_5_0.Areas.HumanResource.Controllers
         }
 
         // GET: HumanResource/EmploymentHistories
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(int? id)
         {
-            var applicationDbContext = _context.EmploymentHistory.Include(e => e.Employee);
-            return View(await applicationDbContext.ToListAsync());
+            var applicationDbContext = _context.EmploymentHistory.Include(e => e.Employee)
+                .Where(h => h.EmployeeID == id);
+            return PartialView("Index",await applicationDbContext.ToListAsync());
         }
 
         // GET: HumanResource/EmploymentHistories/Details/5

@@ -21,10 +21,11 @@ namespace Standus_5_0.Areas.HumanResource.Controllers
         }
 
         // GET: HumanResource/Families
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(int? id)
         {
-            var applicationDbContext = _context.Family.Include(f => f.Employee);
-            return View(await applicationDbContext.ToListAsync());
+            var applicationDbContext = _context.Family.Include(f => f.Employee)
+                .Where(f => f.EmployeeID == id);
+            return PartialView("Index",await applicationDbContext.ToListAsync());
         }
 
         // GET: HumanResource/Families/Details/5

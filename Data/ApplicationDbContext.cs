@@ -32,10 +32,8 @@ namespace Standus_5_0.Data
             modelBuilder.Entity<Employee>()
                 .HasDiscriminator<string>("Discriminator")
                 .HasValue<EmployementDetails>("EmployementDetails")
-                .HasValue<BankDetails>("BankDetails") ;
+                .HasValue<BankDetails>("BankDetails") ;          
             
-            
-
             modelBuilder.Entity<SlabCategory>().HasKey(ck => new { ck.SlabID ,ck.CategoryID});
             modelBuilder.Entity<StandardDeduction>().HasKey(ck => new  { ck.EmployeeID, ck.DeductionID });
             modelBuilder.Entity<StandardDeductionCalculation>().HasKey(ck => new { ck.DeductionID , ck.AllowanceID });
@@ -44,10 +42,18 @@ namespace Standus_5_0.Data
             modelBuilder.Entity<SlabDeductionExclude>().HasKey(ck => new { ck.EmployeeID , ck.DeductionID });
             modelBuilder.Entity<IncentiveSetting>().HasKey(ck => new { ck.EmployeeID });
             modelBuilder.Entity<AttendanceDetails>().HasNoKey();
+            modelBuilder.Entity<SlabCalculation>().HasNoKey();
+            modelBuilder.Entity<SlabAllowance>().HasNoKey();
+            modelBuilder.Entity<SlabDeduction>().HasNoKey();
+            modelBuilder.Entity<SlabSchedule>().HasKey(ck => new { ck.SlabID , ck.DetailsID });
 
             base.OnModelCreating(modelBuilder);
         }
         public DbSet<Standus_5_0.Areas.HumanResource.Models.Allowance> Allowance { get; set; } = default!;
+        public DbSet<Standus_5_0.Areas.HumanResource.Models.SlabCalculation> SlabCalculation { get; set; } = default!;
+        public DbSet<Standus_5_0.Areas.HumanResource.Models.SlabAllowance> SlabAllowance { get; set; } = default!;
+        public DbSet<Standus_5_0.Areas.HumanResource.Models.SlabDeduction> SlabDeduction { get; set; } = default!;
+        public DbSet<Standus_5_0.Areas.HumanResource.Models.SlabSchedule> SlabSchedule { get; set; } = default!;
         public DbSet<Standus_5_0.Areas.HumanResource.Models.AttendanceHead> AttendanceHead { get; set; } = default!;
         public DbSet<Standus_5_0.Areas.AppSetup.Models.Category> Category { get; set; } = default!;
         public DbSet<Standus_5_0.Areas.HumanResource.Models.Deduction> Deduction { get; set; } = default!;
@@ -72,12 +78,12 @@ namespace Standus_5_0.Data
         public DbSet<Standus_5_0.Areas.HumanResource.Models.IncentiveSetting> IncentiveSetting { get; set; } = default!;
         public DbSet<Standus_5_0.Areas.HumanResource.Models.Payroll> Payroll { get; set; } = default!;
         public DbSet<PaySheetSetting> paySheetSetting { get; set; } = default!;
-
         public DbSet<PaySheetSummarySetting> PaySheetSummarySetting { get; set; } = default!;
         public DbSet<EAndDSetting> EAndDSetting { get; set; } = default!;
         public DbSet<EAndDSettingParam> EAndDSettingParam { get; set; } = default!;
-
         public DbSet<AttendanceDetails> AttendanceDetails { get; set; } = default!;
+        public DbSet<Standus_5_0.Areas.HumanResource.Models.AllowanceDetails> AllowanceDetails { get; set; } = default!;
+        public DbSet<Standus_5_0.Areas.HumanResource.Models.DeductionDetails> DeductionDetails { get; set; } = default!;
     }
 
     

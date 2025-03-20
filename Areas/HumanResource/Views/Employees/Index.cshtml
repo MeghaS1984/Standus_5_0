@@ -15,8 +15,8 @@
     </div>
 </div>
 <br>
-<table class="table">
-    <thead class="table-primary">
+<table class="table table-bordered table-striped ">
+    <thead class="table-success">
         <tr>
             <th>
                 @Html.DisplayNameFor(model => model.Email)
@@ -37,7 +37,7 @@
                 @Html.DisplayNameFor(model => model.Salary)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.DepartmentID)
+                Department
             </th>
             <th>
                 @Html.DisplayNameFor(model => model.Position)
@@ -67,14 +67,13 @@
                 @Html.DisplayFor(modelItem => item.Salary)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.DepartmentID)
+                @Html.DisplayFor(modelItem => item.Department.DepartmentName)
             </td>
             <td>
                 @Html.DisplayFor(modelItem => item.Position.PositionName)
             </td>
             <td>
                 <a asp-action="Edit" asp-route-id="@item.EmployeeID">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.EmployeeID">Details</a> |
                 <a asp-action="Delete" asp-route-id="@item.EmployeeID">Delete</a>
             </td>
         </tr>

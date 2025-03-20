@@ -1,0 +1,43 @@
+﻿@model IEnumerable<dynamic>
+
+<table class="table table-bordered table-striped">
+    <thead>
+        <tr>
+            <th>
+                Category
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model) {
+        <tr>
+            <input type="hidden" name="CategoryID" value="@item.CategoryID">
+            <input type="hidden" name="CategoryID" value="@item.SlabID">
+            <input type="hidden" name="CategoryID" value="@ViewBag.AllowanceID">
+            <td>
+                @item.Category
+            </td>
+            <td>
+                    <a href="/HumanResource/SlabDetails/Create?SlabID=@item.SlabID&CategoryID=@item.CategoryID&AllowanceID=@ViewBag.AllowanceID">Add Details</a> |
+                <a href="javascript:void()" onclick="delete_slab(@item.SlabID,@item.CategoryID,@ViewBag.AllowanceID)">Delete</a>
+            </td>
+        </tr>
+}
+    </tbody>
+</table>
+<script>
+    function delete_slab(slabid, categoryid, allowanceid) {
+        $.ajax({
+            url: 'DeleteConfirmed',
+            type:'POST',
+            data: {slabid : slabid, categoryid : categoryid, allowanceid : allowanceid},
+            success : function(result)  {
+                
+            },
+            error : function (xhr ,status, error) {
+
+            }
+        });
+    }
+</script>

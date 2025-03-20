@@ -22,10 +22,16 @@ namespace Standus_5_0.Areas.HumanResource.Controllers
         }
 
         // GET: HumanResource/BankDetails
-        public async Task<IActionResult> Index()        {
+        [HttpGet]
+        public async Task<IActionResult> Index(int? id) {
+
+            _context.Database.ExecuteSqlRaw("update employee set Discriminator = 'BankDetails' where employeeid=" + id);
+
+            var applicationDbContext = _context.Employee.OfType<BankDetails>()
+            .Where(e => e.EmployeeID == id);
+
+            return PartialView("Index" , await applicationDbContext.ToListAsync());
             
-            var applicationDbContext = _context.Employee.OfType<BankDetails>();
-            return View(await applicationDbContext.ToListAsync());
         }
 
         // GET: HumanResource/BankDetails/Details/5
@@ -42,7 +48,6 @@ namespace Standus_5_0.Areas.HumanResource.Controllers
             {
                 return NotFound();
             }
-
             return View(bankDetails);
         }
 
@@ -66,14 +71,14 @@ namespace Standus_5_0.Areas.HumanResource.Controllers
             ////_context.Database.ExecuteSqlRaw("update employee set Discriminator = 'EmployementDetails' where employeeid=" + bankDetails.EmployeeID);
             //employee.Discriminator = "BankDetails";
 
-            bank_Details.BankName=bankDetails.BankName;
-                   bank_Details.AccountNo=bankDetails.AccountNo;
-                   bank_Details.IFSCCode=bankDetails.IFSCCode;
+            bank_Details.BankName = bankDetails.BankName;
+            bank_Details.AccountNo = bankDetails.AccountNo;
+            bank_Details.IFSCCode = bankDetails.IFSCCode;
                 
-                _context.Employee.Update(bank_Details);
-                await _context.SaveChangesAsync();
+            _context.Employee.Update(bank_Details);
+            await _context.SaveChangesAsync();
            
-                return View(bank_Details);
+            return View(bank_Details);
         }
         //public async Task<IActionResult> Create([Bind("EmployeeID,BankName,AccountNo,IFSCCode,Discriminator")] BankDetails bankDetails)
         //{

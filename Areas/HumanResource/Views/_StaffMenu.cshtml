@@ -17,7 +17,12 @@
         <div class="label_box">
             <span class="label"></span>
             <span class="title">
-                <a asp-controller="Employees" asp-action="Create">Staff</a>
+                @if (ViewData["mode"] == "Create") {
+                    <a asp-controller="Employees" asp-action="Create">Staff</a>
+                }
+                else{
+                    <a asp-controller="Employees" asp-action="Edit" asp-route-id="@ViewData["EmployeeID"]">Staff</a>
+                }
             </span>
         </div>
 
@@ -95,7 +100,7 @@
         margin: 0;
         padding: 0;
         box-sizing: border-box;
-        font-family: "Open Sans";
+        /* font-family: "Open Sans"; */
     }
     /* Form Progress */
 

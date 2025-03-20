@@ -2,76 +2,90 @@
 
 @{
     ViewData["Title"] = "Edit";
-    Layout = "~/Views/Shared/_Layout.cshtml";
+    Layout = "~/Areas/HumanResource/Views/Shared/_Layout.cshtml";
 }
 
-<h1>Edit</h1>
-
-<h4>EmployementDetails</h4>
+<h5>Employement Details</h5>
 <hr />
-<div class="row">
-    <div class="col-md-4">
-        <form asp-action="Edit">
+<form asp-action="Edit">
+    <div style="display:flex;flex-direction:row;">
+        <div class="data-flow">
+            <partial name="../_StaffMenu" />
+        </div>
+        <div class="col-md-4 form-container">
+        
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <div class="form-group">
+            <div class="row">
+            <div class="form-group col-md-6">
                 <label asp-for="Code" class="control-label"></label>
                 <input asp-for="Code" class="form-control" />
                 <span asp-validation-for="Code" class="text-danger"></span>
             </div>
-            <div class="form-group">
+                <div class="form-group col-md-6">
                 <label asp-for="Gender" class="control-label"></label>
                 <select asp-for="Gender" class="form-control" asp-items="ViewBag.Gender"></select>
                 <span asp-validation-for="Gender" class="text-danger"></span>
             </div>
-            <div class="form-group">
+            </div>
+            <div class="row">
+                <div class="form-group col-md-6">
                 <label asp-for="MaritalStatus" class="control-label"></label>
                 <select asp-for="MaritalStatus" class="form-control" asp-items="ViewBag.MaritalStatus"></select>
                 <span asp-validation-for="MaritalStatus" class="text-danger"></span>
             </div>
-            <div class="form-group">
+                <div class="form-group col-md-6">
                 <label asp-for="PermanantAddress" class="control-label"></label>
                 <input asp-for="PermanantAddress" class="form-control" />
                 <span asp-validation-for="PermanantAddress" class="text-danger"></span>
             </div>
-            <div class="form-group">
+            </div>
+            <div class="row">
+                <div class="form-group col-md-6">
                 <label asp-for="Pincode1" class="control-label"></label>
                 <input asp-for="Pincode1" class="form-control" />
                 <span asp-validation-for="Pincode1" class="text-danger"></span>
-            </div>
-            <div class="form-group">
+                </div>
+                <div class="form-group col-md-6">
                 <label asp-for="WeeklyHoliday" class="control-label"></label>
                 <select asp-for="WeeklyHoliday" class="form-control" asp-items="ViewBag.WeeklyHoliday"></select>
                 <span asp-validation-for="WeeklyHoliday" class="text-danger"></span>
+                </div>
             </div>
-            <div class="form-group">
-                <label asp-for="GradeID" class="control-label"></label>
-                <input asp-for="GradeID" class="form-control" />
-                <span asp-validation-for="GradeID" class="text-danger"></span>
+            <div class="row">
+                <div class="form-group col-md-6">
+                    <label asp-for="GradeID" class="control-label"></label>
+                    <input asp-for="GradeID" class="form-control" />
+                    <span asp-validation-for="GradeID" class="text-danger"></span>
+                </div>
+                <div class="form-group col-md-6">
+                    <label asp-for="ShiftType" class="control-label"></label>
+                    <select asp-for="ShiftType" class="form-control" asp-items="ViewBag.ShiftType"></select>
+                    <span asp-validation-for="ShiftType" class="text-danger"></span>
+                </div>
             </div>
-            <div class="form-group">
-                <label asp-for="ShiftType" class="control-label"></label>
-                <select asp-for="ShiftType" class="form-control" asp-items="ViewBag.ShiftType"></select>
-                <span asp-validation-for="ShiftType" class="text-danger"></span>
-            </div>
-            <div class="form-group">
+            <div class="row">
+                <div class="form-group col-md-6">
                 <label asp-for="WagesType" class="control-label"></label>
                 <select asp-for="WagesType" class="form-control" asp-items="ViewBag.WagesType"></select>
                 <span asp-validation-for="WagesType" class="text-danger"></span>
             </div>
-            <div class="form-group">
+                <div class="form-group col-md-6">
                 <label asp-for="PaymentType" class="control-label"></label>
                 <select asp-for="PaymentType" class="form-control" asp-items="ViewBag.PaymentType"></select>
                 <span asp-validation-for="PaymentType" class="text-danger"></span>
             </div>
-            <input type="hidden" asp-for="EmployeeID" />
-            <div class="form-group">
-                <input type="submit" value="Save" class="btn btn-primary" />
             </div>
-        </form>
-    </div>
-</div>
+            <input type="hidden" asp-for="EmployeeID" />
+            <br>
+            <div class="form-group">
+                <input type="submit" value="Save" class="btn btn-primary" /> |
+                <a asp-action="Index">Back to List</a>
+            </div>
 
-<div>
-    <a asp-action="Index">Back to List</a>
+        </div>
+        
 </div>
+</form>
 
+
+    

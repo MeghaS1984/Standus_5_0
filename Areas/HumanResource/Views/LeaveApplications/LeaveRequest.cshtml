@@ -4,16 +4,25 @@
     ViewData["Title"] = "Index";
     Layout = "~/Areas/HumanResource/Views/Shared/_Layout.cshtml";
 }
+<div class="flex-header-container">
+    <div>
+        <h5>Leave Request Approval</h5>
+    </div>
 
-<h1>Index</h1>
+    <div>
+        <span><a asp-action="LeaveApproved">Leave History</a></span>
+    </div>
+</div>
 
-<p>
-    <span><a asp-action="LeaveApproved">Leaves Approved</a></span> |
-    <span><a asp-action="LeaveRejected">Leaves Rejected</a></span>
-</p>
 <table class="table">
     <thead>
         <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.Employee)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Head)
+            </th>
             <th>
                 @Html.DisplayNameFor(model => model.Date)
             </th>
@@ -24,23 +33,24 @@
                 @Html.DisplayNameFor(model => model.Description)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.StartDate)
+                Start Date
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.EndDate)
+                End Date
             </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Employee)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Head)
-            </th>
+            <th>Comment</th>
             <th></th>
         </tr>
     </thead>
     <tbody>
 @foreach (var item in Model) {
-        <tr>
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Employee.Name)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Head.HeadType)
+                </td>
             <td>
                 @Html.DisplayFor(modelItem => item.Date)
             </td>
@@ -57,17 +67,29 @@
                 @Html.DisplayFor(modelItem => item.EndDate)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.Employee.Discriminator)
+                <input type="text" id="comment_@item.id">
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.Head.HeadType)
-            </td>
-            <td>
-                <a asp-action="Edit" asp-route-id="@item.id">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.id">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.id">Delete</a>
+                    <a href="javascript:void()" onclick="approve_request(@item.id,this)">Approve</a>
             </td>
         </tr>
 }
     </tbody>
 </table>
+<script>
+    function approve_request(id,obj) {
+        let td = $(obj).closest('tr').find('td').eq(8); // Fix: Using jQuery to find the td
+        let comment = $('#comment_' + id).find('input').val();
+        $.ajax({
+            url: "/HumanResource/LeaveApplications/ApproveRequest", // Ensure this URL is correct
+            type: 'GET',
+            data: { id: id , comment : comment },
+            success: function (result) {
+                td.text(result); // Fix: Use jQuery .text() instead of innerText
+            },
+            error: function (xhr, status, error) {
+                console.error('Error:', error); // Add error handling for debugging
+            }
+        });
+    }
+</script>

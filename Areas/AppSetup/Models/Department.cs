@@ -20,6 +20,7 @@ namespace Standus_5_0.Areas.AppSetup.Models
     [Table("Department")]
     public class Department
     {
+        [Key]
         public int DepartmentID { get; set; }
         [Column("Department")]
         [Required]

@@ -2,19 +2,28 @@
 
 @{
     ViewData["Title"] = "Create";
-    Layout = "~/Views/Shared/_Layout.cshtml";
+    Layout = "~/Areas/HumanResource/Views/Shared/_Layout.cshtml";
 }
 
-<h1>Create</h1>
-
-<h4>Family</h4>
-<hr />
 <div class="row">
-    <div class="col-md-4">
+    <div class="col-md-12">
+        <div class="form-group">
+            @Html.Raw(@ViewBag.Alert)
+        </div>
+    </div>
+</div>
+
+<h5>Add Family Details</h5>
+<hr />
+<div style="display:flex;flex-direction:row;">
+    <div class="staff-menu">
+        <partial name="../_StaffMenu" />
+    </div>
+    <div class="col-md-4 form-container">
         <form asp-action="Create">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             
-            <input asp-for="EmployeeID" class ="form-control" asp-items="@ViewData["EmployeeID"]" type="hidden"/>
+            <input name="EmployeeID" class ="form-control" value="@ViewData["EmployeeID"]" type="hidden"/>
             <div class="form-group">
                 <label asp-for="Relation" class="control-label"></label>
                 <input asp-for="Relation" class="form-control" />
@@ -30,14 +39,25 @@
                 <input asp-for="Age" class="form-control" />
                 <span asp-validation-for="Age" class="text-danger"></span>
             </div>
+            <br><br>
             <div class="form-group">
-                <input type="submit" value="Create" class="btn btn-primary" />
+                <input type="submit" value="Create" class="btn btn-primary" /> |
+                <a href="/Humanresource/Employees/Index">Back to List</a>
+            </div>
+            <br>
+            <div id="families">
             </div>
         </form>
     </div>
 </div>
 
-<div>
-    <a asp-action="Index">Back to List</a>
-</div>
-
+<script>
+    $.ajax({
+        url: '/Humanresource/Families/Index',
+        type: 'GET',
+        data: { id: @ViewData["EmployeeID"]},
+        success: function (result) {
+            $("#families").html(result);
+        }
+    });
+</script>

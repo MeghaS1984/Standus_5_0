@@ -21,10 +21,11 @@ namespace Standus_5_0.Areas.HumanResource.Controllers
         }
 
         // GET: HumanResource/Statutories
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(int? id)
         {
-            var statutories = _context.Statutory.Include(s => s.Employee);
-            return PartialView("_List",await statutories.ToListAsync());
+            var statutories = _context.Statutory.Include(s => s.Employee)
+                .Where(s => s.EmployeeID == id);
+            return PartialView("Index",await statutories.ToListAsync());
         }
 
         // GET: HumanResource/Statutories/Details/5

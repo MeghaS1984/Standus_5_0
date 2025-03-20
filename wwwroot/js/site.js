@@ -4,8 +4,7 @@
 // Write your JavaScript code.
 
 $(document).ready(function () {
-    var div = $("#alert").fadeIn(3000)
-        
+    var div = $("#alert").fadeIn(3000);
     $(".alert").on('click', '.close', function (event) {
         let div = $(this).closest('div');
         div.fadeOut('3000', function() { div.css('display', 'none') });

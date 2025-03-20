@@ -4,15 +4,25 @@
     ViewData["Title"] = "Index";
     Layout = "~/Areas/HumanResource/Views/Shared/_Layout.cshtml";
 }
+<div class="flex-header-container">
+    <div>
+        <h5>Leave History</h5>
+    </div>
 
-<h1>Index</h1>
+    <div>
+        <a asp-action="LeaveRequest">Show Leave Requests</a>
+    </div>
+</div>
 
-<p>
-    <a asp-action="LeaveRequest">Show Leave Requests</a>
-</p>
-<table class="table">
+<table class="table table-striped">
     <thead>
         <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.Employee)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Head)
+            </th>
             <th>
                 @Html.DisplayNameFor(model => model.Date)
             </th>
@@ -23,50 +33,86 @@
                 @Html.DisplayNameFor(model => model.Description)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.StartDate)
+                Start Date
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.EndDate)
+                End Date
             </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Employee)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Head)
-            </th>
+            <th>Comment</th>
+            <th>Status</th>
             <th></th>
         </tr>
     </thead>
     <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.Date)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Days)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Description)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.StartDate)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.EndDate)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Employee.Discriminator)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Head.HeadType)
-            </td>
-            <td>
-                <a asp-action="Edit" asp-route-id="@item.id">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.id">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.id">Delete</a>
-            </td>
-        </tr>
-}
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Employee.Name)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Head.HeadType)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Date)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Days)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Description)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.StartDate)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.EndDate)
+                </td>
+                <td>
+                    <input type="text" id="comment_@item.id">
+                </td>
+                <td>
+                    @if (item.status == "Approved")
+                    {
+                        <span style="color:green;font-weight:bold">
+                            @Html.DisplayFor(modelItem => item.status)
+                        </span>
+                    }
+                    else if (item.status == "Reject")
+                    {
+                        <span style="color:red;font-weight:bold">
+                            @Html.DisplayFor(modelItem => item.status)
+                        </span>
+                    }
+                </td>
+                <td>
+                    @if (item.status == "Approved")
+                    {
+                        <a href="javascript:void()" onclick="approve_request(@item.id,this)">Reject</a>
+                    }
+                    else if (item.status == "Reject")
+                    {
+                        <a href="javascript:void()" onclick="approve_request(@item.id,this)">Approve</a>
+                    }
+                </td>
+            </tr>
+        }
     </tbody>
 </table>
+<script>
+    function approve_request(id, obj) {
+        let td = $(obj).closest('tr').find('td').eq(8); // Fix: Using jQuery to find the td
+        let comment = $('#comment_' + id).find('input').val();
+        $.ajax({
+            url: "/HumanResource/LeaveApplications/RejectRequest", // Ensure this URL is correct
+            type: 'GET',
+            data: { id: id, comment: comment },
+            success: function (result) {
+                td.text(result); // Fix: Use jQuery .text() instead of innerText
+            },
+            error: function (xhr, status, error) {
+                console.error('Error:', error); // Add error handling for debugging
+            }
+        });
+    }
+</script>

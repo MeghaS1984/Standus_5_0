@@ -2,76 +2,110 @@
 
 @{
     ViewData["Title"] = "Edit";
-    Layout = "~/Views/Shared/_Layout.cshtml";
+    Layout = "~/Areas/HumanResource/Views/Shared/_Layout.cshtml";
+    ViewData["mode"] = "Edit" ;
 }
 
+<div class="row">
+    <div class="col-md-12">
+        <div class="form-group">
+            @Html.Raw(@ViewBag.Alert)
+        </div>
+    </div>
+</div>
+<div class="flex-header-container">
+    <div>
+        <h5>Employee Details</h5>
+    </div>
+
+    <div>
+        <a href="/HumanResource/Employees/Allowance?employeeid=8060&categoryid=1">Allowance Setup</a>
+    </div>
+
+    <div>
+        <a href="/HumanResource/Employees/Deduction?employeeid=8060&categoryid=1">Deduction Setup</a>
+    </div>
+</div>
+<hr />
 <div style="display:flex;flex-direction:row;">
     <div class="staff-menu">
         <partial name="../_StaffMenu" />
     </div>
-<div class="row">
         <div class="col-md-4 form-container">
         <form asp-action="Edit">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <input type="hidden" asp-for="EmployeeID" />
-            <div class="form-group">
+            <div class="row">
+            <div class="form-group col-md-6">
                 <label asp-for="Name" class="control-label"></label>
                 <input asp-for="Name" class="form-control" />
                 <span asp-validation-for="Name" class="text-danger"></span>
             </div>
-            <div class="form-group">
+                <div class="form-group col-md-6">
                 <label asp-for="Email" class="control-label"></label>
                 <input asp-for="Email" class="form-control" />
                 <span asp-validation-for="Email" class="text-danger"></span>
             </div>
-            <div class="form-group">
+            </div>
+            <div class="row">
+                <div class="form-group col-md-6">
                 <label asp-for="Phone" class="control-label"></label>
                 <input asp-for="Phone" class="form-control" />
                 <span asp-validation-for="Phone" class="text-danger"></span>
             </div>
-            <div class="form-group">
+                <div class="form-group col-md-6">
                 <label asp-for="Address" class="control-label"></label>
                 <input asp-for="Address" class="form-control" />
                 <span asp-validation-for="Address" class="text-danger"></span>
             </div>
-            <div class="form-group">
-                <label asp-for="DateOfBirth" class="control-label"></label>
+            </div>
+            <div class="row">
+                <div class="form-group col-md-6">
+                <label asp-for="DateOfBirth" class="control-label">Date Of Birth</label>
                 <input asp-for="DateOfBirth" class="form-control" />
                 <span asp-validation-for="DateOfBirth" class="text-danger"></span>
             </div>
-            <div class="form-group">
-                <label asp-for="HireDate" class="control-label"></label>
+                <div class="form-group col-md-6">
+                <label asp-for="HireDate" class="control-label">Hire Date</label>
                 <input asp-for="HireDate" class="form-control" />
                 <span asp-validation-for="HireDate" class="text-danger"></span>
             </div>
-            <div class="form-group">
+            </div>
+            <div class="row">
+                <div class="form-group col-md-6">
                 <label asp-for="Salary" class="control-label"></label>
                 <input asp-for="Salary" class="form-control" />
                 <span asp-validation-for="Salary" class="text-danger"></span>
             </div>
-            <div class="form-group">
-                <label asp-for="DepartmentID" class="control-label"></label>
-                <input asp-for="DepartmentID" class="form-control" />
+                <div class="form-group col-md-6">
+                <label asp-for="DepartmentID" class="control-label">Department</label>
+                    <select asp-for="DepartmentID" class="form-control" asp-items="ViewBag.DepartmentID"></select>
                 <span asp-validation-for="DepartmentID" class="text-danger"></span>
             </div>
-            <div class="form-group">
-                <label asp-for="PositionID" class="control-label"></label>
+            </div>
+            <div class="row">
+                <div class="form-group col-md-6">
+                <label asp-for="PositionID" class="control-label">Position</label>
                 <select asp-for="PositionID" class="form-control" asp-items="ViewBag.PositionID"></select>
                 <span asp-validation-for="PositionID" class="text-danger"></span>
+            </div>                
             </div>
+            <br>
             <div class="form-group">
-                <label asp-for="Discriminator" class="control-label"></label>
-                <input asp-for="Discriminator" class="form-control" />
-                <span asp-validation-for="Discriminator" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <input type="submit" value="Save" class="btn btn-primary" />
+                <input type="submit" value="Save" class="btn btn-primary" /> |
+                <a asp-action="Index">Back to List</a>
             </div>
         </form>
     </div>
 </div>
-</div>
-<div>
-    <a asp-action="Index">Back to List</a>
-</div>
-
+@* 
+<script>
+    $.ajax({
+        url: '/HumanResource/Employees/Allowance',
+        type: 'GET',
+        data: { id: 1},
+        success: function (result) {
+            $("#history").html(result);
+        }
+    });
+</script> *@

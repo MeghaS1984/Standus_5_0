@@ -55,6 +55,7 @@ namespace Standus_5_0.Areas.HumanResource.Models
 
         public int? CreditTo { get; set; }
 
+        public Slab slab { get; set; }  
         //// Navigation property for Account
         //[ForeignKey("AccountID")]
         //public virtual Account Account { get; set; }

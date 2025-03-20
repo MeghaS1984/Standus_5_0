@@ -14,6 +14,7 @@ using Microsoft.VisualBasic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.CodeAnalysis.Elfie.Diagnostics;
+using Standus_5_0.Areas.AppSetup.Models;
 
 namespace Standus_5_0.Areas.HumanResource.Models
 {
@@ -68,7 +69,7 @@ namespace Standus_5_0.Areas.HumanResource.Models
 
         [ForeignKey("PositionID")]
         public virtual Position? Position { get; set; }
-
+        public virtual Department? Department { get; set; }
         public virtual ICollection<EmploymentHistory>? EmploymentHistories { get; set; }
         public virtual ICollection<PerformanceEvaluation>? PerformanceEvaluations { get; set; }
         public virtual ICollection<Education>? Education { get; set; }

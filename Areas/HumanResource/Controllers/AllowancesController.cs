@@ -90,6 +90,13 @@ namespace Standus_5_0.Areas.HumanResource.Controllers
                 _context.Add(allowance);
                 await _context.SaveChangesAsync();
 
+                var slab = new Slab();
+                slab.AllowanceID = allowance.ID;
+                slab.DeductionID = 0;
+
+                _context.Slab.Add(slab);
+                await _context.SaveChangesAsync();
+
                 if (allowance.ID > 0)
                 {
                     TempData["Alert"] = CommonServices.ShowAlert(Alerts.Success, "Data Saved.");

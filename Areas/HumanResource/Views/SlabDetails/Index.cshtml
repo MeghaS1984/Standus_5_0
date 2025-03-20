@@ -1,16 +1,16 @@
 ﻿@model IEnumerable<Standus_5_0.Areas.HumanResource.Models.SlabDetails>
 
-<table class="table">
+<table class="table table-bordered table-striped">
     <thead>
-        <tr>
+        <tr class="table-success">
             <th>
                 @Html.DisplayNameFor(model => model.SlabID)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.FromAmount)
+                From Amount
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.ToAmount)
+                To Amount
             </th>
             <th>
                 @Html.DisplayNameFor(model => model.Type)
@@ -50,6 +50,10 @@
             </td>
             <td>
                 @Html.DisplayFor(modelItem => item.Category.CategoryName)
+            </td>
+            <td>
+                    <a href="SlabSchedule?slabid=@item.SlabID&detailsid=@item.ID&categoryid=@item.CategoryID&allowanceid=@ViewData["AllowanceID"]">Schedule</a> |
+                    <a href="SlabCalculation?slabid=@item.SlabID&detailsid=@item.ID&categoryid=@item.CategoryID&allowanceid=@ViewData["AllowanceID"]">Allowance</a>
             </td>
         </tr>
 }

@@ -21,21 +21,19 @@ namespace Standus_5_0.Areas.HumanResource.Controllers
         }
 
         // GET: HumanResource/SlabCategories
-        public async Task<IActionResult> Index(int SlabID)
+        public async Task<IActionResult> Index(int SlabID, int AllowanceID)
         {
             var applicationDbContext = from catg in _context.Category
                                        join slb in _context.SlabCategory on catg.ID equals slb.CategoryID
-                                       into slabgroup
-                                       from slb in slabgroup.DefaultIfEmpty()
-                                       where (slb == null || slb.SlabID == SlabID)
+                                       where slb.SlabID == SlabID
                                        select new { 
                                            CategoryID= catg.ID,
                                            Category = catg.CategoryName,
-                                           SlabID = slb != null ? slb.SlabID : 0
+                                           SlabID = slb.SlabID
                                        };
-                                        
+            ViewData["AllowanceID"] = AllowanceID;                         
             //var applicationDbContext = _context.SlabCategory.Include(s => s.Category);
-            return View(await applicationDbContext.ToListAsync());
+            return PartialView("_Index",await applicationDbContext.ToListAsync());
         }
 
         // GET: HumanResource/SlabCategories/Details/5
@@ -58,9 +56,13 @@ namespace Standus_5_0.Areas.HumanResource.Controllers
         }
 
         // GET: HumanResource/SlabCategories/Create
-        public IActionResult Create()
+        public IActionResult Create(int? id)
         {
-
+            var allw = _context.Allowance.Where(a => a.ID  == id).Include(s => s.slab).FirstOrDefault() ;
+            
+            ViewData["SlabID"] = allw.slab.SlabID;
+            ViewData["AllowanceID"] = allw.ID;
+            ViewData["Allowance"] = allw.Name;
             ViewData["CategoryID"] = new SelectList(_context.Category, "ID", "CategoryName");
             return View();
         }
@@ -72,11 +74,24 @@ namespace Standus_5_0.Areas.HumanResource.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("SlabID,CategoryID")] SlabCategory slabCategory)
         {
+            ModelState.Remove("Category");
             if (ModelState.IsValid)
-            {
+            {             
+                var slb = _context.SlabCategory
+                    .Where(s => s.SlabID == slabCategory.SlabID && s.CategoryID == slabCategory.CategoryID).FirstOrDefault();
+
+                if (slb != null) {
+                    var allw = _context.Allowance.Include(s => s.slab)
+                        .Where(a => a.slab.SlabID == slabCategory.SlabID)
+                        .FirstOrDefault();
+
+                    ModelState.AddModelError("CategoryID","Category assigned.");
+                    return RedirectToAction(nameof(Create),new { id = allw.ID });
+                }
+
                 _context.Add(slabCategory);
                 await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
+                return RedirectToAction(nameof(Create));
             }
             ViewData["CategoryID"] = new SelectList(_context.Category, "ID", "CategoryName", slabCategory.CategoryID);
             return View(slabCategory);
@@ -154,19 +169,20 @@ namespace Standus_5_0.Areas.HumanResource.Controllers
             return View(slabCategory);
         }
 
-        // POST: HumanResource/SlabCategories/Delete/5
-        [HttpPost, ActionName("Delete")]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(int id)
+        
+        public async Task<IActionResult> DeleteConfirmed(int slabid , int categoryid, int allowanceid)
         {
-            var slabCategory = await _context.SlabCategory.FindAsync(id);
+            var slabCategory = await _context.SlabCategory
+                .Where(c => c.SlabID == slabid && c.CategoryID == categoryid)
+                .FirstOrDefaultAsync();
+
             if (slabCategory != null)
             {
                 _context.SlabCategory.Remove(slabCategory);
             }
 
             await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
+            return RedirectToAction(nameof(Create), new { id = allowanceid});
         }
 
         private bool SlabCategoryExists(int id)

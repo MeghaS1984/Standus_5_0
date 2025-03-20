@@ -5,31 +5,52 @@
     Layout = "~/Areas/HumanResource/Views/Shared/_Layout.cshtml";
 }
 
-<h1>Create</h1>
-
-<h4>SlabCategory</h4>
+<h4>Add Category</h4>
 <hr />
-<div class="row">
-    <div class="col-md-4">
-        <form asp-action="Create">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+<form asp-action="Create">
+    <div class="row align-items-lg-center">
+        <!-- Flexbox to align vertically -->
+        <!-- Category Select -->
+        <div class="col-md-6">
+            <!-- Half width for category select -->
+            <div asp-validation-summary="All" class="text-danger"></div>
+            <input type="hidden" value="@ViewBag.SlabID" name="SlabID">
             <div class="form-group">
-                <label asp-for="SlabID" class="control-label"></label>
-                <input asp-for="SlabID" class="form-control" />
-                <span asp-validation-for="SlabID" class="text-danger"></span>
+                <label asp-for="CategoryID" class="control-label">Category</label>
+                <select asp-for="CategoryID" class="form-control" asp-items="ViewBag.CategoryID"></select>
+                <span asp-validation-for="CategoryID" class="text-danger"></span>
             </div>
+        </div>
+        <!-- Submit Button -->
+        <div class="col-md-6">
+            <!-- Half width for submit button -->
             <div class="form-group">
-                <label asp-for="CategoryID" class="control-label"></label>
-                <select asp-for="CategoryID" class ="form-control" asp-items="ViewBag.CategoryID"></select>
+                <input type="submit" value="Create" class="btn btn-primary" /> | 
+                <a href="/HumanResource/Allowances">Back to Allowance List</a>
             </div>
-            <div class="form-group">
-                <input type="submit" value="Create" class="btn btn-primary" />
-            </div>
-        </form>
+        </div>
     </div>
-</div>
+</form>
+@* <partial name="../SlabCategories/index"> *@
+    <br>
+    <div id="slabdetails">
+    </div>
 
-<div>
-    <a asp-action="Index">Back to List</a>
-</div>
+    <script>
+        $(document).ready(function () {
+            $.ajax({
+                url: '@Url.Action("index", "SlabCategories")',  // Ensure this is the correct URL for your action
+                type: 'GET',
+                data: {
+                    slabid: @ViewBag.SlabID, allowanceid : @ViewBag.AllowanceID
+                },
+                success: function (result) {
+                    $('#slabdetails').html(result);
+                },
+                error: function (xhr, status, error) {
+                    console.error("AJAX Error: " + error);
+                }
+            });
+        });
 
+    </script> 

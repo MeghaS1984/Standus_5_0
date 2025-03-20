@@ -2,8 +2,10 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+//using AspNetCore;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.CodeAnalysis.Operations;
 using Microsoft.EntityFrameworkCore;
 using Standus_5_0.Areas.HumanResource.Models;
 using Standus_5_0.Data;
@@ -23,14 +25,66 @@ namespace Standus_5_0.Areas.HumanResource.Controllers
         // GET: HumanResource/LeaveApplications
         public async Task<IActionResult> Index()
         {
-            var applicationDbContext = _context.LeaveApplication.Include(l => l.Employee).Include(l => l.Head);
+            var applicationDbContext = _context.LeaveApplication
+                .Include(l => l.Employee)
+                .Include(l => l.Head)
+                .Where(a => a.StartDate.Date >= DateTime.Now   );
             return View(await applicationDbContext.ToListAsync());
         }
 
+        public  async Task<ContentResult> CancelRequest(int? id) { 
+        
+              var appl = _context.LeaveApplication.Where (l => l.id == id).FirstOrDefault();
+              appl.cancel = true;
+              appl.status = "Cancelled";
+              appl.comment = appl.comment = appl.comment + " " +  "Cancelled by Requestor";
+
+              _context.Update(appl);
+              await _context.SaveChangesAsync();
+
+            return new ContentResult { 
+                Content = "Sucess",
+                ContentType = "text/plain"
+            };
+        }
+
+        public async Task<ContentResult> ApproveRequest(int? id,string comment)
+        {
+
+            var appl = _context.LeaveApplication.Where(l => l.id == id).FirstOrDefault();
+            appl.status = "Approved";
+            appl.comment = appl.comment = appl.comment + " " + comment;
+
+            _context.Update(appl);
+            await _context.SaveChangesAsync();
+
+            return new ContentResult
+            {
+                Content = "Approved",
+                ContentType = "text/plain"
+            };
+        }
+
+        public async Task<ContentResult> RejectRequest(int? id, string comment)
+        {
+
+            var appl = _context.LeaveApplication.Where(l => l.id == id).FirstOrDefault();
+            appl.status = "Reject";
+            appl.comment = appl.comment + " " + comment;
+
+            _context.Update(appl);
+            await _context.SaveChangesAsync();
+
+            return new ContentResult
+            {
+                Content = "Reject",
+                ContentType = "text/plain"
+            };
+        }
         public async Task<IActionResult> LeaveApproved()
         {
             var applicationDbContext = _context.LeaveApplication.Include(l => l.Employee).Include(l => l.Head)
-                .Where(f=> f.status == "Approved");
+                .Where(f=> f.status == "Approved" || f.status == "Reject");
             return View(await applicationDbContext.ToListAsync());
         }
 
@@ -88,10 +142,24 @@ namespace Standus_5_0.Areas.HumanResource.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("id,EmployeeID,Date,Days,Description,StartDate,EndDate,HeadID")] LeaveApplication leaveApplication)
         {
+
             if (ModelState.IsValid)
             {
-                _context.Add(leaveApplication);
-                await _context.SaveChangesAsync();
+                int days = (int)leaveApplication.Days;
+                int i;
+                for ( i = 1; i <= days; i++) {
+                    var request = new LeaveApplication();
+                    request.EmployeeID = leaveApplication.EmployeeID;
+                    request.Date = leaveApplication.Date;
+                    request.Description = leaveApplication.Description;
+                    request.HeadID = leaveApplication.HeadID;
+                    request.StartDate = leaveApplication .StartDate;
+                    request.Days = 1;
+                    request.EndDate = leaveApplication.StartDate.AddDays(i);
+                    request.status  = "Pending For Approval";
+                    _context.Add(request);
+                    await _context.SaveChangesAsync();
+                }
                 return RedirectToAction(nameof(Index));
             }
 

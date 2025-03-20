@@ -1,0 +1,127 @@
+﻿@{
+	ViewData["Title"] = "Create";
+	Layout = "~/Areas/HumanResource/Views/Shared/_Layout.cshtml";
+}
+
+<div class="flex-header-container" style="width:80%">
+	<div>
+		<h5>Scheduler</h5>
+	</div>
+
+	<div>
+		<a href="/Humanresource/SlabDetails/create?slabid=@ViewData["slabid"]&categoryid=@ViewData["categoryid"]&allowanceid=@ViewData["allowanceid"]">Back to list</a>
+	</div>
+
+	<div style="position:relative;float:right">
+		<input type="checkbox" id="selectAll" />Select All
+	</div>
+</div>
+<hr />
+
+<table class="table table-bordered table-striped" id="schedule">
+@{
+	int months = 12 ;
+}
+
+	@for (int i=1;i<=months;i++){
+		string month_name = new DateTime(2022, i, 1).ToString("MMM");
+		<tr>
+			<td>@month_name</td>
+			<td><input type="checkbox" value="0" name="@month_name" ></td>
+			<td></td>
+		</tr>
+	}
+	<tr>
+		<td colspan=2><input type="button" value="Submit" onclick="update_scheduler();"></td>
+		</tr>
+</table>
+
+
+<script>
+
+	$("#selectAll").on('change', function () {
+
+		var isChecked = $(this).prop('checked');
+
+		$("#schedule").find('tr').each(function (index) { 
+			$(this).find('td').eq(1).find('input[type = "checkbox"]').prop('checked',isChecked);
+		});
+	});
+
+
+	$(document).ready(function () {
+		$.ajax({
+			url: '@Url.Action("Get_Schedules", "SlabDetails")', // Replace with your actual controller and action
+			type: 'GET',
+			data: {
+				slabid: @ViewData["slabid"],  // Razor will inject these values
+				detailsid: @ViewData["detailsid"]
+			},
+			success: function (result) {
+				for (let i=0;i<result.length;i++) {
+					let text_to_search = result[i]
+					let td = $("#schedule").find('td').filter(function () {
+						return $(this).text().includes(text_to_search);
+					});
+					td.closest('tr').find('input[type="checkbox"]').prop('checked', true);
+				}
+			},
+			error: function (xhr, status, error) {
+				console.log("Error: " + error);  // Handle error
+			}
+		});
+	});
+
+	function save_data() {
+		var status; // Declare status outside
+
+		// Create an array to store all promises
+		var promises = [];
+
+		$("#schedule").find('tr').each(function (index) {
+			let month = $(this).find('td').eq(0).text();
+			let is_checked = $(this).find('td').eq(1).find('input[type="checkbox"]').prop('checked');
+
+			var promise = $.ajax({
+				url: 'UpdateSlabSchedule',
+				type: 'GET',
+				data: {
+					slabid: @ViewData["slabid"],
+					detailsid: @ViewData["detailsid"],
+					month: month,
+					ischecked: is_checked
+				}
+			}).then(function (result) {
+				status = result; // Set status to result on success
+			}).catch(function (error) {
+				console.error("Error:", error); // Handle error
+			});
+
+			// Add the promise to the array
+			promises.push(promise);
+		});
+
+		// Wait for all promises to resolve
+		Promise.all(promises).then(function () {
+			// This will be executed after all AJAX calls are complete
+			console.log(status); // Log final status after all requests are done
+			$(document.body).append(status); // Append status to body
+		});
+	}
+
+
+	function update_scheduler() {
+		$.ajax({
+			url: '/Humanresource/SlabDetails/DeleteSlabSchedule?slabid=@ViewData["slabid"]&detailsid=@ViewData["detailsid"]',
+			type: 'GET',
+			success: function (result) {
+				if (result == "Success") {
+					save_data();
+				}
+			},
+			error: function (xhr, status, error) {
+
+			}
+		});
+	}
+</script>
