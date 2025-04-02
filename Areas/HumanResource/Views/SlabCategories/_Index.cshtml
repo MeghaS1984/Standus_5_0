@@ -2,7 +2,7 @@
 
 <table class="table table-bordered table-striped">
     <thead>
-        <tr>
+        <tr class="table-success">
             <th>
                 Category
             </th>
@@ -19,7 +19,7 @@
                 @item.Category
             </td>
             <td>
-                    <a href="/HumanResource/SlabDetails/Create?SlabID=@item.SlabID&CategoryID=@item.CategoryID&AllowanceID=@ViewBag.AllowanceID">Add Details</a> |
+                <a href="/HumanResource/SlabDetails/Create?SlabID=@item.SlabID&CategoryID=@item.CategoryID&AllowanceID=@ViewBag.AllowanceID&deductionID=@ViewBag.DeductionID">Add Details</a> |
                 <a href="javascript:void()" onclick="delete_slab(@item.SlabID,@item.CategoryID,@ViewBag.AllowanceID)">Delete</a>
             </td>
         </tr>

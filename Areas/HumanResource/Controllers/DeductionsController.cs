@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.CodeAnalysis.Operations;
 using Microsoft.EntityFrameworkCore;
 using Standus_5_0.Areas.HumanResource.Models;
 using Standus_5_0.Data;
@@ -41,7 +42,9 @@ namespace Standus_5_0.Areas.HumanResource.Controllers
                             Status = slb != null ? "Done" : "Not Done",
                             SlabID = slb != null ? slb.SlabID : 0
                         };
+
             return PartialView("_DeductionSlabSetup", slabs);
+
         }
 
         // GET: HumanResource/Deductions/Details/5
@@ -66,31 +69,76 @@ namespace Standus_5_0.Areas.HumanResource.Controllers
         [HttpGet]
         public IActionResult Create()
         {
-            return View();
+            var type = new List<SelectListItem>{
+                    new SelectListItem {Text = "Monthly", Value= "Monthly" },
+                    new SelectListItem {Text = "Yearly", Value = "Yearly" }
+                };
+
+            ViewData["TypeList"] = new SelectList(type, "Value", "Text");
+
+			return View();
         }
 
         // POST: HumanResource/Deductions/Create
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
+        ////[HttpPost]
+        ////[ValidateAntiForgeryToken]
+        ////public async Task<IActionResult> Create(Deduction deduction)
+        ////{
+        ////    if (ModelState.IsValid)
+        ////    {
+        ////        _context.Add(deduction);
+        ////        await _context.SaveChangesAsync();
+        ////        if (deduction.ID > 0)
+        ////        {
+        ////            TempData["Alert"] = CommonServices.ShowAlert(Alerts.Success, "Data Saved.");
+        ////        }
+        ////        else
+        ////        {
+        ////            TempData["Alert"] = CommonServices.ShowAlert(Alerts.Danger, "Unknown error.");
+        ////        }
+        ////        return RedirectToAction(nameof(Create));
+        ////    }
+        ////    return View(deduction);
+        ////}
         [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(Deduction deduction)
-        {
-            if (ModelState.IsValid)
-            {
-                _context.Add(deduction);
-                await _context.SaveChangesAsync();
-                if (deduction.ID > 0)
-                {
-                    TempData["Alert"] = CommonServices.ShowAlert(Alerts.Success, "Data Saved.");
+        public ActionResult Create([FromBody] Deduction_Data data) {
+
+            var deduction_data = new Deduction();
+
+            deduction_data.Name = data.name;
+            deduction_data.Description = data.description;
+            deduction_data.PayRollSlNo = data.payrollslno == "" ? 0 : Convert.ToInt16(data.payrollslno);
+            deduction_data.Type = data.deduction_type;
+            deduction_data.RoundOff = data.roundoff;
+            deduction_data.OnYearlyIncome = data.onyearlyincome;
+            deduction_data.Fixed = data.deduction_fixed;
+            deduction_data.InActive = data.inactive;
+            deduction_data.Variable = false;
+			_context.Add(deduction_data);
+            _context.SaveChanges();
+
+            if (deduction_data.ID > 0) {
+                for (int i = 0; i < data.allowances.Count; i++) {
+                    var sdc = new StandardDeductionCalculation();
+                    sdc.DeductionID = deduction_data .ID;
+                    sdc.AllowanceID = data.allowances[i];
+                    _context.StandardDeductionCalculation.Add(sdc);
+                    _context.SaveChanges();
                 }
-                else
-                {
-                    TempData["Alert"] = CommonServices.ShowAlert(Alerts.Danger, "Unknown error.");
+
+                foreach (string mon in data.months) { 
+                    var sch = new SlabSchedule ();
+                    sch.DeductionID = deduction_data.ID;
+                    sch.AllowanceID = 0;
+                    sch.Month = mon;
+                    _context.SlabSchedule.Add(sch);
+                    _context.SaveChanges();
                 }
-                return RedirectToAction(nameof(Create));
             }
-            return View(deduction);
+
+            return Json(new { success = true, message = "Data save" });
         }
 
         // GET: HumanResource/Deductions/Edit/5
@@ -101,6 +149,13 @@ namespace Standus_5_0.Areas.HumanResource.Controllers
             {
                 return NotFound();
             }
+
+            var type = new List<SelectListItem>{
+                    new SelectListItem {Text = "Monthly", Value= "Monthly" },
+                    new SelectListItem {Text = "Yearly", Value = "Yearly" }
+                };
+
+            ViewData["TypeList"] = new SelectList(type, "Value", "Text");
 
             var deduction = await _context.Deduction.FindAsync(id);
             if (deduction == null)
@@ -115,43 +170,55 @@ namespace Standus_5_0.Areas.HumanResource.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("ID,Name,Description,Period,CutOffType,CutOff,RoundOf,Month,Day,Variable,AccountID,OnYearlyIncome,PayRollSlNo,InActive,Fixed,DebitTo,CreditTo,EmployerDebitTo")] Deduction deduction)
+        public async Task<IActionResult> Edit([FromBody] Deduction_Data data)
         {
-            if (id != deduction.ID)
+            var deduction_data = new Deduction();
+
+            deduction_data.ID = data.deductionid;
+            deduction_data.Name = data.name;
+            deduction_data.Description = data.description;
+            deduction_data.PayRollSlNo = data.payrollslno == "" ? 0 : Convert.ToInt16(data.payrollslno);
+            deduction_data.Type = data.deduction_type;
+            deduction_data.RoundOff = data.roundoff;
+            deduction_data.OnYearlyIncome = data.onyearlyincome;
+            deduction_data.Fixed = data.deduction_fixed;
+            deduction_data.InActive = data.inactive;
+            deduction_data.Variable = false;
+
+            _context.Update(deduction_data);
+            _context.SaveChanges();
+
+            var sdc_ext = _context.StandardDeductionCalculation.Where(sc => sc.DeductionID == data.deductionid);
+
+            _context.StandardDeductionCalculation.RemoveRange(sdc_ext);
+            _context.SaveChanges();
+
+            var slb_ext = _context.SlabSchedule.Where(sc => sc.DeductionID == data.deductionid);
+            _context.SlabSchedule.RemoveRange(slb_ext);
+
+            if (deduction_data.ID > 0)
             {
-                return NotFound();
+                for (int i = 0; i < data.allowances.Count; i++)
+                {
+                    var sdc = new StandardDeductionCalculation();
+                    sdc.DeductionID = deduction_data.ID;
+                    sdc.AllowanceID = data.allowances[i];
+                    _context.StandardDeductionCalculation.Add(sdc);
+                    _context.SaveChanges();
+                }
+
+                foreach (string mon in data.months)
+                {
+                    var sch = new SlabSchedule();
+                    sch.DeductionID = deduction_data.ID;
+                    sch.AllowanceID = 0;
+                    sch.Month = mon;
+                    _context.SlabSchedule.Add(sch);
+                    _context.SaveChanges();
+                }
             }
 
-            if (ModelState.IsValid)
-            {
-                try
-                {
-                    _context.Update(deduction);
-                    await _context.SaveChangesAsync();
-
-                    if (deduction.ID > 0)
-                    {
-                        TempData["Alert"] = CommonServices.ShowAlert(Alerts.Success, "Data Saved.");
-                    }
-                    else
-                    {
-                        TempData["Alert"] = CommonServices.ShowAlert(Alerts.Danger, "Unknown error.");
-                    }
-                    return RedirectToAction(nameof(Edit));
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!DeductionExists(deduction.ID))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
-                }
-            }
-            return View(deduction);
+            return Json(new { success = true, message = "Data save" });
         }
 
         // GET: HumanResource/Deductions/Delete/5
@@ -199,5 +266,30 @@ namespace Standus_5_0.Areas.HumanResource.Controllers
         {
             return _context.Deduction.Any(e => e.ID == id);
         }
+    }
+
+    public class Deduction_Data { 
+        public string name {  get; set; }
+        public string description { get; set; }
+        public string payrollslno { get; set; }
+        public string deduction_type { get; set; }
+        public string roundoff { get; set; }
+        public bool onyearlyincome {  get; set; }
+
+        public bool deduction_fixed { get; set; }
+        public bool inactive { get; set; }
+        public List<int> allowances { get; set; }
+        public List<string> months { get; set; }
+
+        public int deductionid { get; set; }
+    }
+
+    public class AllowanceID { 
+        public int allowanceid { get; set; }
+
+    }
+
+    public class MonthData { 
+        public string month { get; set; }
     }
 }

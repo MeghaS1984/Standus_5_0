@@ -14,10 +14,10 @@
 </div>
 
 <h5>Edit Deduction</h5>
-<hr />
-<form asp-action="Edit">
+<hr />@* 
+<form asp-action="Edit"> *@
     <div class="standard-row-container">
-        <div class="row" style="width:60%">
+        <div class="row" style="width:30%">
             <div class="col-md-6">
                 <div asp-validation-summary="ModelOnly" class="text-danger"></div>
                 <div class="form-group">
@@ -35,16 +35,41 @@
                     <input asp-for="PayRollSlNo" class="form-control" />
                     <span asp-validation-for="PayRollSlNo" class="text-danger"></span>
                 </div>
+
+                @{
+
+                }
+                <div class="form-group">
+                    <label asp-for="Type" class="control-label"></label>
+                    <select asp-for="Type" class="form-control" asp-items="@ViewBag.TypeList"></select>
+                    <span asp-validation-for="Type" class="text-danger"></span>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="RoundOff" class="control-label"></label>
+                    @{
+                        var round_off = new List<SelectListItem> {
+                    new SelectListItem {Text="" , Value ="" },
+                    new SelectListItem {Text = "Ceiling", Value = "Ceiling" } ,
+                    new SelectListItem {Text = "Up" , Value = "Up" },
+                    new SelectListItem {Text = "Down" , Value = "Down" }
+                    };
+
+                        ViewData["RoundOff"] = new SelectList(round_off, "Value", "Text");
+                    }
+                    <select asp-for="RoundOff" class="form-control" asp-items="@ViewBag.RoundOff"></select>
+                </div>
+
+                <br>
+                <div class="form-group">
+                    <input type="submit" value="Save" class="btn btn-primary" /> |
+                    <a asp-action="Index">Back to List</a>
+                </div>
             </div>
         </div>
 
         <div class="row" style="width:30%">
             <div class="col-md-8">
-                <div class="form-group form-check">
-                    <label class="form-check-label">
-                        <input class="form-check-input" asp-for="RoundOff" /> @Html.DisplayNameFor(model => model.RoundOff)
-                    </label>
-                </div>
                 <div class="form-group form-check">
                     <label class="form-check-label">
                         <input class="form-check-input" asp-for="OnYearlyIncome" /> @Html.DisplayNameFor(model => model.OnYearlyIncome)
@@ -63,12 +88,99 @@
                 </div>
             </div>
         </div>
+
+    <div style="width:20%" class="row">
+        <div class="col-md-12">
+            <div id="StandardDeductionCalculation" style="width:100%">
+            </div>
+        </div>
+    </div>
+    <div style="width:20%" class="row">
+        <div class="col-md-12">
+            <div id="Schedule" style="width:100%">
+            </div>
+        </div>
+    </div>
     </div>
 
-    <br>
-    <div class="form-group">
-        <input type="submit" value="Save" class="btn btn-primary" /> |
-        <a asp-action="Index">Back to List</a>
-    </div>
-</form>
+    @* 
+</form> *@
+
+<script>
+    $(document).ready(function () {
+        $.ajax({
+            url: '/humanresource/standarddeductioncalculations/edit',
+            type: 'GET',
+            data: { deductionid: @Model.ID  },
+            success: function (result) {
+                $('#StandardDeductionCalculation').html(result);
+            },
+            error: function (xhr, status, error) {
+                console.error("AJAX Error: " + error);
+            }
+        });
+
+        $.ajax({
+            url: '/humanresource/SlabDetails/SlabSchedule',
+            type: 'GET',
+            data: { deductionid: 0 },
+            success: function (result) {
+                $('#Schedule').html(result);
+            },
+            error: function (xhr, status, error) {
+                console.error("AJAX Error: " + error);
+            }
+        });
+    });
+
+    $('#submit').on('click', function () {
+        var formData = {
+            name: $("#Name").val(),
+            description: $("#Description").val(),
+            payrollslno: $("#PayRollSlNo").val(),
+            deduction_type: $("#Type").val(),
+            roundoff: $("#RoundOff").val(),
+            onyearlyincome: $("#OnYearlyIncome").prop('checked'),
+            deduction_fixed: $("#Fixed").prop('checked'),
+            inactive: $("#InActive").prop('checked'),
+            allowances: [],
+            months: []
+        }
+
+        $(".calculate_on").each(function () {
+            let is_selected = $(this).find('input[name$=".selected"]').prop('checked');
+            let allowanceid;
+            if (is_selected) {
+                allowanceid = $(this).find('input[name$=".allowanceid"]').val();
+                formData.allowances.push(allowanceid);
+            }
+        });
+
+        $(".month").each(function () {
+            let is_selected = $(this).find('input[type="checkbox"]').prop('checked');
+            let month;
+            if (is_selected) {
+                month = $(this).find('td').eq(0).text();
+                formData.months.push(month);
+            }
+        })
+
+        $.ajax({
+            url: '@Url.Action("Create", "Deductions")',
+            type: 'POST',
+            data: JSON.stringify(formData),
+            contentType: 'application/json',
+            success: function (response) {
+                // Handle success
+                alert('Form submitted successfully!');
+                console.log(response);  // Display or process the response here
+            },
+            error: function (xhr, status, error) {
+                // Handle error
+                alert('Error occurred while submitting the form!');
+                console.log(xhr + "  " + error);
+            }
+        });
+    })
+</script>
 

@@ -8,8 +8,8 @@ namespace Standus_5_0.Areas.HumanResource.Models
     {
         public int EmployeeID { get; set; }
         public string Type { get; set; }
-        public string Employee { get; set; }
-        public string Employer { get; set; }
+        public double Employee { get; set; }
+        public double Employer { get; set; }
         public int DeductionID { get; set; }
 
         // Navigation Properties

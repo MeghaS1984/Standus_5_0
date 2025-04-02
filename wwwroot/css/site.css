@@ -142,6 +142,7 @@ a {
 .standard-row-container {
     display:flex;
     flex-direction:row;
+    width:99%;
 }
 
 .text-danger {

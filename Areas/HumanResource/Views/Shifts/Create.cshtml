@@ -1,0 +1,61 @@
+﻿@model Standus_5_0.Areas.AppSetup.Models.Shift
+
+@{
+    ViewData["Title"] = "Create";
+    Layout = "~/Areas/HumanResource/Views/Shared/_Layout.cshtml";
+}
+
+<h1>Create</h1>
+
+<h4>Shift</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="Create">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-group">
+                <label asp-for="ShiftNo" class="control-label"></label>
+                <input asp-for="ShiftNo" class="form-control" />
+                <span asp-validation-for="ShiftNo" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Description" class="control-label"></label>
+                <input asp-for="Description" class="form-control" />
+                <span asp-validation-for="Description" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="StartTime" class="control-label"></label>
+                <input asp-for="StartTime" class="form-control" />
+                <span asp-validation-for="StartTime" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="EndTime" class="control-label"></label>
+                <input asp-for="EndTime" class="form-control" />
+                <span asp-validation-for="EndTime" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="BreakStartTime" class="control-label"></label>
+                <input asp-for="BreakStartTime" class="form-control" />
+                <span asp-validation-for="BreakStartTime" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="BreakEndTime" class="control-label"></label>
+                <input asp-for="BreakEndTime" class="form-control" />
+                <span asp-validation-for="BreakEndTime" class="text-danger"></span>
+            </div>
+            <div class="form-group form-check">
+                <label class="form-check-label">
+                    <input class="form-check-input" asp-for="InActive" /> @Html.DisplayNameFor(model => model.InActive)
+                </label>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Create" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>
+

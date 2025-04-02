@@ -1,17 +1,21 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
 using Humanizer;
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+//using Microsoft.CodeAnalysis.Elfie.Diagnostics;
+using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.VisualStudio.Web.CodeGenerators.Mvc.Templates.Blazor;
 using Standus_5_0.Areas.HumanResource.Models;
 using Standus_5_0.Data;
 using Standus_5_0.Enums;
 using Standus_5_0.Services;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace Standus_5_0.Areas.HumanResource.Controllers
 {
@@ -215,7 +219,8 @@ namespace Standus_5_0.Areas.HumanResource.Controllers
         public async Task<IActionResult> Allowance(int employeeid, int categoryid)
         {
 
-            
+            ViewData["employeeid"] = employeeid;
+            ViewData["categoryid"] = categoryid;
 
             var allowance = from A in _context.Allowance
                          join B in _context.Slab on A.ID equals B.AllowanceID
@@ -273,6 +278,414 @@ namespace Standus_5_0.Areas.HumanResource.Controllers
 
             return View(allowance_set);
         }
+
+        public ContentResult SetupAllowance(int employeeid, int categoryid)
+        {
+            {
+                var cmd = new SqlCommand();
+                var dtAll = new DataTable();
+                var dt = new DataTable();
+
+                //cmd.CommandText = "select EMployeeID from EMployee where CategoryID=" + categoryid;
+
+                // Open the connection from the DbContext
+                var connection = _context.Database.GetDbConnection(); // Get the DB connection from the DbContext
+
+                // Ensure the connection is open before executing the query
+                if (connection.State != ConnectionState.Open)
+                {
+                    connection.Open();  // Open the connection
+                }
+
+                // Set the command properties
+                cmd.CommandType = CommandType.Text;  // Command type is SQL text
+                cmd.Connection = (SqlConnection)connection;  // Set the connection to the command
+
+                // Example query (replace with actual SQL query)
+                cmd.CommandText = "SELECT * FROM Allowance";  // Replace with your actual query
+
+                // Create a SqlDataAdapter to execute the command
+                using (var sda = new SqlDataAdapter(cmd))
+                {
+                    // Fill the DataTable with the query result
+                    sda.Fill(dtAll);
+                }
+
+                foreach (DataRow ra in dtAll.Rows)
+                {
+                    var Employee = default(double);
+                    var Employer = default(double);
+
+                    int allowanceid = (int)ra["AllowanceID"];
+
+                    cmd.CommandText = "select distinct G.AllowanceID ,G.Employer,OnIncome from Allowance A  " +
+                        "Inner join Slab B On A.AllowanceID =B.AllowanceID  " +
+                        "inner join SlabDetails C On C.SlabID =B.SlabID " +
+                        "inner join Category D on C.CategoryID =D.CategoryID " +
+                        "inner Join SlabCalculation E on C.DetailsID = E.DetailsID and B.SlabID =E.SlabID " +
+                        "inner join Allowance F On E.AllowanceID = F.AllowanceID " +
+                        "inner join SlabAllowance G on F.AllowanceID = G.AllowanceID  " +
+                        "where A.AllowanceID = " + allowanceid + " And C.CategoryID = " + categoryid + " " +
+                        "And G.EmployeeID = " + employeeid + "";
+
+                    using (var sda = new SqlDataAdapter(cmd))
+                    {
+                        // Fill the DataTable with the query result
+                        sda.Fill(dt);
+                    }
+
+                    double Allowance = 0d;
+
+                    string OnIncome = "";
+
+                    foreach (DataRow row in dt.Rows)
+                    {
+
+                        if (row["OnIncome"] == "Monthly")
+                        {
+                            Allowance += (double)row.ItemArray[1];
+                        }
+                        else if (row["OnIncome"] == "Yearly Income")
+                        {
+                            double value = Convert.ToDouble(row.ItemArray[1]);  // Convert to double
+                            Allowance += value * 12;
+                            OnIncome = "Yearly";
+                        }
+                    }
+
+                    cmd.CommandText = "delete from SlabAllowance where EmployeeID=" + employeeid + "" +
+                    "and allowanceID=" + allowanceid;
+
+                    cmd.ExecuteNonQuery();
+
+                    string Sql = "select * from Slab A " +
+                    "inner join SlabDetails B on A.SlabID =B.SlabID " +
+                    "inner join Allowance C On A.AllowanceID =C.AllowanceID " +
+                    "where A.allowanceID = " + allowanceid + " And B.CategoryID = " + categoryid + " ";
+
+
+
+                    cmd.CommandText = Sql;
+                    using (var sda = new SqlDataAdapter(cmd))
+                    {
+                        // Fill the DataTable with the query result
+                        sda.Fill(dt);
+                    }
+
+                    foreach (DataRow r in dt.Rows)
+                    {
+                        double value = Convert.ToDouble(r["FromAmount"]);
+                        double FromAmount = value;
+                        value = Convert.ToDouble(r["FromAmount"]);
+                        double ToAmount = value;
+
+                        bool apply = false;
+
+                        if (Convert.ToDouble(r["FromAmount"]) == 0 & Convert.ToDouble(r["ToAmount"]) == 0)
+                        {
+                            if (dt.Rows.Count > 0)
+                            {
+                                string @type = r["type"].ToString();
+                                if (type == "Percent")
+                                {
+                                    Employee = Math.Round(Allowance * (Convert.ToDouble(r["employee"]) / 100), 0);
+                                    Employer = Math.Round(Allowance * (Convert.ToDouble(r["employer"]) / 100), 0);
+                                }
+                                else if (type == "Amount")
+                                {
+                                    Employee = Convert.ToDouble(r["employee"]);
+                                    Employer = Convert.ToDouble(r["employer"]);
+                                }
+                                if (OnIncome == "Yearly")
+                                {
+                                    Employee = Math.Round(Allowance * Convert.ToDouble(r["employee"]) / 100, 0) / 12;
+                                    r["employee"] = Employee;
+                                    Employer = Math.Round(Allowance * (Convert.ToDouble(r["employee"]) / 100), 0) / 12;
+                                }
+                            }
+                            apply = true;
+                        }
+                        else if (Allowance >= Convert.ToDouble(r["FromAmount"]) & Allowance <= Convert.ToDouble(r["ToAmount"]))
+                        {
+                            if (dt.Rows.Count > 0)
+                            {
+                                string @type = r["type"].ToString();
+                                if (type == "Percent")
+                                {
+                                    Employee = Math.Round(Allowance * (Convert.ToDouble(r["employee"]) / 100), 0);
+                                    Employer = Math.Round(Allowance * (Convert.ToDouble(r["employer"]) / 100), 0);
+                                }
+                                else if (type == "Amount")
+                                {
+                                    Employee = Convert.ToDouble(r["employee"]);
+                                    Employer = Convert.ToDouble(r["employer"]);
+                                }
+                                if (OnIncome == "Yearly")
+                                {
+                                    Employee = Math.Round(Allowance * (Convert.ToDouble(r["employee"]) / 100), 0) / 12;
+                                    r["employee"] = Employee;
+                                    Employer = Math.Round(Allowance * (Convert.ToDouble(r["employee"]) / 100), 0) / 12;
+                                }
+                            }
+                            apply = true;
+                        }
+                        else if (Allowance >= Convert.ToDouble(r["FromAmount"]) && Convert.ToDouble(r["ToAmount"]) == 0)
+                        {
+                            if (dt.Rows.Count > 0)
+                            {
+                                string @type = r["type"].ToString();
+                                if (type == "Percent")
+                                {
+                                    Employee = Math.Round(Allowance * (Convert.ToDouble(r["employee"]) / 100), 0);
+                                    Employer = Math.Round(Allowance * (Convert.ToDouble(r["employer"]) / 100), 0);
+                                }
+                                else if (type == "Amount")
+                                {
+                                    Employee = Convert.ToDouble(r["employee"]);
+                                    Employer = Convert.ToDouble(r["employer"]);
+                                }
+                                if (OnIncome == "Yearly")
+                                {
+                                    Employee = Math.Round(Allowance * (Convert.ToDouble(r["employee"]) / 100), 0) / 12;
+                                    r["employee"] = Employee;
+                                    Employer = Math.Round(Allowance * (Convert.ToDouble(r["employee"]) / 100), 0) / 12;
+                                }
+                            }
+                            apply = true;
+                        }
+
+                        if (apply)
+                        {
+                            cmd.Parameters.Add("@EmployeeID", SqlDbType.Int).Value = employeeid;
+                            cmd.Parameters.Add("@FromAmount", SqlDbType.Decimal, 10).Value = FromAmount;
+                            cmd.Parameters.Add("@ToAmount", SqlDbType.Decimal, 10).Value = ToAmount;
+                            cmd.Parameters.Add("@Employee", SqlDbType.Decimal, 10).Value = Employee;
+                            cmd.Parameters.Add("@Employer", SqlDbType.Decimal, 10).Value = Employer;
+                            cmd.Parameters.Add("@Amount", SqlDbType.Decimal, 10).Value = 0;
+                            cmd.Parameters.Add("@Type", SqlDbType.VarChar).Value = r["type"];
+                            cmd.Parameters.Add("@AllowanceID", SqlDbType.Int).Value = allowanceid;
+                            cmd.Parameters.Add("@Fixed", SqlDbType.Decimal, 10).Value = r["Fixed"];
+                            cmd.Parameters.Add("@DetailsID", SqlDbType.Int).Value = r["DetailsID"];
+
+                            string insert = "INSERT INTO SlabDeduction(EmployeeID,FromAmount,ToAmount,Employee,Employer," +
+                            "Amount,Type,AllowanceID, Fixed, DetailsID) " +
+                            "VALUES( @EmployeeID, @FromAmount, @ToAmount, @Employee, @Employer, @Amount, @Type, @AllowanceID," +
+                            "@Fixed, @DetailsID)";
+
+                            cmd.CommandType = CommandType.Text;
+                            cmd.CommandText = insert;
+                            cmd.ExecuteNonQuery();
+                            cmd.Parameters.Clear();
+                        }
+                    }
+                }
+            }
+            return Content("Success", "text/plain");
+        }
+        public ContentResult  SetupDeduction(int employeeid, int categoryid, int deductionid) {
+
+            {
+                var cmd = new SqlCommand();
+                var dtEMp = new DataTable();
+                var dt = new DataTable();
+
+                cmd.CommandText = "select EMployeeID from EMployee where CategoryID=" + categoryid;
+
+                
+                    // Open the connection from the DbContext
+                    var connection = _context.Database.GetDbConnection(); // Get the DB connection from the DbContext
+
+                    // Ensure the connection is open before executing the query
+                    if (connection.State != ConnectionState.Open)
+                    {
+                        connection.Open();  // Open the connection
+                    }
+
+                    // Set the command properties
+                    cmd.CommandType = CommandType.Text;  // Command type is SQL text
+                    cmd.Connection = (SqlConnection)connection;  // Set the connection to the command
+
+                    // Example query (replace with actual SQL query)
+                    cmd.CommandText = "SELECT * FROM Employee";  // Replace with your actual query
+
+                    // Create a SqlDataAdapter to execute the command
+                    using (var sda = new SqlDataAdapter(cmd))
+                    {
+                        // Fill the DataTable with the query result
+                        sda.Fill(dtEMp);
+                    }
+
+
+                    var Employee = default(double);
+                var Employer = default(double);
+                
+                    cmd.CommandText = "select distinct G.AllowanceID ,G.Employer,OnIncome from Deduction A  " + 
+                        "Inner join Slab B On A.DeductionID =B.DeductionID  " + 
+                        "inner join SlabDetails C On C.SlabID =B.SlabID " + 
+                        "inner join Category D on C.CategoryID =D.CategoryID " + 
+                        "inner Join SlabCalculation E on C.DetailsID = E.DetailsID and B.SlabID =E.SlabID " + 
+                        "inner join Allowance F On E.AllowanceID = F.AllowanceID " + 
+                        "inner join SlabAllowance G on F.AllowanceID = G.AllowanceID  " + 
+                        "where A.DeductionID = " + deductionid + " And C.CategoryID = " + categoryid + " " + 
+                        "And G.EmployeeID = " + employeeid + "";
+
+                using (var sda = new SqlDataAdapter(cmd))
+                {
+                    // Fill the DataTable with the query result
+                    sda.Fill(dt);
+                }
+
+                double Allowance = 0d;
+
+                    string OnIncome = "";
+
+                    foreach (DataRow row in dt.Rows)
+                    {
+
+                        if (row["OnIncome"] == "Monthly")
+                        {
+                            Allowance += (double)row.ItemArray[1];
+                        }
+                        else if (row["OnIncome"] == "Yearly Income")
+                        {
+                            double value = Convert.ToDouble(row.ItemArray[1]);  // Convert to double
+                            Allowance += value * 12;
+                            OnIncome = "Yearly";
+                        }
+                    }
+
+                    cmd.CommandText = "delete from SlabDeduction where EmployeeID=" + employeeid + "" +
+                    "and deductionID=" + deductionid;
+
+                    cmd.ExecuteNonQuery();
+
+                    string Sql = "select * from Slab A " + 
+                    "inner join SlabDetails B on A.SlabID =B.SlabID " + 
+                    "inner join Deduction C On A.DeductionID =C.DeductionID " + 
+                    "where A.DeductionID = " + deductionid + " And B.CategoryID = " + categoryid + " ";
+
+
+
+                    cmd.CommandText = Sql;
+                    using (var sda = new SqlDataAdapter(cmd))
+                    {
+                        // Fill the DataTable with the query result
+                        sda.Fill(dt);
+                    }
+
+                foreach (DataRow r in dt.Rows)
+                    {
+                        double value = Convert.ToDouble(r["FromAmount"]);
+                        double FromAmount = value;
+                        value = Convert.ToDouble(r["FromAmount"]);
+                        double ToAmount = value;
+
+                        bool apply = false;
+
+                        if (Convert.ToDouble(r["FromAmount"]) == 0 & Convert.ToDouble(r["ToAmount"]) == 0)
+                        {
+                            if (dt.Rows.Count > 0)
+                            {
+                                string @type = r["type"].ToString();
+                                if (type == "Percent")
+                                {
+                                    Employee = Math.Round(Allowance * (Convert.ToDouble(r["employee"]) / 100), 0);
+                                    Employer = Math.Round(Allowance * (Convert.ToDouble(r["employer"]) / 100), 0);
+                                }
+                                else if (type == "Amount")
+                                {
+                                    Employee =Convert.ToDouble(r["employee"]);
+                                    Employer =Convert.ToDouble(r["employer"]);
+                                }
+                                if (OnIncome == "Yearly")
+                                {
+                                    Employee =  Math.Round(Allowance * Convert.ToDouble(r["employee"]) / 100, 0) / 12;
+                                    r["employee"] = Employee;
+                                    Employer = Math.Round(Allowance * (Convert.ToDouble(r["employee"]) / 100), 0) / 12;
+                                }
+                            }
+                            apply = true;
+                        }
+                        else if (Allowance >= Convert.ToDouble(r["FromAmount"]) & Allowance <= Convert.ToDouble(r["ToAmount"]))
+                        {
+                            if (dt.Rows.Count > 0)
+                            {
+                                string @type = r["type"].ToString();
+                                if (type == "Percent")
+                                {
+                                    Employee = Math.Round(Allowance * (Convert.ToDouble(r["employee"]) / 100), 0);
+                                    Employer = Math.Round(Allowance * (Convert.ToDouble(r["employer"]) / 100), 0);
+                                }
+                                else if (type == "Amount")
+                                {
+                                    Employee = Convert.ToDouble(r["employee"]);
+                                    Employer = Convert.ToDouble(r["employer"]);
+                                }
+                                if (OnIncome == "Yearly")
+                                {
+                                    Employee =  Math.Round(Allowance * (Convert.ToDouble(r["employee"]) / 100), 0) / 12;
+                                    r["employee"] = Employee;
+                                    Employer = Math.Round(Allowance * (Convert.ToDouble(r["employee"]) / 100), 0) / 12;
+                                }
+                            }
+                            apply = true;
+                        }
+                        else if (Allowance >= Convert.ToDouble(r["FromAmount"]) && Convert.ToDouble(r["ToAmount"]) == 0)
+                        {
+                            if (dt.Rows.Count > 0)
+                            {
+                                string @type = r["type"].ToString();
+                                if (type == "Percent")
+                                {
+                                    Employee = Math.Round(Allowance * (Convert.ToDouble(r["employee"]) / 100), 0);
+                                    Employer = Math.Round(Allowance * (Convert.ToDouble(r["employer"]) / 100), 0);
+                                }
+                                else if (type == "Amount")
+                                {
+                                    Employee = Convert.ToDouble(r["employee"]);
+                                    Employer = Convert.ToDouble(r["employer"]);
+                                }
+                                if (OnIncome == "Yearly")
+                                {
+                                    Employee =  Math.Round(Allowance * (Convert.ToDouble(r["employee"]) / 100), 0) / 12;
+                                    r["employee"] = Employee;
+                                    Employer = Math.Round(Allowance * (Convert.ToDouble(r["employee"]) / 100), 0) / 12;
+                                }
+                            }
+                            apply = true;
+                        }
+
+                        if (apply)
+                        {
+                            cmd.Parameters.Add("@EmployeeID", SqlDbType.Int).Value = employeeid;
+                            cmd.Parameters.Add("@FromAmount", SqlDbType.Decimal, 10).Value = FromAmount;
+                            cmd.Parameters.Add("@ToAmount", SqlDbType.Decimal, 10).Value = ToAmount;
+                            cmd.Parameters.Add("@Employee", SqlDbType.Decimal, 10).Value = Employee;
+                            cmd.Parameters.Add("@Employer", SqlDbType.Decimal, 10).Value = Employer;
+                            cmd.Parameters.Add("@Amount", SqlDbType.Decimal, 10).Value = 0;
+                            cmd.Parameters.Add("@Type", SqlDbType.VarChar).Value = r["type"];
+                            cmd.Parameters.Add("@DeductionID", SqlDbType.Int).Value = deductionid;
+                            cmd.Parameters.Add("@Fixed", SqlDbType.Decimal, 10).Value = r["Fixed"];
+                            cmd.Parameters.Add("@DetailsID", SqlDbType.Int).Value = r["DetailsID"];
+
+                            string insert = "INSERT INTO SlabDeduction(EmployeeID,FromAmount,ToAmount,Employee,Employer," +
+                            "Amount,Type,DeductionID, Fixed, DetailsID) " +
+                            "VALUES( @EmployeeID, @FromAmount, @ToAmount, @Employee, @Employer, @Amount, @Type, @DeductionID," +
+                            "@Fixed, @DetailsID)";
+
+                            cmd.CommandType = CommandType.Text;
+                            cmd.CommandText = insert;
+                            cmd.ExecuteNonQuery();
+                            cmd.Parameters.Clear();
+                        }
+                    }
+                }
+            
+
+
+            return Content("Success","text/plain");
+        
+        }
         public async Task<IActionResult> Deduction(int employeeid, int categoryid)
         {
 
@@ -289,7 +702,7 @@ namespace Standus_5_0.Areas.HumanResource.Controllers
                                 ID = A.ID,
                                 Name = A.Name,
                                 Amount = 0,
-                                Fixed = A.Fixed,
+                                Fixed = A.Fixed == null ? false : true,
                                 FromAmount = 0,
                                 ToAmount = 0,
                                 Employee = 0,
@@ -322,7 +735,7 @@ namespace Standus_5_0.Areas.HumanResource.Controllers
                                 (d, s) =>
                                 {
                                     d.Amount = s.Amount;
-                                    d.Fixed = s.Fixed;
+                                    d.Fixed = s.Fixed == null ? false : true;
                                     d.FromAmount = s.FromAmount;
                                     d.ToAmount = s.ToAmount;
                                     d.Employee = s.Employee;

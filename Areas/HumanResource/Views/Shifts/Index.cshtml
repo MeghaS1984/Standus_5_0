@@ -1,0 +1,72 @@
+﻿@model IEnumerable<Standus_5_0.Areas.AppSetup.Models.Shift>
+
+@{
+    ViewData["Title"] = "Index";
+    Layout = "~/Areas/HumanResource/Views/Shared/_Layout.cshtml";
+}
+
+<h1>Index</h1>
+
+<p>
+    <a asp-action="Create">Create New</a>
+</p>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.ShiftNo)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Description)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.StartTime)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.EndTime)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.BreakStartTime)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.BreakEndTime)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.InActive)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model) {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.ShiftNo)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Description)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.StartTime)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.EndTime)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.BreakStartTime)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.BreakEndTime)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.InActive)
+            </td>
+            <td>
+                <a asp-action="Edit" asp-route-id="@item.ShiftID">Edit</a> |
+                <a asp-action="Details" asp-route-id="@item.ShiftID">Details</a> |
+                <a asp-action="Delete" asp-route-id="@item.ShiftID">Delete</a>
+            </td>
+        </tr>
+}
+    </tbody>
+</table>

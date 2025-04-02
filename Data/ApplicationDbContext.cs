@@ -45,8 +45,10 @@ namespace Standus_5_0.Data
             modelBuilder.Entity<SlabCalculation>().HasNoKey();
             modelBuilder.Entity<SlabAllowance>().HasNoKey();
             modelBuilder.Entity<SlabDeduction>().HasNoKey();
-            modelBuilder.Entity<SlabSchedule>().HasKey(ck => new { ck.SlabID , ck.DetailsID });
-
+            modelBuilder.Entity<SlabSchedule>().HasKey(ck => new { ck.DeductionID , ck.AllowanceID,ck.Month  });
+            modelBuilder.Entity<SlabCalculation>().HasKey(ck => new { ck.SlabID, ck.DetailsID, ck.AllowanceID, ck.DeductionID });
+            modelBuilder.Entity<AttendanceDetails>().HasKey(ck => new { ck.AttendanceID });
+            modelBuilder.Entity<AttendanceDetailsViewModel>().HasKey(ck => new { ck.AttendanceID, ck.EmployeeID });
             base.OnModelCreating(modelBuilder);
         }
         public DbSet<Standus_5_0.Areas.HumanResource.Models.Allowance> Allowance { get; set; } = default!;
@@ -84,6 +86,9 @@ namespace Standus_5_0.Data
         public DbSet<AttendanceDetails> AttendanceDetails { get; set; } = default!;
         public DbSet<Standus_5_0.Areas.HumanResource.Models.AllowanceDetails> AllowanceDetails { get; set; } = default!;
         public DbSet<Standus_5_0.Areas.HumanResource.Models.DeductionDetails> DeductionDetails { get; set; } = default!;
+    
+        public DbSet<Shift> Shift { get; set; } = default!;
+        public DbSet<Standus_5_0.Areas.HumanResource.Models.AttendanceDetailsViewModel> AttendanceDetailsViewModel { get; set; } = default!;
     }
 
     

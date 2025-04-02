@@ -52,8 +52,8 @@
                 @Html.DisplayFor(modelItem => item.Category.CategoryName)
             </td>
             <td>
-                    <a href="SlabSchedule?slabid=@item.SlabID&detailsid=@item.ID&categoryid=@item.CategoryID&allowanceid=@ViewData["AllowanceID"]">Schedule</a> |
-                    <a href="SlabCalculation?slabid=@item.SlabID&detailsid=@item.ID&categoryid=@item.CategoryID&allowanceid=@ViewData["AllowanceID"]">Allowance</a>
+                    <a href="SlabSchedule?slabid=@item.SlabID&detailsid=@item.ID&categoryid=@item.CategoryID&allowanceid=@ViewData["AllowanceID"]&deductionid=@ViewData["DeductionID"]">Schedule</a> |
+                    <a href="SlabCalculation?slabid=@item.SlabID&detailsid=@item.ID&categoryid=@item.CategoryID&allowanceid=@ViewData["AllowanceID"]&deductionid=@ViewData["DeductionID"]">Allowance</a>
             </td>
         </tr>
 }

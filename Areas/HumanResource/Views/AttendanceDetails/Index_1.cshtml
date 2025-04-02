@@ -1,0 +1,120 @@
+﻿@model IEnumerable<YourNamespace.Models.AttendanceDetails>
+
+@{
+    ViewData["Title"] = "Index";
+    Layout = "~/Areas/HumanResource/Views/Shared/_Layout.cshtml";
+}
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="form-group" id="message">
+        </div>
+    </div>
+</div>
+
+<div class="flex-header-container">
+    <div>
+        <h5>Daily Attendance</h5>
+    </div>
+    <div>
+        Select Date : <input type="date" id = "attendance_date">
+    </div>
+    <div>
+        <a href="javascript:void()" class="btn btn-primary" onclick="add_attendance()">Add Attendance</a>
+    </div>
+</div>
+
+<table class="table table-bordered table-striped">
+    <thead>
+        <tr class="table-success">
+            <th>Name</th>
+            <th>
+                @Html.DisplayNameFor(model => model.Date)
+            </th>
+            <th>
+                In Time
+            </th>
+            <th>
+                Out Time
+            </th>
+            <th>
+                Over Time
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.ShiftID)
+            </th>
+            <th>
+                1st Half
+            </th>
+            <th>
+                2nd Half
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model) {
+        <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.employee.Name )
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Date)
+                </td>
+            <td>
+                    <input type="datetime-local" name="InTime" id="InTime" value="@item.InTime.ToString("yyyy-MM-ddTHH:mm")">
+
+            </td>
+            <td>
+                    <input type="datetime-local" name="OutTime" id="OutTime" value="@item.OutTime.ToString("yyyy-MM-ddTHH:mm")">
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Overtime)
+                </td>
+            <td>
+                    @* @Html.DisplayFor(modelItem => item.ShiftNo) *@
+            </td>
+            <td>                    
+                    ViewData["Shift"]
+            </td>
+            <td>
+                    @* @Html.DropDownList("Half2", new SelectList(ViewData["HeadID"],"ID","HeadType",item.Half2)) *@
+                    @item.Half2
+            </td>
+            <td>
+                <a asp-action="Edit" asp-route-id="@item.AttendanceID">Edit</a>
+            </td>
+        </tr>
+}
+    </tbody>
+</table>
+<script>
+    $(document).ready(function () {
+        
+        $('input[type="datetime-local"]').prop('disabled', true);
+        //$('select').prop('disabled', true);
+        
+        $("#attendance_date").on('change',function() {
+            var attendance_date = $("#attendance_date").val();
+            window.location.href = '/Humanresource/AttendanceDetails/Index?date=' + attendance_date;   
+        });
+       
+    });
+    function add_attendance() {
+        var status ;
+        var attendance_date = $("#attendance_date").val();
+        var promise = $.ajax({
+            url:'/HumanResource/AttendanceDetails/AddAttendance',
+            type:'GET',
+            data: {date : attendance_date}            
+        }).then(function(result) {
+            status = result;
+        }).catch(function(error) {
+        
+        });
+
+        promise.done(function(){
+            $("#message").html(status);
+        })
+    }
+</script>

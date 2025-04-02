@@ -21,7 +21,7 @@ namespace Standus_5_0.Areas.HumanResource.Controllers
         }
 
         // GET: HumanResource/SlabCategories
-        public async Task<IActionResult> Index(int SlabID, int AllowanceID)
+        public async Task<IActionResult> Index(int SlabID, int AllowanceID, int DeductionID)
         {
             var applicationDbContext = from catg in _context.Category
                                        join slb in _context.SlabCategory on catg.ID equals slb.CategoryID
@@ -31,7 +31,8 @@ namespace Standus_5_0.Areas.HumanResource.Controllers
                                            Category = catg.CategoryName,
                                            SlabID = slb.SlabID
                                        };
-            ViewData["AllowanceID"] = AllowanceID;                         
+            ViewData["AllowanceID"] = AllowanceID;
+            ViewData["DeductionID"] = DeductionID;
             //var applicationDbContext = _context.SlabCategory.Include(s => s.Category);
             return PartialView("_Index",await applicationDbContext.ToListAsync());
         }
@@ -56,13 +57,26 @@ namespace Standus_5_0.Areas.HumanResource.Controllers
         }
 
         // GET: HumanResource/SlabCategories/Create
-        public IActionResult Create(int? id)
+        public IActionResult Create(int? id,int? deductionid = 0)
         {
-            var allw = _context.Allowance.Where(a => a.ID  == id).Include(s => s.slab).FirstOrDefault() ;
-            
-            ViewData["SlabID"] = allw.slab.SlabID;
-            ViewData["AllowanceID"] = allw.ID;
-            ViewData["Allowance"] = allw.Name;
+            if (id > 0)
+            {
+                var allw = _context.Allowance.Where(a => a.ID == id).Include(s => s.slab).FirstOrDefault();
+
+                ViewData["SlabID"] = allw.slab.SlabID;
+                ViewData["AllowanceID"] = allw.ID;
+                ViewData["DeductionID"] = 0;
+                ViewData["Name"] = allw.Name;
+            }
+            else {
+                //var deduction = _context.Deduction.Where(a => a.ID == deductionid).Include(s => s.slab).FirstOrDefault();
+
+                //ViewData["SlabID"] = deduction.slab.SlabID;
+                //ViewData["AllowanceID"] = 0;
+                //ViewData["DeductionID"] = deduction.ID;
+                //ViewData["Name"] = deduction.Name;
+            }
+
             ViewData["CategoryID"] = new SelectList(_context.Category, "ID", "CategoryName");
             return View();
         }

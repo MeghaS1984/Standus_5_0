@@ -5,7 +5,7 @@
     Layout = "~/Areas/HumanResource/Views/Shared/_Layout.cshtml";
 }
 
-<h4>Add Category</h4>
+<h5>Add Category [ @ViewData["Name"] ] </h5>
 <hr />
 <form asp-action="Create">
     <div class="row align-items-lg-center">
@@ -26,7 +26,11 @@
             <!-- Half width for submit button -->
             <div class="form-group">
                 <input type="submit" value="Create" class="btn btn-primary" /> | 
-                <a href="/HumanResource/Allowances">Back to Allowance List</a>
+                @if (ViewBag.AllowanceID > 0 ) {
+                    <a href="/HumanResource/Allowances">Back to Allowance List</a> 
+                } else {
+                    <a href="/HumanResource/Deductions">Back to Deduction List</a>
+                }
             </div>
         </div>
     </div>
@@ -42,7 +46,7 @@
                 url: '@Url.Action("index", "SlabCategories")',  // Ensure this is the correct URL for your action
                 type: 'GET',
                 data: {
-                    slabid: @ViewBag.SlabID, allowanceid : @ViewBag.AllowanceID
+                slabid: @ViewBag.SlabID, allowanceid: @ViewBag.AllowanceID, deductionid: @ViewBag.DeductionID
                 },
                 success: function (result) {
                     $('#slabdetails').html(result);

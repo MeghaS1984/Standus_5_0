@@ -23,15 +23,24 @@ namespace Standus_5_0.Areas.HumanResource.Controllers
         // GET: HumanResource/StandardDeductionCalculations
         public async Task<IActionResult> Index(int deductionid)
         {
+            //var applicationDbContext = from earning in _context.Allowance
+            //                           join stdcal in _context.StandardDeductionCalculation on earning.ID equals stdcal.AllowanceID
+            //                           into stdcalgroup
+            //                           from stdcal in stdcalgroup.DefaultIfEmpty()
+            //                           where (stdcal == null || stdcal.DeductionID == deductionid)
+            //                           select new
+            //                           {
+            //                               AllowanceID = earning.ID,
+            //                               Allowance = earning.Name,
+            //                               Deductionid = stdcal == null ? (int?)null : stdcal.DeductionID
+            //                           };
+
             var applicationDbContext = from earning in _context.Allowance
-                                       join stdcal in _context.StandardDeductionCalculation on earning.ID equals stdcal.AllowanceID
-                                       into stdcalgroup
-                                       from stdcal in stdcalgroup.DefaultIfEmpty()
-                                       where (stdcal == null || stdcal.DeductionID == deductionid)
-                                       select new { 
-                                            AllowanceID = earning.ID,
-                                            Allowance = earning.Name,
-                                            Deductionid = stdcal == null ? (int?)null : stdcal.DeductionID
+                                       select new
+                                       {
+                                           AllowanceID = earning.ID,
+                                           Allowance = earning.Name,
+                                           DeductionID = 0
                                        };
 
             var result = await applicationDbContext.ToListAsync();
@@ -83,17 +92,19 @@ namespace Standus_5_0.Areas.HumanResource.Controllers
         // GET: HumanResource/StandardDeductionCalculations/Edit/5
         public async Task<IActionResult> Edit(int deductionid)
         {
+            var stdcl = _context.StandardDeductionCalculation.Where (s => s.DeductionID == deductionid);
+
             var applicationDbContext = from earning in _context.Allowance
-                                       join stdcal in _context.StandardDeductionCalculation on earning.ID equals stdcal.AllowanceID
-                                       into stdcalgroup
-                                       from stdcal in stdcalgroup
-                                       where (stdcal == null || stdcal.DeductionID == deductionid)
+                                       join stdcal in stdcl on earning.ID equals stdcal.AllowanceID into stdcalgroup
+                                       from stdcal in stdcalgroup.DefaultIfEmpty() // This ensures the left join behavior
+                                       //where (stdcal == null || stdcal.DeductionID == deductionid)
                                        select new
                                        {
                                            AllowanceID = earning.ID,
                                            Allowance = earning.Name,
-                                           Deductionid = stdcal.DeductionID,
+                                           Deductionid = stdcal == null ? (int?)0 : stdcal.DeductionID
                                        };
+
 
             return PartialView("Edit", await applicationDbContext.ToListAsync());
         }

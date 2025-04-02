@@ -1,0 +1,81 @@
+﻿@model YourNamespace.Models.AttendanceDetails
+
+@{
+    ViewData["Title"] = "Create";
+    Layout = "~/Areas/HumanResource/Views/Shared/_Layout.cshtml";
+}
+
+<h1>Create</h1>
+
+<h4>AttendanceDetails</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="Create">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-group">
+                <label asp-for="Overtime" class="control-label"></label>
+                <input asp-for="Overtime" class="form-control" />
+                <span asp-validation-for="Overtime" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="InTime" class="control-label"></label>
+                <input asp-for="InTime" class="form-control" />
+                <span asp-validation-for="InTime" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="OutTime" class="control-label"></label>
+                <input asp-for="OutTime" class="form-control" />
+                <span asp-validation-for="OutTime" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Reason" class="control-label"></label>
+                <input asp-for="Reason" class="form-control" />
+                <span asp-validation-for="Reason" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Date" class="control-label"></label>
+                <input asp-for="Date" class="form-control" />
+                <span asp-validation-for="Date" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="HeadID" class="control-label"></label>
+                <input asp-for="HeadID" class="form-control" />
+                <span asp-validation-for="HeadID" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="EmployeeID" class="control-label"></label>
+                <input asp-for="EmployeeID" class="form-control" />
+                <span asp-validation-for="EmployeeID" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="ShiftID" class="control-label"></label>
+                <input asp-for="ShiftID" class="form-control" />
+                <span asp-validation-for="ShiftID" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Half1" class="control-label"></label>
+                <input asp-for="Half1" class="form-control" />
+                <span asp-validation-for="Half1" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Half2" class="control-label"></label>
+                <input asp-for="Half2" class="form-control" />
+                <span asp-validation-for="Half2" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Status" class="control-label"></label>
+                <input asp-for="Status" class="form-control" />
+                <span asp-validation-for="Status" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Create" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>
+

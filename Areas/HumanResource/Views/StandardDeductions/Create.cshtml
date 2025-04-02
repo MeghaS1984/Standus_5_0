@@ -5,12 +5,11 @@
     Layout = "~/Areas/HumanResource/Views/Shared/_Layout.cshtml";
 }
 
-<h5> Add Standard Deduction</h5>
+<h5>Add Standard Deduction</h5>
 <hr />
 <div class="standard-row-container">
 <div class="row" style="width:60%">
     <div class="col-md-8">
-        <form asp-action="Create">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <div class="form-group">
                 <label asp-for="EmployeeID" class="control-label"></label>
@@ -36,9 +35,9 @@
                 <select asp-for="DeductionID" class ="form-control" asp-items="ViewBag.DeductionID"></select>
             </div>
             <div class="form-group">
-                <input type="submit" value="Create" class="btn btn-primary" />
+                <input type="button" value="Create" class="btn btn-primary" id="submit"/>
             </div>
-        </form>
+       
     </div>
         <div>
             <a asp-action="Index">Back to List</a>
@@ -63,6 +62,45 @@
             },
             error : function (xhr , status , error){
                 console.error("AJAX Error: " + error);
+            }
+        });
+    });
+
+    $("#submit").on('click',function() {
+        var formData = {
+            employeeid : $("#EmployeeID").val(),
+            type: $("#Type").val(),
+            employee: $("#Employee").val(),
+            employer: $("#Employer").val(),
+            deductionid: $("#DeductionID").val(),
+            allowances:[]
+        }
+
+        $(".calculate_on").each(function() {
+            var is_selected = $(this).find('input[name$=".deductionid"]').prop('checked');
+            var allowanceid;
+            if (is_selected) {
+
+                allowanceid = $(this).find('input[name$=".allowanceid"]').val();
+                formData.allowances.push(allowanceid);
+            }
+        });
+        console.log(formData);
+
+        $.ajax({
+            url: '@Url.Action("Create", "StandardDeductions")',  // Replace with your controller's Create action URL
+            type: 'POST',  // HTTP method
+            data: JSON.stringify(formData),  // Convert to JSON string
+            contentType: 'application/json',  // Tell the server we're sending JSON
+            success: function (response) {
+                // Handle success
+                alert('Form submitted successfully!');
+                console.log(response);  // Display or process the response here
+            },
+            error: function (xhr, status, error) {
+                // Handle error
+                alert('Error occurred while submitting the form!');
+                console.log(error);
             }
         });
     });

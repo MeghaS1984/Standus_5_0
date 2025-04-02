@@ -1,8 +1,10 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
+﻿using Microsoft.EntityFrameworkCore;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Standus_5_0.Areas.HumanResource.Models
 {
     [Table("SlabCalculation")]
+    [Keyless]
     public class SlabCalculation
     {
         public int SlabID { get; set; }
@@ -12,8 +14,8 @@ namespace Standus_5_0.Areas.HumanResource.Models
         public String OnIncome { get; set; }
 
         // You may add navigation properties if you have related entities in your DbContext
-        // public virtual Allowance Allowance { get; set; }
-        // public virtual Deduction Deduction { get; set; }
+         public virtual Allowance Allowance { get; set; }
+        public virtual Deduction Deduction { get; set; }
     }
 
 }

@@ -228,9 +228,13 @@ namespace Standus_5_0.Areas.HumanResource.Controllers
         {
             var holidays = await _context.Holidays.FindAsync(id);
 
-            DateTime holiday;
-            holiday = holidays.sDate;
-                
+            DateOnly holiday;
+            DateTime date = holidays.sDate.Date; // Assuming sDate is a DateTime
+
+            // Convert DateTime to DateOnly
+            holiday = DateOnly.FromDateTime(date);
+
+
             var attnd = _context.AttendanceDetails.Where(f => f.Date == holiday).FirstOrDefault ();
 
             if (attnd != null)

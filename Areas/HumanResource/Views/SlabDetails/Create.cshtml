@@ -55,7 +55,11 @@
             <div class="form-group">
                 <label class="control-label"></label>
                 <input type="submit" value="Create" class="btn btn-primary" /> |
-                <a href="/humanresource/slabcategories/create?id=@ViewBag.AllowanceID">Back to List</a>
+                @if (ViewBag.AllowanceID > 0) {
+                    <a href="/humanresource/slabcategories/create?id=@ViewBag.AllowanceID">Back to List</a>
+                }else {
+                    <a href="/humanresource/slabcategories/create?id=0&deductionid=@ViewBag.DeductionID">Back to List</a>
+                }
             </div>
         </div>
 </div>

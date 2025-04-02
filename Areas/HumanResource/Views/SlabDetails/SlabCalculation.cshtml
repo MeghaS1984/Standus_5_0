@@ -1,0 +1,143 @@
+﻿@model IEnumerable<Standus_5_0.Areas.HumanResource.Models.Allowance>
+
+@{
+    ViewData["Title"] = "Slab Calculator";
+    Layout = "~/Areas/HumanResource/Views/Shared/_Layout.cshtml";
+}
+
+<div class="flex-header-container" style="width:80% !important">
+    <div>
+        <h5>Calculate</h5>
+    </div>
+
+    <div>
+        <a href="/Humanresource/SlabDetails/create?slabid=@ViewData["slabid"]&categoryid=@ViewData["categoryid"]&allowanceid=@ViewData["allowanceid"]&deductionid=@ViewData["deductionid"]">Back to list</a>
+    </div>
+
+    <div style="position:relative;float:right">
+        <input type="checkbox" id="selectAll" />Select All
+    </div>
+
+    <div class="row">
+        <div class="col-md-5">
+            <label for="type">Calculation</label>
+        </div>
+        <div class="col-md-7">
+            <select id="onincome" class="form-control">
+                <option value="monthly">Monthly</option>
+                <option value="yearly">Yearly</option>
+            </select>
+        </div>
+    </div>
+
+</div>
+<table class="table table-bordered table-striped" id="calculator">
+   
+    <tbody>
+@foreach (var item in Model) {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.Name)
+            </td>
+            <td>
+                    <input type="checkbox" value="0" name="@item.Name">
+            </td>
+        </tr>
+}
+        <tr>
+            <td colspan=2><input type="button" value="Submit" onclick="update_calculator();"></td>
+        </tr>
+    </tbody>
+</table>
+<script>
+
+    $("#selectAll").on('change', function () {
+
+        var isChecked = $(this).prop('checked');
+
+        $("#calculator").find('tr').each(function (index) {
+            $(this).find('td').eq(1).find('input[type = "checkbox"]').prop('checked', isChecked);
+        });
+    });
+
+    $(document).ready(function () {
+        $.ajax({
+            url: '@Url.Action("Get_Calculation", "SlabDetails")', // Replace with your actual controller and action
+            type: 'GET',
+            data: {
+                slabid: @ViewData["slabid"],  // Razor will inject these values
+                detailsid: @ViewData["detailsid"]
+                },
+            success: function (result) {
+                if (result.length > 0 ) {
+                    $("#onincome option").filter(function(index){
+                        return $(this).text() == result[0].onIncome;
+                    }).prop('selected', true);
+                }
+                for (let i = 0; i < result.length; i++) {
+                    let text_to_search = result[i].allowanceName;
+                    let td = $("#calculator").find('td').filter(function () {
+                        return $(this).text().includes(text_to_search);
+                    });
+                    td.closest('tr').find('input[type="checkbox"]').prop('checked', true);
+                }
+            },
+            error: function (xhr, status, error) {
+                console.log("Error: " + error);  // Handle error
+            }
+        });
+    });
+
+    function update_calculator() {
+        $.ajax({
+            url: '/Humanresource/SlabDetails/DeleteSlabCalculation?slabid=@ViewData["slabid"]&detailsid=@ViewData["detailsid"]',
+            type: 'GET',
+            success: function (result) {
+                if (result == "Success") {
+                    save_data();
+                }
+            },
+            error: function (xhr, status, error) {
+
+            }
+        });
+    }
+
+    function save_data() {
+        var status; // Declare status outside
+        var onincome = $("#onincome option:selected").text();
+        // Create an array to store all promises
+        var promises = [];
+
+        $("#calculator").find('tr').each(function (index) {
+            let allowance = $(this).find('td').eq(0).text().trim();
+            let is_checked = $(this).find('td').eq(1).find('input[type="checkbox"]').prop('checked');
+
+            var promise = $.ajax({
+                url: 'UpdateSlabCalculation',
+                type: 'GET',
+                data: {
+                    slabid: @ViewData["slabid"],
+                    detailsid: @ViewData["detailsid"],
+                    allowance: allowance,
+                    onincome: onincome,
+                    ischecked: is_checked
+                }
+            }).then(function (result) {
+                status = result; // Set status to result on success
+            }).catch(function (error) {
+                console.error("Error:", error); // Handle error
+            });
+
+            // Add the promise to the array
+            promises.push(promise);
+        });
+
+        // Wait for all promises to resolve
+        Promise.all(promises).then(function () {
+            // This will be executed after all AJAX calls are complete
+            console.log(status); // Log final status after all requests are done
+            $(document.body).append(status); // Append status to body
+        });
+    }
+</script>

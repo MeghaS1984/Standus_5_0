@@ -1,0 +1,76 @@
+﻿@model YourNamespace.Models.AttendanceDetails
+
+@{
+    ViewData["Title"] = "Edit";
+    Layout = "~/Areas/HumanResource/Views/Shared/_Layout.cshtml";
+}
+<div class="row">
+    <div class="col-md-12">
+        <div class="form-group">
+            @Html.Raw(@TempData["Alert"])
+        </div>
+    </div>
+</div>
+
+<h5>Edit Attendance</h5>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="Edit">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <input type="hidden" asp-for="AttendanceID" />
+            <input type="hidden" asp-for="EmployeeID" />
+            <div class="form-group">
+                <input type="hidden" name="EmplyeeID" id="EmployeeID" asp-for="EmployeeID">
+                <label asp-for="EmployeeID" class="control-label">Employee :</label>
+                <span style="font-weight:bolder">@Html.DisplayFor(model => model.employee.Name)</span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Date" class="control-label"></label>
+                <input asp-for="Date" class="form-control" type="date" />
+                <span asp-validation-for="Date" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="InTime" class="control-label">In Time</label>
+                <input asp-for="InTime" class="form-control" type="datetime-local" />
+                <span asp-validation-for="InTime" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="OutTime" class="control-label">Out Time</label>
+                <input asp-for="OutTime" class="form-control" type="datetime-local" />
+                <span asp-validation-for="OutTime" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Overtime" class="control-label">Over Time</label>
+                <input asp-for="Overtime" class="form-control" />
+                <span asp-validation-for="Overtime" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Reason" class="control-label"></label>
+                <input asp-for="Reason" class="form-control" />
+                <span asp-validation-for="Reason" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="ShiftID" class="control-label">Shift</label>
+                @Html.DropDownList("ShiftID", (SelectList)ViewData["Shift"],  new {@class="form-control"})
+                <span asp-validation-for="ShiftID" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Half1" class="control-label">1st Half</label>
+                @Html.DropDownList("Half1", (SelectList)ViewData["Half1"], new { @class = "form-control" })
+                <span asp-validation-for="Half1" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Half2" class="control-label">2nd Half</label>
+                @Html.DropDownList("Half2", (SelectList)ViewData["Half2"], new { @class = "form-control" })
+                <span asp-validation-for="Half2" class="text-danger"></span>
+            </div><br>
+            <div class="form-group">
+                <input type="submit" value="Save" class="btn btn-primary" /> | 
+                <a asp-action="Index">Back to List</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+

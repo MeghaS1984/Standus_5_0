@@ -1,28 +1,36 @@
-﻿@model Standus_5_0.Areas.HumanResource.Models.StandardDeductionCalculation
+﻿@model IEnumerable<dynamic>
 
-@{
-    ViewData["Title"] = "Edit";
-    Layout = "~/Areas/HumanResource/Views/Shared/_Layout.cshtml";
-}
-
-<h1>Edit</h1>
-
-<h4>StandardDeductionCalculation</h4>
-<hr />
-<div class="row">
-    <div class="col-md-4">
-        <form asp-action="Edit">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <input type="hidden" asp-for="DeductionID" />
-            <input type="hidden" asp-for="AllowanceID" />
-            <div class="form-group">
-                <input type="submit" value="Save" class="btn btn-primary" />
-            </div>
-        </form>
-    </div>
+<div style="position:relative;float:right">
+    <input type="checkbox" id="selectAllw" />Select All
 </div>
+<table class="table table-bordered table-striped " id="calculator">
 
-<div>
-    <a asp-action="Index">Back to List</a>
-</div>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr class="calculate_on">
+                <td>
+                    <input type="hidden" value="@item.AllowanceID" name="allowance[@item.AllowanceID].allowanceid">
+                    @item.Allowance
+                </td>
+                <td>
+                    @if (item.Deductionid == 0 ) {
+                        <input type="checkbox" name="allowance[@item.AllowanceID].selected">
+                    } else {
+                        <input type="checkbox" name="allowance[@item.AllowanceID].selected" checked>
+                    }
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+<script>
+    $("#selectAllw").on('change', function () {
 
+        var isChecked = $(this).prop('checked');
+
+        $("#calculator").find('tr').each(function (index) {
+            $(this).find('td').eq(1).find('input[type = "checkbox"]').prop('checked', isChecked);
+        });
+    });
+</script>

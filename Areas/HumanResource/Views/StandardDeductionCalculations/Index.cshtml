@@ -1,17 +1,31 @@
 ﻿@model IEnumerable<dynamic>
 
-<table class="table table-bordered table-responsive-sm">
+<div style="position:relative;float:right">
+    <input type="checkbox" id="selectAllw" />Select All
+</div>
+<table class="table table-bordered table-striped " id="calculator">
     
     <tbody>
 @foreach (var item in Model) {
-        <tr>
+        <tr class="calculate_on">
             <td>
+                    <input type="hidden" value="@item.AllowanceID" name="allowance[@item.AllowanceID].allowanceid">
                 @item.Allowance
             </td>
             <td>
-                <input type="checkbox" value="@item.Deductionid > 0 ? 1 : 0">
+                    <input type="checkbox" name="allowance[@item.AllowanceID].selected">
             </td>
         </tr>
 }
     </tbody>
 </table>
+<script>
+    $("#selectAllw").on('change', function () {
+
+        var isChecked = $(this).prop('checked');
+
+        $("#calculator").find('tr').each(function (index) {
+            $(this).find('td').eq(1).find('input[type = "checkbox"]').prop('checked', isChecked);
+        });
+    });
+</script>

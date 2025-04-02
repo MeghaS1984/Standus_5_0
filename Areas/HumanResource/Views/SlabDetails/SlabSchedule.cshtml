@@ -1,22 +1,12 @@
-﻿@{
-	ViewData["Title"] = "Create";
-	Layout = "~/Areas/HumanResource/Views/Shared/_Layout.cshtml";
-}
+﻿
 
-<div class="flex-header-container" style="width:80%">
-	<div>
-		<h5>Scheduler</h5>
-	</div>
 
-	<div>
-		<a href="/Humanresource/SlabDetails/create?slabid=@ViewData["slabid"]&categoryid=@ViewData["categoryid"]&allowanceid=@ViewData["allowanceid"]">Back to list</a>
-	</div>
 
+
+	
 	<div style="position:relative;float:right">
 		<input type="checkbox" id="selectAll" />Select All
 	</div>
-</div>
-<hr />
 
 <table class="table table-bordered table-striped" id="schedule">
 @{
@@ -25,15 +15,16 @@
 
 	@for (int i=1;i<=months;i++){
 		string month_name = new DateTime(2022, i, 1).ToString("MMM");
-		<tr>
+		<tr class="month">
 			<td>@month_name</td>
 			<td><input type="checkbox" value="0" name="@month_name" ></td>
 			<td></td>
 		</tr>
 	}
+	@* 
 	<tr>
 		<td colspan=2><input type="button" value="Submit" onclick="update_scheduler();"></td>
-		</tr>
+		</tr> *@
 </table>
 
 

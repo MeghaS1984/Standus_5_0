@@ -13,9 +13,9 @@ namespace Standus_5_0.Areas.HumanResource.Models
         public int ID { get; set; }
 
         [Required]
-        public string? Name { get; set; }
+        public string Name { get; set; }
 
-        public string? Description { get; set; }
+        public string Description { get; set; }
 
         
         public string? Period { get; set; }
@@ -31,7 +31,7 @@ namespace Standus_5_0.Areas.HumanResource.Models
 
         public int? Day { get; set; }
 
-        public bool Variable { get; set; }
+        public bool? Variable { get; set; }
 
         public int? AccountID { get; set; }
 
@@ -39,6 +39,8 @@ namespace Standus_5_0.Areas.HumanResource.Models
         public bool OnYearlyIncome { get; set; }
         [DisplayName("Payroll Rank")]
         public int PayRollSlNo { get; set; }
+        [DisplayName("Deduction Type")]
+        public string? Type { get; set; }    
 
         [DisplayName("In Active")]
         public bool InActive { get; set; }
@@ -51,6 +53,7 @@ namespace Standus_5_0.Areas.HumanResource.Models
 
         public int EmployerDebitTo { get; set; }
 
+        //public Slab slab { get; set; }
         // Navigation property for Account
         //[ForeignKey("AccountID")]
         //public virtual Account Account { get; set; }

@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.CodeAnalysis.Operations;
 using Microsoft.EntityFrameworkCore;
 using Standus_5_0.Areas.HumanResource.Models;
 using Standus_5_0.Data;
@@ -30,6 +31,7 @@ namespace Standus_5_0.Areas.HumanResource.Controllers
             if (slab != null)
             {
                 ViewData["AllowanceID"] = slab.AllowanceID;
+                ViewData["DeductionID"] = slab.DeductionID;
             }
             var applicationDbContext = _context.SlabDetails.Include(s => s.Category).
                 Where(f => f.SlabID == slabid && f.CategoryID == categoryid);
@@ -56,12 +58,13 @@ namespace Standus_5_0.Areas.HumanResource.Controllers
         }
 
         // GET: HumanResource/SlabDetails/Create
-        public IActionResult Create(int SlabID,int CategoryID, int AllowanceID)
+        public IActionResult Create(int SlabID,int CategoryID, int AllowanceID, int DeductionID)
         {
             //var slab_details = _context.SlabDetails.Where(s => s.ID == SlabID && s.CategoryID == CategoryID);
             ViewData["CategoryID"] = CategoryID; //new SelectList(_context.Category, "ID", "CategoryName");
             ViewData["SlabID"] = SlabID;
             ViewData["AllowanceID"] = AllowanceID;
+            ViewData["DeductionID"] = DeductionID;
             return PartialView();
         }
 
@@ -175,85 +178,134 @@ namespace Standus_5_0.Areas.HumanResource.Controllers
             return _context.SlabDetails.Any(e => e.ID == id);
         }
 
-        public IActionResult SlabSchedule(int slabid, int detailsid,int categoryid, int allowanceID)
+        public IActionResult SlabSchedule(int slabid, int detailsid,int categoryid, int allowanceID,int deductionid)
         {
             ViewData["categoryid"] = categoryid;
             ViewData["slabid"] = slabid;
             ViewData["detailsid"] = detailsid;
             ViewData["allowanceid"] = allowanceID;
-            return View();
+            ViewData["deductionid"] = deductionid;
+            return PartialView("SlabSchedule");
         }
 
-        public ContentResult DeleteSlabSchedule(int slabid, int detailsid)
+
+
+
+
+        //     public ContentResult DeleteSlabSchedule(int slabid, int detailsid)
+        //     {
+        //         var schedule = _context.SlabSchedule.Where(s => s.SlabID == slabid && s.DetailsID == detailsid);
+
+        //         try
+        //         {
+        //             _context.SlabSchedule.RemoveRange(schedule);
+        //             _context.SaveChanges();
+
+        //             return Content("Success", "text/plain");
+        //         } catch (Exception)
+        //         {
+        //	return Content("Error", "text/plain");
+        //}
+        //     }
+        //      public ContentResult UpdateSlabSchedule(int slabid, int detailsid, string month, bool ischecked) {
+        //          string success = "", failure ="";
+
+        //	try
+        //          {
+        //              if (ischecked)
+        //              {
+        //                  var schedule = new SlabSchedule() { SlabID = slabid, DetailsID = detailsid, Month = month };
+
+        //                  _context.SlabSchedule.Add(schedule);
+        //                  _context.SaveChanges();
+        //              }
+        //		success = CommonServices.ShowAlert(Alerts.Success, "Schedule updated.");
+        //		return Content(success, "text/plain");
+        //	} catch(Exception )
+        //          {
+        //              failure = CommonServices.ShowAlert(Alerts.Danger, "Error..."); 
+        //              return Content("Error", "text/plain");
+        //          }
+
+        //}
+
+        public JsonResult Get_Schedules(int deductionid)
         {
-            var schedule = _context.SlabSchedule.Where(s => s.SlabID == slabid && s.DetailsID == detailsid);
+            var schedule = _context.SlabSchedule.Where(s => s.DeductionID == deductionid)
+                      .Select(s => s.Month);
+
+            return Json(schedule);
+        }
+
+        public IActionResult SlabCalculation(int slabid, int detailsid, int categoryid, int allowanceid, int deductionid)
+        {
+            ViewData["categoryid"] = categoryid;
+            ViewData["slabid"] = slabid;
+            ViewData["detailsid"] = detailsid;
+            ViewData["allowanceid"] = allowanceid;
+            ViewData["deductionid"] = deductionid;
+                            
+            return View(_context.Allowance);        
+        }
+
+        public JsonResult Get_Calculation(int slabid, int detailsid) {
+            var calculation = _context.SlabCalculation.Include(s => s.Allowance)
+                .Where(s => s.SlabID == slabid && s.DetailsID == detailsid)
+                .Select(s => new
+                {
+                    AllowanceName = s.Allowance.Name,
+                    OnIncome = (s.OnIncome == null ? "Monthly": s.OnIncome)
+                }).ToList(); 
+
+            return Json(calculation);
+        }
+
+        public ContentResult DeleteSlabCalculation(int slabid, int detailsid)
+        {
+            var schedule = _context.SlabCalculation.Where(s => s.SlabID == slabid && s.DetailsID == detailsid);
 
             try
             {
-                _context.SlabSchedule.RemoveRange(schedule);
+                _context.SlabCalculation.RemoveRange(schedule);
                 _context.SaveChanges();
 
                 return Content("Success", "text/plain");
-            } catch (Exception)
+            }
+            catch (Exception)
             {
-				return Content("Error", "text/plain");
-			}
+                return Content("Error", "text/plain");
+            }
         }
-        public ContentResult UpdateSlabSchedule(int slabid, int detailsid, string month, bool ischecked) {
-            string success = "", failure ="";
 
-			try
+        public ContentResult UpdateSlabCalculation(int slabid, int detailsid,string allowance, bool ischecked, string onincome)
+        {
+            string success = "", failure = "";
+
+            try
             {
                 if (ischecked)
                 {
-                    var schedule = new SlabSchedule() { SlabID = slabid, DetailsID = detailsid, Month = month };
+                    var allowanceid = _context.Allowance.Where(a => a.Name == allowance).FirstOrDefault().ID;
 
-                    _context.SlabSchedule.Add(schedule);
+                    var calculator = new SlabCalculation() { SlabID = slabid, 
+                        DetailsID = detailsid, 
+                        AllowanceID = allowanceid ,
+                        OnIncome = onincome,
+                        DeductionID = 0
+                    };
+
+                    _context.SlabCalculation.Add(calculator);
                     _context.SaveChanges();
                 }
-				success = CommonServices.ShowAlert(Alerts.Success, "Schedule updated.");
-				return Content(success, "text/plain");
-			} catch(Exception )
-            {
-                failure = CommonServices.ShowAlert(Alerts.Danger, "Error..."); 
-                return Content("Error", "text/plain");
+                success = CommonServices.ShowAlert(Alerts.Success, "Schedule updated.");
+                return Content(success, "text/plain");
             }
-			
-		}
+            catch (Exception ex)
+            {
+                failure = CommonServices.ShowAlert(Alerts.Danger, "Error...");
+                return Content(ex.Message, "text/plain");
+            }
 
-        public JsonResult Get_Schedules(int slabid, int detailsid)
-        {
-			var schedule = _context.SlabSchedule.Where(s => s.SlabID == slabid && s.DetailsID == detailsid)
-                .Select(s => s.Month);
-
-            return Json(schedule);
-		}
-
-        public IActionResult SlabCalculation(int slabid, int detailsid, int categoryid, int allowanceID)
-        {
-            ViewData["categoryid"] = categoryid;
-            ViewData["slabid"] = slabid;
-            ViewData["detailsid"] = detailsid;
-            ViewData["allowanceid"] = allowanceID;
-
-            var allowance = from allw in _context.Allowance
-                            join slbcalc in _context.SlabCalculation
-                            on allw.ID equals slbcalc.AllowanceID into allowanceGroup
-                            from slbcalc in allowanceGroup.DefaultIfEmpty() // Left join
-                            where allw.ID == allowanceID &&
-                                  (slbcalc == null || (slbcalc.SlabID == slabid && 
-                                  slbcalc.DetailsID == detailsid)) // Check null and other conditions
-                            select new
-                            {
-                                AllowanceID = allw.ID,
-                                AllowanceName = allw.Name,
-                                SlabID = slabid,
-                                DetailsID = detailsid,
-                                OnIncome = (slbcalc.OnIncome == null ? "Monthly" : slbcalc.OnIncome ) // Use null-conditional operator to safely access properties
-                            };
-
-
-            return View(allowance);
         }
     }
 }
