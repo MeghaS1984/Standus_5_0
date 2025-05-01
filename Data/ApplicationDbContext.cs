@@ -39,16 +39,34 @@ namespace Standus_5_0.Data
             modelBuilder.Entity<StandardDeductionCalculation>().HasKey(ck => new { ck.DeductionID , ck.AllowanceID });
             modelBuilder.Entity<FriengeAssign>().HasKey(ck => new { ck.FriengeID , ck.EmployeeID });
             modelBuilder.Entity<LoanSchedule>().HasKey(ck => new { ck.SanctionID });
-            modelBuilder.Entity<SlabDeductionExclude>().HasKey(ck => new { ck.EmployeeID , ck.DeductionID });
+            //modelBuilder.Entity<SlabDeductionExclude>().HasKey(ck => new { ck.EmployeeID , ck.DeductionID });
             modelBuilder.Entity<IncentiveSetting>().HasKey(ck => new { ck.EmployeeID });
             modelBuilder.Entity<AttendanceDetails>().HasNoKey();
             modelBuilder.Entity<SlabCalculation>().HasNoKey();
-            modelBuilder.Entity<SlabAllowance>().HasNoKey();
+            modelBuilder.Entity<SlabAllowance>().HasKey(ck => new { ck.EmployeeID,ck.AllowanceID });
             modelBuilder.Entity<SlabDeduction>().HasNoKey();
             modelBuilder.Entity<SlabSchedule>().HasKey(ck => new { ck.DeductionID , ck.AllowanceID,ck.Month  });
             modelBuilder.Entity<SlabCalculation>().HasKey(ck => new { ck.SlabID, ck.DetailsID, ck.AllowanceID, ck.DeductionID });
             modelBuilder.Entity<AttendanceDetails>().HasKey(ck => new { ck.AttendanceID });
             modelBuilder.Entity<AttendanceDetailsViewModel>().HasKey(ck => new { ck.AttendanceID, ck.EmployeeID });
+
+            modelBuilder.Entity<PayrollDetails>()
+                .HasOne(pd => pd.Payroll)
+                .WithMany(pd => pd.PayrollDetails) 
+                .HasForeignKey(pd => pd.PayID) 
+                .OnDelete (DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<StandardDeductionExclude>(entity =>
+            {
+                entity.HasKey(ck => new { ck.EmployeeID, ck.DeductionID });
+                entity.Property(e => e.EmployeeID).HasColumnName("EmployeeID");
+                entity.Property(e => e.DeductionID).HasColumnName("DeductionID");
+                entity.Property(e => e.Exclude).HasColumnName("Exclude").HasColumnType("bit");
+                entity.Property(e => e.Include).HasColumnName("Include").HasColumnType("bit");
+            });
+
+            
+
             base.OnModelCreating(modelBuilder);
         }
         public DbSet<Standus_5_0.Areas.HumanResource.Models.Allowance> Allowance { get; set; } = default!;
@@ -76,9 +94,10 @@ namespace Standus_5_0.Data
         public DbSet<Standus_5_0.Areas.HumanResource.Models.LoanSanction> LoanSanction { get; set; } = default!;
         public DbSet<Standus_5_0.Areas.HumanResource.Models.LoanSchedule> LoanSchedule { get; set; } = default!;
         public DbSet<Standus_5_0.Areas.HumanResource.Models.LoanForward> LoanForward { get; set; } = default!;
-        public DbSet<Standus_5_0.Areas.HumanResource.Models.SlabDeductionExclude> SlabDeductionExclude { get; set; } = default!;
+        //public DbSet<Standus_5_0.Areas.HumanResource.Models.SlabDeductionExclude> SlabDeductionExclude { get; set; } = default!;
         public DbSet<Standus_5_0.Areas.HumanResource.Models.IncentiveSetting> IncentiveSetting { get; set; } = default!;
         public DbSet<Standus_5_0.Areas.HumanResource.Models.Payroll> Payroll { get; set; } = default!;
+        public DbSet<PayrollDetails> PayrollDetails { get; set; } = default!;
         public DbSet<PaySheetSetting> paySheetSetting { get; set; } = default!;
         public DbSet<PaySheetSummarySetting> PaySheetSummarySetting { get; set; } = default!;
         public DbSet<EAndDSetting> EAndDSetting { get; set; } = default!;
@@ -89,7 +108,13 @@ namespace Standus_5_0.Data
     
         public DbSet<Shift> Shift { get; set; } = default!;
         public DbSet<Standus_5_0.Areas.HumanResource.Models.AttendanceDetailsViewModel> AttendanceDetailsViewModel { get; set; } = default!;
-    }
+
+		protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+		{
+			optionsBuilder.LogTo(Console.WriteLine); // Logs SQL to console
+		}
+        public DbSet<Standus_5_0.Areas.HumanResource.Models.StandardDeductionExclude> StandardDeductionExclude { get; set; } = default!;
+	}
 
     
 }

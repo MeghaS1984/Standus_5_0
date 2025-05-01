@@ -7,6 +7,8 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Standus_5_0.Areas.HumanResource.Models;
 using Standus_5_0.Data;
+using Standus_5_0.Enums;
+using Standus_5_0.Services;
 
 namespace Standus_5_0.Areas.HumanResource.Controllers
 {
@@ -23,7 +25,11 @@ namespace Standus_5_0.Areas.HumanResource.Controllers
         // GET: HumanResource/LoanSanctions
         public async Task<IActionResult> Index()
         {
-            var applicationDbContext = _context.LoanSanction.Include(l => l.Reuqest);
+            var applicationDbContext = _context.LoanSanction
+                .Include(l => l.Request)
+                .Include(l => l.Deduction)
+                .Include(l => l.Request.Employee);
+
             return View(await applicationDbContext.ToListAsync());
         }
 
@@ -36,7 +42,7 @@ namespace Standus_5_0.Areas.HumanResource.Controllers
             }
 
             var loanSanction = await _context.LoanSanction
-                .Include(l => l.Reuqest)
+                .Include(l => l.Request)
                 .FirstOrDefaultAsync(m => m.SanctionId == id);
             if (loanSanction == null)
             {
@@ -47,10 +53,19 @@ namespace Standus_5_0.Areas.HumanResource.Controllers
         }
 
         // GET: HumanResource/LoanSanctions/Create
-        public IActionResult Create()
+        public IActionResult Create(int requestid)
         {
             ViewData["RequestID"] = new SelectList(_context.LoanRequest, "RequestID", "RequestID");
-            return View();
+            ViewData["DeductionID"] = new SelectList(_context.Deduction,"ID","Name");
+
+            var request = _context.LoanRequest.Where(r => r.RequestID == requestid).Include(r => r.Employee).FirstOrDefault();
+
+            var sanction = new LoanSanction();
+
+            sanction.Request = request;
+            sanction.Date = DateTime.Now; 
+            sanction.InstallmentDate = DateTime.Now;
+            return View(sanction);
         }
 
         // POST: HumanResource/LoanSanctions/Create
@@ -58,12 +73,43 @@ namespace Standus_5_0.Areas.HumanResource.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("RequestID,Date,Amount,Interest,DeductionType,Installment,InstallmentNo,InstallmentDate,SanctionId,DeductionId")] LoanSanction loanSanction)
+        public ActionResult Create(LoanSanction loanSanction)
         {
+            ModelState.Remove("Deduction");
+            ModelState.Remove("Request");
             if (ModelState.IsValid)
             {
+                loanSanction.DeductionType = "";
                 _context.Add(loanSanction);
-                await _context.SaveChangesAsync();
+                _context.SaveChanges();
+
+                // load loan schedule
+
+                var loanSchedule = new LoanSchedule();
+                int installmentNo = 1;
+                decimal loanAmount = 0;
+                DateTime schDate = loanSanction.InstallmentDate;
+                while (loanAmount < loanSanction.Amount) {
+                    loanAmount = loanAmount + loanSanction.Installment;
+                    loanSchedule.SanctionID = loanSanction.SanctionId;
+                    loanSchedule.Installment = installmentNo;
+                    loanSchedule.Amount = loanSanction.Installment;
+                    loanSchedule.Paid = 0;
+                    loanSchedule.Forward = false;
+                    loanSchedule.Date = schDate;
+
+                    _context.LoanSchedule.Add(loanSchedule);
+                    _context.SaveChanges();
+                    schDate = schDate.AddMonths(1); 
+                    installmentNo++;
+                }
+
+                loanSanction.Installment = installmentNo;
+                _context.Update(loanSanction);
+                _context.SaveChanges();
+
+                ViewBag.Alert = CommonServices.ShowAlert(Alerts.Success, "Data saved.");
+
                 return RedirectToAction(nameof(Index));
             }
             ViewData["RequestID"] = new SelectList(_context.LoanRequest, "RequestID", "RequestID", loanSanction.RequestID);
@@ -105,6 +151,7 @@ namespace Standus_5_0.Areas.HumanResource.Controllers
                 {
                     _context.Update(loanSanction);
                     await _context.SaveChangesAsync();
+                    ViewBag.Alert = CommonServices.ShowAlert(Alerts.Success, "Data saved.");
                 }
                 catch (DbUpdateConcurrencyException)
                 {
@@ -132,7 +179,7 @@ namespace Standus_5_0.Areas.HumanResource.Controllers
             }
 
             var loanSanction = await _context.LoanSanction
-                .Include(l => l.Reuqest)
+                .Include(l => l.Request)
                 .FirstOrDefaultAsync(m => m.SanctionId == id);
             if (loanSanction == null)
             {
@@ -160,6 +207,17 @@ namespace Standus_5_0.Areas.HumanResource.Controllers
         private bool LoanSanctionExists(int id)
         {
             return _context.LoanSanction.Any(e => e.SanctionId == id);
+        }
+
+        public ActionResult Pending() {
+
+            var sanctionedIds = _context.LoanSanction.Select(s => s.RequestID);
+            var pending = _context.LoanRequest.Where(r => !sanctionedIds.Contains(r.RequestID))
+                .Where(r => r.Status != "Reject")
+                .Include(p => p.Employee)
+                .ToList();
+
+            return PartialView("Pending",pending);
         }
     }
 }

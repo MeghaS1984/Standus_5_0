@@ -1,0 +1,126 @@
+﻿@model IEnumerable<Standus_5_0.Areas.HumanResource.Models.PayrollDetails>
+
+@{
+    ViewData["Title"] = "Index";
+    Layout = "~/Areas/HumanResource/Views/Shared/_Layout.cshtml";
+}
+
+<h1>Index</h1>
+
+<p>
+    <a asp-action="Create">Create New</a>
+</p>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.PayID)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.EmployeeAmount)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Employer)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Paid)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.UnPaid)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.FromAmount)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.ToAmount)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Fixed)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Amount)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.EmployeeContribution)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.EmployerContribution)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Type)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Employee)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Allowance)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Deduction)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Category)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model) {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.PayID)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.EmployeeAmount)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Employer)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Paid)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.UnPaid)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.FromAmount)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.ToAmount)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Fixed)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Amount)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.EmployeeContribution)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.EmployerContribution)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Type)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Employee.Discriminator)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Allowance.ID)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Deduction.Name)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Category.CategoryName)
+            </td>
+            <td>
+                <a asp-action="Edit" asp-route-id="@item.ID">Edit</a> |
+                <a asp-action="Details" asp-route-id="@item.ID">Details</a> |
+                <a asp-action="Delete" asp-route-id="@item.ID">Delete</a>
+            </td>
+        </tr>
+}
+    </tbody>
+</table>

@@ -188,6 +188,16 @@ namespace Standus_5_0.Areas.HumanResource.Controllers
             return PartialView("SlabSchedule");
         }
 
+        public IActionResult AllowanceSchedule(int slabid, int detailsid, int categoryid, int allowanceID, int deductionid)
+        {
+            ViewData["categoryid"] = categoryid;
+            ViewData["slabid"] = slabid;
+            ViewData["detailsid"] = detailsid;
+            ViewData["allowanceid"] = allowanceID;
+            ViewData["deductionid"] = deductionid;
+            return PartialView("AllowanceSchedule");
+        }
+
 
 
 
@@ -229,11 +239,21 @@ namespace Standus_5_0.Areas.HumanResource.Controllers
 
         //}
 
-        public JsonResult Get_Schedules(int deductionid)
+        public JsonResult Get_Schedules(int deductionid, int allowanceid)
         {
-            var schedule = _context.SlabSchedule.Where(s => s.DeductionID == deductionid)
-                      .Select(s => s.Month);
+            IQueryable<dynamic> schedule = null;
 
+            if (allowanceid > 0)
+            {
+                schedule = _context.SlabSchedule.Where(s => s.AllowanceID == allowanceid)
+                          .Select(s => s.Month);
+            }
+
+            else if (deductionid > 0)
+            {
+                schedule = _context.SlabSchedule.Where(s => s.DeductionID == deductionid)
+                          .Select(s => s.Month);
+            }
             return Json(schedule);
         }
 

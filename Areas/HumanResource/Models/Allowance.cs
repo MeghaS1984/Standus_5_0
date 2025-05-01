@@ -4,6 +4,7 @@ using Standus_5_0.Areas.HumanResource.Models;
 namespace Standus_5_0.Areas.HumanResource.Models
 {
     using System;
+    using System.ComponentModel;
     using System.ComponentModel.DataAnnotations;
     using System.ComponentModel.DataAnnotations.Schema;
 
@@ -34,7 +35,7 @@ namespace Standus_5_0.Areas.HumanResource.Models
         public bool? GeneralHoliday { get; set; }
 
         public decimal? CutOff { get; set; }
-
+        [DisplayName("Round Off")]
         public String? RoundOff { get; set; }
 
         public int? AccountID { get; set; }
@@ -44,9 +45,13 @@ namespace Standus_5_0.Areas.HumanResource.Models
         public int Day { get; set; }
 
         public int Variable { get; set; }
-
+        [DisplayName("On Yearly Income")]
+        public bool OnYearlyIncome { get; set; }
+        [DisplayName("Payroll Rank")]
         public int PayrollSlNO { get; set; }
-
+        [DisplayName("Allowance Type")]
+        public string? Type { get; set; }
+        [DisplayName("In Active")]
         public bool InActive { get; set; }
 
         public bool Fixed { get; set; }

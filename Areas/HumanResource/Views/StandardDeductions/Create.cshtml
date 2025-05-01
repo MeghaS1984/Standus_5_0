@@ -94,8 +94,11 @@
             contentType: 'application/json',  // Tell the server we're sending JSON
             success: function (response) {
                 // Handle success
-                alert('Form submitted successfully!');
-                console.log(response);  // Display or process the response here
+                $("#message").html(response);
+                $("#message button").on("click", function () {
+                    let div = $(this).closest('div');
+                    div.fadeOut('3000', function () { div.css('display', 'none') });
+                });
             },
             error: function (xhr, status, error) {
                 // Handle error

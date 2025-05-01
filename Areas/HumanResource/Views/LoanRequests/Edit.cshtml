@@ -5,9 +5,16 @@
     Layout = "~/Areas/HumanResource/Views/Shared/_Layout.cshtml";
 }
 
-<h1>Edit</h1>
+<div class="row">
+    <div class="col-md-12">
+        <div class="form-group">
+            @Html.Raw(@ViewBag.Alert)
+        </div>
+    </div>
+</div>
 
-<h4>LoanRequest</h4>
+<h5>Loan Request</h5>
+
 <hr />
 <div class="row">
     <div class="col-md-4">
@@ -41,7 +48,7 @@
             </div>
             <div class="form-group">
                 <label asp-for="LoanType" class="control-label"></label>
-                <input asp-for="LoanType" class="form-control" />
+                <select asp-for="LoanType" class="form-control" asp-items="ViewBag.LoanType"></select>
                 <span asp-validation-for="LoanType" class="text-danger"></span>
             </div>
             <div class="form-group">
@@ -55,18 +62,29 @@
                 <span asp-validation-for="Status" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <label asp-for="Comments" class="control-label"></label>
-                <input asp-for="Comments" class="form-control" />
-                <span asp-validation-for="Comments" class="text-danger"></span>
+                <label asp-for="Comment" class="control-label"></label>
+                <input asp-for="Comment" class="form-control" />
+                <span asp-validation-for="Comment" class="text-danger"></span>
             </div>
+            <br>
             <div class="form-group">
-                <input type="submit" value="Save" class="btn btn-primary" />
+                <input type="submit" value="Save" class="btn btn-primary" /> |
+                <a asp-action="Index">Back to List</a>
             </div>
         </form>
     </div>
 </div>
+<script>
+    $('#RequestNo').prop('readonly', true);
+    $("#Bank").prop('disabled', true);
+    $("#Status").prop('disabled', true);
 
-<div>
-    <a asp-action="Index">Back to List</a>
-</div>
-
+    $("#LoanType").on("change", function () {
+        var selectText = $("#LoanType option:selected").text().trim();
+        if (selectText == 'Advance') {
+            $("#Bank").prop('disabled', true);
+        } else {
+            $("#Bank").prop('disabled', false);
+        }
+    })
+</script>

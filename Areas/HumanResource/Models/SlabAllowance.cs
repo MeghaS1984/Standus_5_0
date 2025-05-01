@@ -13,7 +13,7 @@ namespace Standus_5_0.Areas.HumanResource.Models
         public decimal Employer { get; set; }
         public int AllowanceID { get; set; }
         public decimal Amount { get; set; }
-        public decimal Fixed { get; set; }
+        public bool Fixed { get; set; }
         public int DetailsID { get; set; }
 
         // You can add navigation properties here if necessary, for example:

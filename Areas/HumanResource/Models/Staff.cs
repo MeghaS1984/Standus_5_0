@@ -48,6 +48,8 @@ namespace Standus_5_0.Areas.HumanResource.Models
         [Column("DOB")]
         public DateTime? DateOfBirth { get; set; }
 
+        public int CategoryID { get; set; }
+
         [Required]
         [DataType(DataType.Date)]
         [Column("DOJ")]

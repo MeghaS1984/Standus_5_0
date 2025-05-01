@@ -5,66 +5,70 @@
     Layout = "~/Areas/HumanResource/Views/Shared/_Layout.cshtml";
 }
 
-<h1>Create</h1>
+<div class="row">
+    <div class="col-md-12">
+        <div class="form-group">
+            @Html.Raw(@ViewBag.Alert)
+        </div>
+    </div>
+</div>
 
-<h4>LoanSanction</h4>
+<h5>Loan Approval</h5>
 <hr />
 <div class="row">
     <div class="col-md-4">
         <form asp-action="Create">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <div class="form-group">
-                <label asp-for="RequestID" class="control-label"></label>
-                <select asp-for="RequestID" class ="form-control" asp-items="ViewBag.RequestID"></select>
+                <label class="control-label">Employee</label>
+                <label class="form-control">@Model.Request.Employee.Name</label>
             </div>
             <div class="form-group">
-                <label asp-for="Date" class="control-label"></label>
+                <label  class="control-label">Request #</label>
+                <label class="form-control">@Model.Request.RequestNo</label>
+                <input type="hidden" asp-for="RequestID" value="@Model.Request.RequestID"/>
+            </div>
+            <div class="form-group">
+                <label asp-for="Date" class="control-label">Approval Date</label>
                 <input asp-for="Date" class="form-control" />
                 <span asp-validation-for="Date" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <label asp-for="Amount" class="control-label"></label>
-                <input asp-for="Amount" class="form-control" />
+                <label asp-for="Amount" class="control-label">Approval Amount</label>
+                <input asp-for="Amount" class="form-control" value="@Model.Request.Amount" />
                 <span asp-validation-for="Amount" class="text-danger"></span>
-            </div>
+            </div>@* 
             <div class="form-group">
                 <label asp-for="Interest" class="control-label"></label>
                 <input asp-for="Interest" class="form-control" />
                 <span asp-validation-for="Interest" class="text-danger"></span>
-            </div>
+            </div> *@
             <div class="form-group">
-                <label asp-for="DeductionType" class="control-label"></label>
-                <input asp-for="DeductionType" class="form-control" />
-                <span asp-validation-for="DeductionType" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Installment" class="control-label"></label>
+                <label asp-for="Installment" class="control-label">Installment Amount</label>
                 <input asp-for="Installment" class="form-control" />
                 <span asp-validation-for="Installment" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <label asp-for="InstallmentNo" class="control-label"></label>
+                <label asp-for="InstallmentNo" class="control-label">Installment #</label>
                 <input asp-for="InstallmentNo" class="form-control" />
                 <span asp-validation-for="InstallmentNo" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <label asp-for="InstallmentDate" class="control-label"></label>
-                <input asp-for="InstallmentDate" class="form-control" />
+                <label asp-for="InstallmentDate" class="control-label">Installment Start Date</label>
+                <input asp-for="InstallmentDate" class="form-control" type="month"/>
                 <span asp-validation-for="InstallmentDate" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <label asp-for="DeductionId" class="control-label"></label>
-                <input asp-for="DeductionId" class="form-control" />
+                <label asp-for="DeductionId" class="control-label">Deduction Type</label>
+                <select asp-for="DeductionId" class="form-control" asp-items="ViewBag.DeductionID"></select>
                 <span asp-validation-for="DeductionId" class="text-danger"></span>
-            </div>
+            </div><br>
             <div class="form-group">
-                <input type="submit" value="Create" class="btn btn-primary" />
+                <input type="submit" value="Create" class="btn btn-primary" /> |
+                <a asp-action="Index">Back to List</a>
             </div>
         </form>
     </div>
 </div>
 
-<div>
-    <a asp-action="Index">Back to List</a>
-</div>
 

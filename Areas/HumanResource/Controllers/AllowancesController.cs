@@ -11,6 +11,7 @@ using Standus_5_0.Areas.HumanResource.Models;
 using Standus_5_0.Data;
 using Standus_5_0.Enums;
 using Standus_5_0.Services;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace Standus_5_0.Areas.HumanResource.Controllers
 {
@@ -68,46 +69,66 @@ namespace Standus_5_0.Areas.HumanResource.Controllers
         [HttpGet]
         public IActionResult Create()
         {
+            var type = new List<SelectListItem>{
+                new SelectListItem {Text = "Monthly", Value= "Monthly" },
+                new SelectListItem {Text = "Yearly", Value = "Yearly" }
+            };
+
+            ViewData["TypeList"] = new SelectList(type, "Value", "Text");
+
             return View();
         }
 
         // POST: HumanResource/Allowances/Create
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(Allowance allowance)
+        
+        //[ValidateAntiForgeryToken]
+        public ActionResult Create([FromBody] Allowance_Data data)
         {
-            if (ModelState.IsValid)
+            var allowance_data = new Allowance();
+
+            allowance_data.Name = data.name;
+            allowance_data.Description = data.description;
+            allowance_data.PayrollSlNO = data.payrollslno == "" ? 0 : Convert.ToInt16(data.payrollslno);
+            allowance_data.Type = data.allowance_type;
+            allowance_data.RoundOff = data.roundoff;
+            allowance_data.OnYearlyIncome = data.onyearlyincome;
+            allowance_data.Fixed = data.allowance_fixed;
+            allowance_data.InActive = data.inactive;
+            allowance_data.Variable = 0;
+            _context.Add(allowance_data);
+            _context.SaveChanges();
+
+            if (allowance_data.ID > 0)
             {
-                string allName = _context.Allowance.Where(m => m.ID == allowance.ID).Select(m => m.Name).FirstOrDefault();
-
-                if (allName != null) {
-                    ModelState.AddModelError("Name", "Allwance exists.");
-                    return View(allowance);
-                }
-
-                _context.Add(allowance);
-                await _context.SaveChangesAsync();
-
-                var slab = new Slab();
-                slab.AllowanceID = allowance.ID;
-                slab.DeductionID = 0;
-
-                _context.Slab.Add(slab);
-                await _context.SaveChangesAsync();
-
-                if (allowance.ID > 0)
+                for (int i = 0; i < data.allowances.Count; i++)
                 {
-                    TempData["Alert"] = CommonServices.ShowAlert(Alerts.Success, "Data Saved.");
+                    var sdc = new StandardDeductionCalculation();
+                    sdc.For_AllowanceID = allowance_data.ID;
+                    sdc.AllowanceID = data.allowances[i];
+                    _context.StandardDeductionCalculation.Add(sdc);
+                    _context.SaveChanges();
                 }
-                else
+
+                foreach (string mon in data.months)
                 {
-                    TempData["Alert"] = CommonServices.ShowAlert(Alerts.Danger, "Unknown error.");
+                    var sch = new SlabSchedule();
+                    sch.AllowanceID = allowance_data.ID;
+                    sch.DeductionID = 0;
+                    sch.Month = mon;
+                    _context.SlabSchedule.Add(sch);
+                    _context.SaveChanges();
                 }
-                return RedirectToAction(nameof(Create));
+                string success = CommonServices.ShowAlert(Alerts.Success, "Data saved.");
+                return Content(success, "text/plain");
             }
-            return View(allowance);
+            else
+            {
+
+                string failure = CommonServices.ShowAlert(Alerts.Danger, "Error.");
+                return Content(failure, "text/plain");
+            }
         }
 
         // GET: HumanResource/Allowances/Edit/5
@@ -124,52 +145,79 @@ namespace Standus_5_0.Areas.HumanResource.Controllers
             {
                 return NotFound();
             }
+
+            var type = new List<SelectListItem>{
+                    new SelectListItem {Text = "Monthly", Value= "Monthly" },
+                    new SelectListItem {Text = "Yearly", Value = "Yearly" }
+                };
+
+            ViewData["TypeList"] = new SelectList(type, "Value", "Text",allowance.Type);
+
             return View(allowance);
         }
 
         // POST: HumanResource/Allowances/Edit/5
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, Allowance allowance)
+        public ActionResult Edit([FromBody] Allowance_Data data)
         {
-            if (id != allowance.ID)
-            {
-                return NotFound();
-            }
+            var allowance_data = _context.Allowance .Where(d => d.ID == data.allowanceid).FirstOrDefault();
 
-            if (ModelState.IsValid)
+            try
             {
-                try
-                {
-                    _context.Update(allowance);
-                    await _context.SaveChangesAsync();
+                allowance_data.Name = data.name;
+                allowance_data.Description = data.description;
+                allowance_data.PayrollSlNO  = data.payrollslno == "" ? 0 : Convert.ToInt16(data.payrollslno);
+                allowance_data.Type = data.allowance_type;
+                allowance_data.RoundOff = data.roundoff;
+                allowance_data.OnYearlyIncome = data.onyearlyincome;
+                allowance_data.Fixed = data.allowance_fixed;
+                allowance_data.InActive = data.inactive;
+                allowance_data.Variable = 0;
 
-                    if (allowance.ID > 0)
-                    {
-                        TempData["Alert"] = CommonServices.ShowAlert(Alerts.Success, "Data Saved.");
-                    }
-                    else
-                    {
-                        TempData["Alert"] = CommonServices.ShowAlert(Alerts.Danger, "Unknown error.");
-                    }
-                    return RedirectToAction(nameof(Edit));
-                }
-                catch (DbUpdateConcurrencyException)
+                _context.Update(allowance_data);
+                _context.SaveChanges();
+
+                var sdc_ext = _context.StandardDeductionCalculation.Where(sc => sc.For_AllowanceID == data.allowanceid);
+
+                _context.StandardDeductionCalculation.RemoveRange(sdc_ext);
+                _context.SaveChanges();
+
+                var slb_ext = _context.SlabSchedule.Where(sc => sc.AllowanceID == data.allowanceid);
+                _context.SlabSchedule.RemoveRange(slb_ext);
+                _context.SaveChanges();
+
+                if (allowance_data.ID > 0)
                 {
-                    if (!AllowanceExists(allowance.ID))
+                    for (int i = 0; i < data.allowances.Count; i++)
                     {
-                        return NotFound();
+                        var sdc = new StandardDeductionCalculation();
+                        sdc.For_AllowanceID = allowance_data.ID;
+                        sdc.AllowanceID = data.allowances[i];
+                        _context.StandardDeductionCalculation.Add(sdc);
+                        _context.SaveChanges();
                     }
-                    else
+
+                    foreach (string mon in data.months)
                     {
-                        throw;
+                        var sch = new SlabSchedule();
+                        sch.AllowanceID = allowance_data.ID;
+                        sch.DeductionID = 0;
+                        sch.Month = mon;
+                        _context.SlabSchedule.Add(sch);
+                        _context.SaveChanges();
                     }
                 }
-                return RedirectToAction(nameof(Index));
+
+                string success = CommonServices.ShowAlert(Alerts.Success, "Data saved.");
+                return Content(success, "text/plain");
             }
-            return View(allowance);
+            catch (Exception)
+            {
+
+                string success = CommonServices.ShowAlert(Alerts.Danger, "Error.");
+                return Content(success, "text/plain");
+            }
         }
 
         // GET: HumanResource/Allowances/Delete/5
@@ -218,5 +266,29 @@ namespace Standus_5_0.Areas.HumanResource.Controllers
         {
             return _context.Allowance.Any(e => e.ID == id);
         }
+
+        private ActionResult AllowanceExists(string Name)
+        {
+            var allw = _context.Allowance.Any(e => e.Name == Name);
+            return Json(allw) ;
+        }
     }
+
+    public class Allowance_Data
+    {
+        public string name { get; set; }
+        public string description { get; set; }
+        public string payrollslno { get; set; }
+        public string allowance_type { get; set; }
+        public string roundoff { get; set; }
+        public bool onyearlyincome { get; set; }
+
+        public bool allowance_fixed { get; set; }
+        public bool inactive { get; set; }
+        public List<int> allowances { get; set; }
+        public List<string> months { get; set; }
+
+        public int allowanceid { get; set; }
+    }
+
 }

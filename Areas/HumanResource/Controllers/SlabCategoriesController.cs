@@ -69,12 +69,12 @@ namespace Standus_5_0.Areas.HumanResource.Controllers
                 ViewData["Name"] = allw.Name;
             }
             else {
-                //var deduction = _context.Deduction.Where(a => a.ID == deductionid).Include(s => s.slab).FirstOrDefault();
+                var deduction = _context.Deduction.Where(a => a.ID == deductionid).Include(s => s.slab).FirstOrDefault();
 
-                //ViewData["SlabID"] = deduction.slab.SlabID;
-                //ViewData["AllowanceID"] = 0;
-                //ViewData["DeductionID"] = deduction.ID;
-                //ViewData["Name"] = deduction.Name;
+                ViewData["SlabID"] = deduction.slab.SlabID;
+                ViewData["AllowanceID"] = 0;
+                ViewData["DeductionID"] = deduction.ID;
+                ViewData["Name"] = deduction.Name;
             }
 
             ViewData["CategoryID"] = new SelectList(_context.Category, "ID", "CategoryName");

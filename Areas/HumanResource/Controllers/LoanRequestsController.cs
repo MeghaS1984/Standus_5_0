@@ -7,6 +7,8 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Standus_5_0.Areas.HumanResource.Models;
 using Standus_5_0.Data;
+using Standus_5_0.Enums;
+using Standus_5_0.Services;
 
 namespace Standus_5_0.Areas.HumanResource.Controllers
 {
@@ -15,8 +17,22 @@ namespace Standus_5_0.Areas.HumanResource.Controllers
     {
         private readonly ApplicationDbContext _context;
 
+        private List<SelectListItem>  loanType;
+        private List<SelectListItem> status;
         public LoanRequestsController(ApplicationDbContext context)
         {
+            loanType= new List<SelectListItem> {
+                new SelectListItem {Text = "Advance" , Value ="Advance"},
+                new SelectListItem { Text = "Bank Loan", Value = "Bank Loan"}
+            };
+
+            status = new List<SelectListItem>
+            {
+                new SelectListItem {Text = "Open" , Value = "Open"},
+                new SelectListItem {Text = "Closed" , Value = "Closed"}
+            };
+
+            
             _context = context;
         }
 
@@ -46,10 +62,17 @@ namespace Standus_5_0.Areas.HumanResource.Controllers
             return View(loanRequest);
         }
 
+        
         // GET: HumanResource/LoanRequests/Create
         public IActionResult Create()
         {
-            ViewData["EmployeeId"] = new SelectList(_context.Employee, "EmployeeID", "Discriminator");
+            ViewData["EmployeeId"] = new SelectList(_context.Employee, "EmployeeID", "Name");
+            ViewData["LoanType"] = new SelectList(loanType, "Value", "Text");
+            ViewData["Status"] = new SelectList(status, "Value", "Text");
+
+            //var request = new LoanRequest();
+            //request.RequestNo = "0001";
+
             return View();
         }
 
@@ -58,21 +81,61 @@ namespace Standus_5_0.Areas.HumanResource.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("RequestID,RequestNo,EmployeeId,Date,Amount,Reason,LoanType,Bank,Status,Comments")] LoanRequest loanRequest)
+        public async Task<IActionResult> Create(LoanRequest loanRequest)
         {
+
+            ModelState.Remove("RequestNo");
+
+            if (loanRequest.LoanType == "Advance")
+            {
+                ModelState.Remove("Bank");
+                loanRequest.Bank = "";
+            }
+
+            ModelState.Remove("Comment");
+            ModelState.Remove("Employee");
+            ViewData["LoanType"] = new SelectList(loanType, "Value", "Text",loanRequest.LoanType);
+            ViewData["Status"] = new SelectList(status, "Value", "Text",loanRequest.Status);
+
+            ViewData["EmployeeId"] = new SelectList(_context.Employee, "EmployeeID", "Name", loanRequest.EmployeeId);
+            loanRequest.Status = "Applied";
             if (ModelState.IsValid)
             {
-                _context.Add(loanRequest);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
+                try
+                {
+                    var trans = _context.Database.BeginTransaction();
+                    var req = _context.LoanRequest.OrderBy(o => o.RequestNo);
+
+                    if (req.Any())
+                    {
+                        int reqno = int.Parse(req.Last().RequestNo) + 1;
+                        loanRequest.RequestNo = reqno.ToString().PadLeft(4,'0');
+                    }
+                    else {
+                        loanRequest.RequestNo = "1".PadLeft(4, '0'); 
+                    }
+
+                    _context.Add(loanRequest);
+                    await _context.SaveChangesAsync();
+                    trans.Commit();
+
+                    ViewBag.Alert = CommonServices.ShowAlert(Alerts.Success, "Data saved.");
+
+                } catch(Exception) {
+                    ViewBag.Alert = CommonServices.ShowAlert(Alerts.Danger, "Unknown error");
+                }
             }
-            ViewData["EmployeeId"] = new SelectList(_context.Employee, "EmployeeID", "Discriminator", loanRequest.EmployeeId);
+            
             return View(loanRequest);
         }
 
         // GET: HumanResource/LoanRequests/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
+            ViewData["EmployeeId"] = new SelectList(_context.Employee, "EmployeeID", "Name");
+            ViewData["LoanType"] = new SelectList(loanType, "Value", "Text");
+            ViewData["Status"] = new SelectList(status, "Value", "Text");
+
             if (id == null)
             {
                 return NotFound();
@@ -83,7 +146,6 @@ namespace Standus_5_0.Areas.HumanResource.Controllers
             {
                 return NotFound();
             }
-            ViewData["EmployeeId"] = new SelectList(_context.Employee, "EmployeeID", "Discriminator", loanRequest.EmployeeId);
             return View(loanRequest);
         }
 
@@ -92,12 +154,28 @@ namespace Standus_5_0.Areas.HumanResource.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("RequestID,RequestNo,EmployeeId,Date,Amount,Reason,LoanType,Bank,Status,Comments")] LoanRequest loanRequest)
+        public async Task<IActionResult> Edit(int id, LoanRequest loanRequest)
         {
             if (id != loanRequest.RequestID)
             {
                 return NotFound();
             }
+
+            ModelState.Remove("RequestNo");
+
+            if (loanRequest.LoanType == "Advance")
+            {
+                ModelState.Remove("Bank");
+                loanRequest.Bank = "";
+            }
+
+            ModelState.Remove("Comment");
+            ModelState.Remove("Employee");
+            ViewData["LoanType"] = new SelectList(loanType, "Value", "Text", loanRequest.LoanType);
+            ViewData["Status"] = new SelectList(status, "Value", "Text", loanRequest.Status);
+
+            ViewData["EmployeeId"] = new SelectList(_context.Employee, "EmployeeID", "Name", loanRequest.EmployeeId);
+            loanRequest.Status = "Applied";
 
             if (ModelState.IsValid)
             {
@@ -119,7 +197,7 @@ namespace Standus_5_0.Areas.HumanResource.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["EmployeeId"] = new SelectList(_context.Employee, "EmployeeID", "Discriminator", loanRequest.EmployeeId);
+            ViewData["EmployeeId"] = new SelectList(_context.Employee, "EmployeeID", "Name", loanRequest.EmployeeId);
             return View(loanRequest);
         }
 

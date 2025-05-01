@@ -7,18 +7,16 @@
 
 <div class="row">
     <div class="col-md-12">
-        <div class="form-group">
-            @Html.Raw(@TempData["Alert"])
+        <div class="form-group" id="message">
         </div>
     </div>
 </div>
 
 <h5>Edit Allowance</h5>
 <hr />
-<form asp-action="Edit">
     <div class="standard-row-container">
-        <div class="row" style="width:60%">
-            <div class="col-md-6">
+        <div class="row" style="width:30%">
+            <div class="col-md-10">
                 <div asp-validation-summary="ModelOnly" class="text-danger"></div>
                 <div class="form-group">
                     <label asp-for="Name" class="control-label"></label>
@@ -36,15 +34,40 @@
                     <input asp-for="PayrollSlNO" class="form-control" />
                     <span asp-validation-for="PayrollSlNO" class="text-danger"></span>
                 </div>
+                <div class="form-group">
+                    <label asp-for="Type" class="control-label"></label>
+                    <select asp-for="Type" class="form-control" asp-items="@ViewBag.TypeList"></select>
+                    <span asp-validation-for="Type" class="text-danger"></span>
+                </div>
 
+                <div class="form-group">
+                    <label asp-for="RoundOff" class="control-label"></label>
+                    @{
+                        var round_off = new List<SelectListItem> {
+                    new SelectListItem {Text="" , Value ="" },
+                    new SelectListItem {Text = "Ceiling", Value = "Ceiling" } ,
+                    new SelectListItem {Text = "Up" , Value = "Up" },
+                    new SelectListItem {Text = "Down" , Value = "Down" }
+                    };
+
+                        ViewData["RoundOff"] = new SelectList(round_off, "Value", "Text", Model.RoundOff);
+                    }
+                    <select asp-for="RoundOff" class="form-control" asp-items="@ViewBag.RoundOff"></select>
+                </div>
+
+                <br>
+                <div class="form-group">
+                    <input type="button" value="Save" class="btn btn-primary" id="submit" /> |
+                    <a asp-action="Index">Back to List</a>
+                </div>
             </div>
         </div>
 
         <div class="row" style="width:30%">
-            <div class="col-md-6">
+            <div class="col-md-10">
                 <div class="form-group form-check">
                     <label class="form-check-label">
-                        <input class="form-check-input" asp-for="RoundOff" /> RoundOff
+                        <input class="form-check-input" asp-for="OnYearlyIncome" /> On Annual Pay
                     </label>
                 </div>
                 <div class="form-group form-check">
@@ -59,12 +82,100 @@
                 </div>
             </div>
         </div>
+        <div style="width:20%" class="row">
+            <div class="col-md-12">
+                <div id="StandardDeductionCalculation" style="width:100%">
+                </div>
+            </div>
+        </div>
+        <div style="width:20%" class="row">
+            <div class="col-md-12">
+                <div id="Schedule" style="width:100%">
+                </div>
+            </div>
+        </div>
     </div>
 
-    <br>
-    <div class="form-group">
-        <input type="submit" value="Save" class="btn btn-primary" /> |
-        <a asp-action="Index">Back to List</a>
-    </div>
-</form>
 
+<script>
+    $(document).ready(function () {
+        $.ajax({
+            url: '/humanresource/standarddeductioncalculations/edit',
+            type: 'GET',
+            data: { allowanceid: @Model.ID  },
+            success: function (result) {
+                $('#StandardDeductionCalculation').html(result);
+            },
+            error: function (xhr, status, error) {
+                console.error("AJAX Error: " + error);
+            }
+        });
+
+        $.ajax({
+            url: '/humanresource/SlabDetails/AllowanceSchedule',
+            type: 'GET',
+            data: { allowanceid: @Model.ID },
+            success: function (result) {
+                $('#Schedule').html(result);
+            },
+            error: function (xhr, status, error) {
+                console.error("AJAX Error: " + error);
+            }
+        });
+    });
+
+    $('#submit').on('click', function () {
+        var formData = {
+            name: $("#Name").val(),
+            description: $("#Description").val(),
+            payrollslno: $("#PayrollSlNO").val(),
+            allowance_type: $("#Type").val(),
+            roundoff: $("#RoundOff").val(),
+            onyearlyincome: $("#OnYearlyIncome").prop('checked'),
+            allowance_fixed: $("#Fixed").prop('checked'),
+            inactive: $("#InActive").prop('checked'),
+            allowanceid:@Model.ID,
+            allowances: [],
+            months: []
+        }
+
+        $(".calculate_on").each(function () {
+            let is_selected = $(this).find('input[name$=".selected"]').prop('checked');
+            let allowanceid;
+            if (is_selected) {
+                allowanceid = $(this).find('input[name$=".allowanceid"]').val();
+                formData.allowances.push(allowanceid);
+            }
+        });
+
+        $(".month").each(function () {
+            let is_selected = $(this).find('input[type="checkbox"]').prop('checked');
+            let month;
+            if (is_selected) {
+                month = $(this).find('td').eq(0).text();
+                formData.months.push(month);
+            }
+        })
+
+        
+        var promise = $.ajax({
+            url: '@Url.Action("Edit", "Allowances")',
+            type: 'POST',
+            data: JSON.stringify(formData),
+            contentType: 'application/json' 
+        }).done( function (response) {
+                $("#message").html(response);
+                $("#message button").on("click", function() {
+                    let div = $(this).closest('div');
+                    div.fadeOut('3000', function() { div.css('display', 'none') });
+                });
+        }).fail( function (xhr,statusText,error) {
+                status = error ;            
+        });
+
+        // var div = $("#alert").fadeIn(3000);
+        // $(".alert").on('click', '.close', function (event) {
+            
+        // });
+    })
+</script>

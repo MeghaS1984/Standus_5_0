@@ -45,9 +45,7 @@
             $.ajax({
                 url: '@Url.Action("index", "SlabCategories")',  // Ensure this is the correct URL for your action
                 type: 'GET',
-                data: {
-                slabid: @ViewBag.SlabID, allowanceid: @ViewBag.AllowanceID, deductionid: @ViewBag.DeductionID
-                },
+                data: { slabid: @ViewData["SlabID"], allowanceid: @ViewData["AllowanceID"], deductionid: @ViewData["DeductionID"]},
                 success: function (result) {
                     $('#slabdetails').html(result);
                 },

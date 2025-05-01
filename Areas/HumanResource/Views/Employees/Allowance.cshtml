@@ -5,75 +5,148 @@
     Layout = "~/Areas/HumanResource/Views/Shared/_Layout.cshtml";
 }
 
-<h1>Allowance</h1>
+<div class="flex-header-container">
+    <div>
+        <h5>Allowance Setup</h5>
+    </div>
 
-<p>
+    <div>
+       Total Allowance : 
+    </div>
+
+    <div>
+        <span id="total_allowance"></span>
+        </div>
+</div>
+
+@* <p>
     <a asp-action="Create">Create New</a>
     <a href="/Humanresource/Employees/SetupAllowance?employeeid=@ViewBag.employeeid&categoryid=@ViewBag.categoryid">Generate Allowance</a>
-</p>
-<table class="table">
+</p> *@
+<table class="table table-striped table-bordered">
     <thead>
-        <tr>
+        <tr class="table-success">
             <th>
                 @Html.DisplayNameFor(model => model.Name)
             </th>
             <th>
                 @Html.DisplayNameFor(model => model.Amount)
             </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Fixed)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.FromAmount)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.ToAmount)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Employee)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Employer)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.DetailsID)
-            </th>
-            <th></th>
         </tr>
     </thead>
     <tbody>
 @foreach (var item in Model) {
+            @if (item.Fixed)
+            {
         <tr>
             <td>
                 @Html.DisplayFor(modelItem => item.Name)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.Amount)
+                <input type="hidden" id="id_@item.ID" value="@item.ID">
+                @* <input type="hidden" name="type_@item.ID" value="@item.type"> *@
+                <input type="text" name="amount_@item.ID" onkeyup="totalAllowance();">                
             </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Fixed)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.FromAmount)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.ToAmount)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Employee)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Employer)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.DetailsID)
-            </td>
-            <td>
-                <a asp-action="Edit" asp-route-id="@item.ID">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.ID">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.ID">Delete</a>
-            </td>
-        </tr>
-}
+        </tr>} }
     </tbody>
 </table>
+<br>
+<div class="form-group">
+    <input type="submit" value="Save" class="btn btn-primary" onclick="SaveAllowance();" /> |
+    <a asp-action="Index">Back to List</a>
+</div>  
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="form-group" id="message">
+        </div>
+    </div>
+</div>
+
+<script>
+
+    function totalAllowance(){
+        var total_amount;
+        total_amount = 0 ;
+        $("tr").each(function(index,item){
+            if (index>0){
+                var id = $(item).find('input[id^="id_"]').val();
+                var amount 
+                amount = 0;
+            
+                amount = $(item).find("input[name='amount_" + id + "']").val();
+            } else {  amount = 0 ;}
+                
+            if (amount!="") {
+                    total_amount += Number(amount);
+                }
+            
+        });
+        $('#total_allowance').html(total_amount);
+    }
+
+    function SaveAllowance() {
+    
+        var promise = $.ajax({
+            url:'@Url.Action("DeleteAllowance","Employees")',
+                    type:'POST',
+                    data:{employeeid : @ViewData["employeeid"]}  
+        }).done(function(success) {
+            SaveData();
+        })
+    }
+
+    function SaveData() {
+        var promises = [] ;
+
+        $("tr").each(function(index,item){
+            if (index >0 ) {
+                var id = $(item).find('input[id^="id_"]').val();
+                var amount = $(item).find("input[name='amount_" + id + "']").val();
+                var promise = $.ajax({
+                    url:'@Url.Action("AddAllowanceSlab","Employees")',
+                    type:'POST',
+                    data:{id : id , amount : amount, employeeid : @ViewData["employeeid"], type : ''}                
+                });
+                promises.push(promise);
+            }
+        });
+
+        Promise.all(promises).then(function(response){
+
+            var promise = $.ajax({
+                url: '@Url.Action("SetupDeduction", "Employees")',
+                type: 'POST',
+                data: { categoryid: @ViewData["categoryid"],  employeeid: @ViewData["employeeid"], deductionid : 0 }
+            }).done(function(result) {
+                    alertDiv = "<div class='alert alert-success alert-dismissable' id='alert'>" +
+                        "<button type='button' class='close' data-dismiss='alert'>×</button>" +
+                        "<strong> Success!</ strong > Data saved.</a>.</div>";
+                    $("#message").html(alertDiv);
+                    $("#message button").on("click", function () {
+                        let div = $(this).closest('div');
+                        div.fadeOut('3000', function () { div.css('display', 'none') });
+                    });
+                }            
+            );            
+        });
+    }
+
+    $(document).ready(function() {
+        var promise = $.ajax({
+            url:'@Url.Action("Get_Allowance","Employees")',
+            type:'GET',
+            data: { employeeid: @ViewData["employeeid"]}
+        }).done(function(result) {
+            var total_amount ;
+            total_amount = 0;
+            $.each(result, function (index, item) {
+                // Find input elements by their IDs and set values
+                $("input[id='id_" + item.allowanceID + "']").val(item.allowanceID);
+                $("input[name='amount_" + item.allowanceID + "']").val(item.employer);
+                total_amount += item.employer ;
+            });
+            $('#total_allowance').html(total_amount);
+        });    
+    })
+</script>

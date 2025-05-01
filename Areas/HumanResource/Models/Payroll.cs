@@ -13,6 +13,8 @@ namespace Standus_5_0.Areas.HumanResource.Models
         public string ProcessNo { get; set; }  // Process number for the payroll process
         public bool Processed { get; set; }  // Flag to indicate if the payroll has been processed
         public string VoucherNo { get; set; }  // The voucher number associated with this payroll
+
+        public List<PayrollDetails> PayrollDetails { get; set; }
     }
 
 }

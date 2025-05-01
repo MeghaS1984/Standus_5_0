@@ -1216,23 +1216,7 @@ namespace Standus_5_0.Migrations
                     b.ToTable("SlabCategory");
                 });
 
-            modelBuilder.Entity("Standus_5_0.Areas.HumanResource.Models.SlabDeductionExclude", b =>
-                {
-                    b.Property<int>("EmployeeID")
-                        .HasColumnType("int");
-
-                    b.Property<int>("DeductionID")
-                        .HasColumnType("int");
-
-                    b.Property<bool>("Exclude")
-                        .HasColumnType("bit");
-
-                    b.HasKey("EmployeeID", "DeductionID");
-
-                    b.HasIndex("DeductionID");
-
-                    b.ToTable("SlabDeductionExclude");
-                });
+            
 
             modelBuilder.Entity("Standus_5_0.Areas.HumanResource.Models.SlabDetails", b =>
                 {
@@ -1655,24 +1639,7 @@ namespace Standus_5_0.Migrations
                     b.Navigation("Category");
                 });
 
-            modelBuilder.Entity("Standus_5_0.Areas.HumanResource.Models.SlabDeductionExclude", b =>
-                {
-                    b.HasOne("Standus_5_0.Areas.HumanResource.Models.Deduction", "Deduction")
-                        .WithMany()
-                        .HasForeignKey("DeductionID")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Standus_5_0.Areas.HumanResource.Models.Employee", "Employee")
-                        .WithMany()
-                        .HasForeignKey("EmployeeID")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Deduction");
-
-                    b.Navigation("Employee");
-                });
+            
 
             modelBuilder.Entity("Standus_5_0.Areas.HumanResource.Models.SlabDetails", b =>
                 {

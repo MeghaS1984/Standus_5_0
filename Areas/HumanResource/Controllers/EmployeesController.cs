@@ -7,6 +7,8 @@ using Humanizer;
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.CodeAnalysis.Operations;
+
 //using Microsoft.CodeAnalysis.Elfie.Diagnostics;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
@@ -133,12 +135,15 @@ namespace Standus_5_0.Areas.HumanResource.Controllers
             {
                 return NotFound();
             }
-            ViewData["EmployeeID"] = id;
+            
             var employee = await _context.Employee.FindAsync(id);
             if (employee == null)
             {
                 return NotFound();
             }
+            ViewData["EmployeeID"] = id;
+            //ViewData["CategoryID"] = employee.CategoryID ;
+
             PopulateSelect(employee.PositionID, employee.DepartmentID);
             return View(employee);
         }
@@ -223,13 +228,7 @@ namespace Standus_5_0.Areas.HumanResource.Controllers
             ViewData["categoryid"] = categoryid;
 
             var allowance = from A in _context.Allowance
-                         join B in _context.Slab on A.ID equals B.AllowanceID
-                         join C in _context.SlabCategory on B.SlabID equals C.SlabID
-                         join D in _context.SlabCalculation on B.SlabID equals D.SlabID
-                         join E in _context.SlabDetails  on D.DetailsID equals E.ID 
-                         where C.CategoryID == (categoryid == null ? 0 : Convert.ToInt32(categoryid))
-                         && B.SlabID == E.SlabID
-                         orderby A.PayrollSlNO
+                            where A.InActive == false
                             select new AllowanceDetails
                             {
                                 ID = A.ID,
@@ -239,44 +238,43 @@ namespace Standus_5_0.Areas.HumanResource.Controllers
                                 FromAmount = 0,
                                 ToAmount = 0,
                                 Employee = 0,
-                                Employer = 0,
-                                DetailsID = E.ID
+                                Employer = 0
                             };
 
 
-            var slab = from A in _context.SlabAllowance
-                         join B in _context.Allowance on A.AllowanceID equals B.ID
-                         where A.EmployeeID == (employeeid == null ? 0 : Convert.ToInt32(employeeid))
-                         orderby B.PayrollSlNO
-                         select new
-                         {
-                             A.AllowanceID,
-                             B.Name,
-                             Amount = 0,
-                             B.Fixed,
-                             A.FromAmount,
-                             A.ToAmount,
-                             A.Employee,
-                             A.Employer,
-                             A.Type
-                         };
+            //var slab = from A in _context.SlabAllowance
+            //             join B in _context.Allowance on A.AllowanceID equals B.ID
+            //             where A.EmployeeID == (employeeid == null ? 0 : Convert.ToInt32(employeeid))
+            //             orderby B.PayrollSlNO
+            //             select new
+            //             {
+            //                 A.AllowanceID,
+            //                 B.Name,
+            //                 Amount = 0,
+            //                 B.Fixed,
+            //                 A.FromAmount,
+            //                 A.ToAmount,
+            //                 A.Employee,
+            //                 A.Employer,
+            //                 A.Type
+            //             };
 
             // Merging the two lists based on DeductionID
-            var allowance_set = allowance.ToList().Join(slab,
-                                d => d.ID,
-                                s => s.AllowanceID,
-                                (d, s) =>
-                                {
-                                    d.Amount = s.Amount;
-                                    d.Fixed = s.Fixed;
-                                    d.FromAmount = s.FromAmount;
-                                    d.ToAmount = s.ToAmount;
-                                    d.Employee = s.Employee;
-                                    d.Employer = s.Employer;
-                                    return d;
-                                }).ToList();
+            //var allowance_set = allowance.ToList().Join(slab,
+            //                    d => d.ID,
+            //                    s => s.AllowanceID,
+            //                    (d, s) =>
+            //                    {
+            //                        d.Amount = s.Amount;
+            //                        d.Fixed = s.Fixed;
+            //                        d.FromAmount = s.FromAmount;
+            //                        d.ToAmount = s.ToAmount;
+            //                        d.Employee = s.Employee;
+            //                        d.Employer = s.Employer;
+            //                        return d;
+            //                    }).ToList();
 
-            return View(allowance_set);
+            return View(allowance.OrderBy(o => o.ID ));
         }
 
         public ContentResult SetupAllowance(int employeeid, int categoryid)
@@ -467,7 +465,7 @@ namespace Standus_5_0.Areas.HumanResource.Controllers
                             cmd.Parameters.Add("@Fixed", SqlDbType.Decimal, 10).Value = r["Fixed"];
                             cmd.Parameters.Add("@DetailsID", SqlDbType.Int).Value = r["DetailsID"];
 
-                            string insert = "INSERT INTO SlabDeduction(EmployeeID,FromAmount,ToAmount,Employee,Employer," +
+                            string insert = "INSERT INTO SlabAllowance(EmployeeID,FromAmount,ToAmount,Employee,Employer," +
                             "Amount,Type,AllowanceID, Fixed, DetailsID) " +
                             "VALUES( @EmployeeID, @FromAmount, @ToAmount, @Employee, @Employer, @Amount, @Type, @AllowanceID," +
                             "@Fixed, @DetailsID)";
@@ -486,70 +484,76 @@ namespace Standus_5_0.Areas.HumanResource.Controllers
 
             {
                 var cmd = new SqlCommand();
-                var dtEMp = new DataTable();
+                var dtDed = new DataTable();
                 var dt = new DataTable();
 
-                cmd.CommandText = "select EMployeeID from EMployee where CategoryID=" + categoryid;
+                //cmd.CommandText = "select EMployeeID from EMployee where CategoryID=" + categoryid;
 
-                
-                    // Open the connection from the DbContext
-                    var connection = _context.Database.GetDbConnection(); // Get the DB connection from the DbContext
+                // Open the connection from the DbContext
+                var connection = _context.Database.GetDbConnection(); // Get the DB connection from the DbContext
 
-                    // Ensure the connection is open before executing the query
-                    if (connection.State != ConnectionState.Open)
-                    {
-                        connection.Open();  // Open the connection
-                    }
+                // Ensure the connection is open before executing the query
+                if (connection.State != ConnectionState.Open)
+                {
+                    connection.Open();  // Open the connection
+                }
 
-                    // Set the command properties
-                    cmd.CommandType = CommandType.Text;  // Command type is SQL text
-                    cmd.Connection = (SqlConnection)connection;  // Set the connection to the command
+                // Set the command properties
+                cmd.CommandType = CommandType.Text;  // Command type is SQL text
+                cmd.Connection = (SqlConnection)connection;  // Set the connection to the command
 
-                    // Example query (replace with actual SQL query)
-                    cmd.CommandText = "SELECT * FROM Employee";  // Replace with your actual query
+                // Example query (replace with actual SQL query)
+                //cmd.CommandText = "SELECT * FROM Employee";  // Replace with your actual query
 
-                    // Create a SqlDataAdapter to execute the command
-                    using (var sda = new SqlDataAdapter(cmd))
-                    {
-                        // Fill the DataTable with the query result
-                        sda.Fill(dtEMp);
-                    }
+                cmd.CommandText = "Select * from deduction";
 
-
-                    var Employee = default(double);
-                var Employer = default(double);
-                
-                    cmd.CommandText = "select distinct G.AllowanceID ,G.Employer,OnIncome from Deduction A  " + 
-                        "Inner join Slab B On A.DeductionID =B.DeductionID  " + 
-                        "inner join SlabDetails C On C.SlabID =B.SlabID " + 
-                        "inner join Category D on C.CategoryID =D.CategoryID " + 
-                        "inner Join SlabCalculation E on C.DetailsID = E.DetailsID and B.SlabID =E.SlabID " + 
-                        "inner join Allowance F On E.AllowanceID = F.AllowanceID " + 
-                        "inner join SlabAllowance G on F.AllowanceID = G.AllowanceID  " + 
-                        "where A.DeductionID = " + deductionid + " And C.CategoryID = " + categoryid + " " + 
-                        "And G.EmployeeID = " + employeeid + "";
-
+                // Create a SqlDataAdapter to execute the command
                 using (var sda = new SqlDataAdapter(cmd))
                 {
                     // Fill the DataTable with the query result
-                    sda.Fill(dt);
+                    sda.Fill(dtDed);
                 }
 
-                double Allowance = 0d;
+                
+                foreach (DataRow drded in dtDed.Rows)
+                {
+                    var Employee = default(double);
+                    var Employer = default(double);
+
+                    deductionid = (int)drded["DeductionID"];
+
+                    cmd.CommandText = "select distinct G.AllowanceID ,G.Employer,A.Type OnIncome from Deduction A  " +
+                        "Inner join Slab B On A.DeductionID =B.DeductionID  " +
+                        "inner join SlabDetails C On C.SlabID =B.SlabID " +
+                        "inner join Category D on C.CategoryID =D.CategoryID " +
+                        "inner join StandardDeductionCalculation E on A.DeductionID = E.DeductionID " +
+                        "inner join Allowance F On E.AllowanceID = F.AllowanceID " +
+                        "inner join SlabAllowance G on F.AllowanceID = G.AllowanceID  " +
+                        "where A.DeductionID = " + drded["deductionid"] + " And C.CategoryID = " + categoryid + " " +
+                        "And G.EmployeeID = " + employeeid + "";
+
+                    dt.Rows.Clear();
+
+                    using (var sda = new SqlDataAdapter(cmd))
+                    {
+                        // Fill the DataTable with the query result
+                        sda.Fill(dt);
+                    }
+
+                    double Allowance = 0;
 
                     string OnIncome = "";
 
                     foreach (DataRow row in dt.Rows)
                     {
-
-                        if (row["OnIncome"] == "Monthly")
+                        if (row["OnIncome"].ToString().Trim() == "Monthly")
                         {
-                            Allowance += (double)row.ItemArray[1];
+                            Allowance += Convert.ToDouble( row.ItemArray[1]);
                         }
-                        else if (row["OnIncome"] == "Yearly Income")
+                        else if (row["OnIncome"].ToString().Trim() == "Yearly Income")
                         {
                             double value = Convert.ToDouble(row.ItemArray[1]);  // Convert to double
-                            Allowance += value * 12;
+                            Allowance += Convert.ToDouble (value * 12);
                             OnIncome = "Yearly";
                         }
                     }
@@ -559,25 +563,26 @@ namespace Standus_5_0.Areas.HumanResource.Controllers
 
                     cmd.ExecuteNonQuery();
 
-                    string Sql = "select * from Slab A " + 
-                    "inner join SlabDetails B on A.SlabID =B.SlabID " + 
-                    "inner join Deduction C On A.DeductionID =C.DeductionID " + 
-                    "where A.DeductionID = " + deductionid + " And B.CategoryID = " + categoryid + " ";
+                    string Sql = "select * from Slab A " +
+                    "inner join SlabDetails B on A.SlabID =B.SlabID " +
+                    "inner join Deduction C On A.DeductionID =C.DeductionID " +
+                    "where A.DeductionID = " + drded["deductionid"] + " And B.CategoryID = " + categoryid + " ";
 
-
+                    DataTable dtslab = new DataTable();
 
                     cmd.CommandText = Sql;
                     using (var sda = new SqlDataAdapter(cmd))
                     {
                         // Fill the DataTable with the query result
-                        sda.Fill(dt);
+                        sda.Fill(dtslab);
                     }
-
-                foreach (DataRow r in dt.Rows)
+                    
+                    foreach (DataRow r in dtslab.Rows)
                     {
+
                         double value = Convert.ToDouble(r["FromAmount"]);
                         double FromAmount = value;
-                        value = Convert.ToDouble(r["FromAmount"]);
+                        value = Convert.ToDouble(r["ToAmount"]);
                         double ToAmount = value;
 
                         bool apply = false;
@@ -594,12 +599,12 @@ namespace Standus_5_0.Areas.HumanResource.Controllers
                                 }
                                 else if (type == "Amount")
                                 {
-                                    Employee =Convert.ToDouble(r["employee"]);
-                                    Employer =Convert.ToDouble(r["employer"]);
+                                    Employee = Convert.ToDouble(r["employee"]);
+                                    Employer = Convert.ToDouble(r["employer"]);
                                 }
                                 if (OnIncome == "Yearly")
                                 {
-                                    Employee =  Math.Round(Allowance * Convert.ToDouble(r["employee"]) / 100, 0) / 12;
+                                    Employee = Math.Round(Allowance * Convert.ToDouble(r["employee"]) / 100, 0) / 12;
                                     r["employee"] = Employee;
                                     Employer = Math.Round(Allowance * (Convert.ToDouble(r["employee"]) / 100), 0) / 12;
                                 }
@@ -623,7 +628,7 @@ namespace Standus_5_0.Areas.HumanResource.Controllers
                                 }
                                 if (OnIncome == "Yearly")
                                 {
-                                    Employee =  Math.Round(Allowance * (Convert.ToDouble(r["employee"]) / 100), 0) / 12;
+                                    Employee = Math.Round(Allowance * (Convert.ToDouble(r["employee"]) / 100), 0) / 12;
                                     r["employee"] = Employee;
                                     Employer = Math.Round(Allowance * (Convert.ToDouble(r["employee"]) / 100), 0) / 12;
                                 }
@@ -647,7 +652,7 @@ namespace Standus_5_0.Areas.HumanResource.Controllers
                                 }
                                 if (OnIncome == "Yearly")
                                 {
-                                    Employee =  Math.Round(Allowance * (Convert.ToDouble(r["employee"]) / 100), 0) / 12;
+                                    Employee = Math.Round(Allowance * (Convert.ToDouble(r["employee"]) / 100), 0) / 12;
                                     r["employee"] = Employee;
                                     Employer = Math.Round(Allowance * (Convert.ToDouble(r["employee"]) / 100), 0) / 12;
                                 }
@@ -680,22 +685,15 @@ namespace Standus_5_0.Areas.HumanResource.Controllers
                         }
                     }
                 }
-            
-
-
-            return Content("Success","text/plain");
-        
+            }
+            return Content("Success","text/plain");        
         }
         public async Task<IActionResult> Deduction(int employeeid, int categoryid)
         {
 
             var deduction = from A in _context.Deduction
-                         join B in _context.Slab on A.ID equals B.DeductionID
-                         join C in _context.SlabCategory on B.SlabID equals C.SlabID
-                            join D in _context.SlabCalculation on B.SlabID equals D.SlabID
-                            join E in _context.SlabDetails on D.DetailsID equals E.ID
-                            where C.CategoryID == (categoryid == null ? 0 : Convert.ToInt32(categoryid))
-                            && B.SlabID == E.SlabID
+                         join B in _context.SlabDeduction on A.ID equals B.DeductionID
+                         where B.EmployeeID == employeeid
                             orderby A.PayRollSlNo
                             select new DeductionDetails
                             {
@@ -705,45 +703,79 @@ namespace Standus_5_0.Areas.HumanResource.Controllers
                                 Fixed = A.Fixed == null ? false : true,
                                 FromAmount = 0,
                                 ToAmount = 0,
-                                Employee = 0,
-                                Employer = 0,
-                                DetailsID = E.ID
+                                Employee = B.Employee,
+                                Employer = B.Employer,
+                                DetailsID = B.DetailsID 
                             };
 
-            var slab = from A in _context.SlabDeduction
-                            join B in _context.Deduction on A.DeductionID equals B.ID
-                            where A.EmployeeID == (employeeid == null ? 0 : Convert.ToInt32(employeeid))
-                            orderby B.PayRollSlNo
-                            select new
-                            {
-                                A.DeductionID,
-                                B.Name,
-                                Amount = 0,
-                                B.Fixed,
-                                A.FromAmount,
-                                A.ToAmount,
-                                A.Employee,
-                                A.Employer,
-                                A.Type,
-                                A.DetailsID
-                            };
+            //var slab = from A in _context.SlabDeduction
+            //                join B in _context.Deduction on A.DeductionID equals B.ID
+            //                where A.EmployeeID == (employeeid == null ? 0 : Convert.ToInt32(employeeid))
+            //                orderby B.PayRollSlNo
+            //                select new
+            //                {
+            //                    A.DeductionID,
+            //                    B.Name,
+            //                    Amount = 0,
+            //                    B.Fixed,
+            //                    A.FromAmount,
+            //                    A.ToAmount,
+            //                    A.Employee,
+            //                    A.Employer,
+            //                    A.Type,
+            //                    A.DetailsID
+            //                };
 
-            // Merging the two lists based on AllowanceID
-            var deduction_set = deduction.ToList().Join(slab,
-                                d => d.ID,
-                                s => s.DeductionID,
-                                (d, s) =>
-                                {
-                                    d.Amount = s.Amount;
-                                    d.Fixed = s.Fixed == null ? false : true;
-                                    d.FromAmount = s.FromAmount;
-                                    d.ToAmount = s.ToAmount;
-                                    d.Employee = s.Employee;
-                                    d.Employer = s.Employer;
-                                    return d;
-                                }).ToList();
+            //// Merging the two lists based on AllowanceID
+            //var deduction_set = deduction.ToList().Join(slab,
+            //                    d => d.ID,
+            //                    s => s.DeductionID,
+            //                    (d, s) =>
+            //                    {
+            //                        d.Amount = s.Amount;
+            //                        d.Fixed = s.Fixed == null ? false : true;
+            //                        d.FromAmount = s.FromAmount;
+            //                        d.ToAmount = s.ToAmount;
+            //                        d.Employee = s.Employee;
+            //                        d.Employer = s.Employer;
+            //                        return d;
+            //                    }).ToList();
 
-            return View(deduction_set);
+            return View(deduction);
+        }
+
+        public ActionResult AddAllowanceSlab(int id, decimal amount, int employeeid, string type)
+        {            
+
+            var Slab = new SlabAllowance();
+
+            Slab.AllowanceID = id;
+            Slab.Amount = amount;
+            Slab.Employer = amount;
+            Slab.EmployeeID = employeeid ;
+            Slab.Type = "Amount";
+
+            _context.SlabAllowance.Add(Slab);
+            _context.SaveChanges(); 
+
+            return new EmptyResult();
+        }
+
+        public ActionResult DeleteAllowance(int employeeid) {
+            var slabs = _context.SlabAllowance.Where(a => a.EmployeeID == employeeid);
+            _context.SlabAllowance.RemoveRange(slabs);
+            _context.SaveChanges();
+            return new EmptyResult();
+        }
+
+        public ActionResult Get_Allowance(int employeeid) { 
+            
+            var slab = _context.SlabAllowance.Where(a => a.EmployeeID == employeeid)
+                .OrderBy(o => o.AllowanceID);
+            
+            return Json(slab.ToList());
         }
     }
+
+    
 }

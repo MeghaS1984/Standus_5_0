@@ -14,7 +14,9 @@ namespace Standus_5_0.Services
                         "<strong> Success!</ strong > " + message + "</a>.</div>";
                     break;
                 case Alerts.Danger:
-                    alertDiv = "<div class='alert alert-danger alert-dismissible' id='alert'><button type='button' class='close' data-dismiss='alert'>×</button><strong> Error!</ strong > " + message + "</a>.</div>";
+                    alertDiv = "<div class='alert alert-danger alert-dismissible' id='alert'>" +
+                        "<button type='button' class='close' data-dismiss='alert'>×</button>" + 
+                        "<strong> Error!</ strong > " + message + "</a>.</div>";
                     break;
                 case Alerts.Info:
                     alertDiv = "<div class='alert alert-info alert-dismissable' id='alert'><button type='button' class='close' data-dismiss='alert'>×</button><strong> Info!</ strong > " + message + "</a>.</div>";

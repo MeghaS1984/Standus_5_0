@@ -7,8 +7,7 @@
 
 <div class="row">
     <div class="col-md-12">
-        <div class="form-group">
-            @Html.Raw(@TempData["Alert"])
+        <div class="form-group" id="message">
         </div>
     </div>
 </div>
@@ -55,14 +54,14 @@
                     new SelectListItem {Text = "Down" , Value = "Down" }
                     };
 
-                        ViewData["RoundOff"] = new SelectList(round_off, "Value", "Text");
+                        ViewData["RoundOff"] = new SelectList(round_off, "Value", "Text",Model.RoundOff);
                     }
                     <select asp-for="RoundOff" class="form-control" asp-items="@ViewBag.RoundOff"></select>
                 </div>
 
                 <br>
                 <div class="form-group">
-                    <input type="submit" value="Save" class="btn btn-primary" /> |
+                <input type="button" value="Save" class="btn btn-primary" id="submit" /> |
                     <a asp-action="Index">Back to List</a>
                 </div>
             </div>
@@ -123,7 +122,7 @@
         $.ajax({
             url: '/humanresource/SlabDetails/SlabSchedule',
             type: 'GET',
-            data: { deductionid: 0 },
+            data: { deductionid: @Model.ID },
             success: function (result) {
                 $('#Schedule').html(result);
             },
@@ -143,6 +142,7 @@
             onyearlyincome: $("#OnYearlyIncome").prop('checked'),
             deduction_fixed: $("#Fixed").prop('checked'),
             inactive: $("#InActive").prop('checked'),
+            deductionid : @Model.ID,
             allowances: [],
             months: []
         }
@@ -165,22 +165,26 @@
             }
         })
 
-        $.ajax({
-            url: '@Url.Action("Create", "Deductions")',
+        
+        var promise = $.ajax({
+            url: '@Url.Action("Edit", "Deductions")',
             type: 'POST',
             data: JSON.stringify(formData),
-            contentType: 'application/json',
-            success: function (response) {
-                // Handle success
-                alert('Form submitted successfully!');
-                console.log(response);  // Display or process the response here
-            },
-            error: function (xhr, status, error) {
-                // Handle error
-                alert('Error occurred while submitting the form!');
-                console.log(xhr + "  " + error);
-            }
+            contentType: 'application/json' 
+        }).done( function (response) {
+                $("#message").html(response);
+                $("#message button").on("click", function() {
+                    let div = $(this).closest('div');
+                    div.fadeOut('3000', function() { div.css('display', 'none') });
+                });
+        }).fail( function (xhr,statusText,error) {
+                status = error ;            
         });
+
+        // var div = $("#alert").fadeIn(3000);
+        // $(".alert").on('click', '.close', function (event) {
+            
+        // });
     })
 </script>
 

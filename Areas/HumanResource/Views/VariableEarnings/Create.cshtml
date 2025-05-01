@@ -1,0 +1,102 @@
+﻿@model Standus_5_0.Areas.HumanResource.Models.PayrollDetails
+
+@{
+    ViewData["Title"] = "Create";
+    Layout = "~/Areas/HumanResource/Views/Shared/_Layout.cshtml";
+}
+
+<h1>Create</h1>
+
+<h4>PayrollDetails</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="Create">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-group">
+                <label asp-for="PayID" class="control-label"></label>
+                <input asp-for="PayID" class="form-control" />
+                <span asp-validation-for="PayID" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="EmployeeID" class="control-label"></label>
+                <select asp-for="EmployeeID" class ="form-control" asp-items="ViewBag.EmployeeID"></select>
+            </div>
+            <div class="form-group">
+                <label asp-for="EmployeeAmount" class="control-label"></label>
+                <input asp-for="EmployeeAmount" class="form-control" />
+                <span asp-validation-for="EmployeeAmount" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="AllowanceID" class="control-label"></label>
+                <select asp-for="AllowanceID" class ="form-control" asp-items="ViewBag.AllowanceID"></select>
+            </div>
+            <div class="form-group">
+                <label asp-for="DeductionID" class="control-label"></label>
+                <select asp-for="DeductionID" class ="form-control" asp-items="ViewBag.DeductionID"></select>
+            </div>
+            <div class="form-group">
+                <label asp-for="Employer" class="control-label"></label>
+                <input asp-for="Employer" class="form-control" />
+                <span asp-validation-for="Employer" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="CategoryID" class="control-label"></label>
+                <select asp-for="CategoryID" class ="form-control" asp-items="ViewBag.CategoryID"></select>
+            </div>
+            <div class="form-group">
+                <label asp-for="Paid" class="control-label"></label>
+                <input asp-for="Paid" class="form-control" />
+                <span asp-validation-for="Paid" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="UnPaid" class="control-label"></label>
+                <input asp-for="UnPaid" class="form-control" />
+                <span asp-validation-for="UnPaid" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="FromAmount" class="control-label"></label>
+                <input asp-for="FromAmount" class="form-control" />
+                <span asp-validation-for="FromAmount" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="ToAmount" class="control-label"></label>
+                <input asp-for="ToAmount" class="form-control" />
+                <span asp-validation-for="ToAmount" class="text-danger"></span>
+            </div>
+            <div class="form-group form-check">
+                <label class="form-check-label">
+                    <input class="form-check-input" asp-for="Fixed" /> @Html.DisplayNameFor(model => model.Fixed)
+                </label>
+            </div>
+            <div class="form-group">
+                <label asp-for="Amount" class="control-label"></label>
+                <input asp-for="Amount" class="form-control" />
+                <span asp-validation-for="Amount" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="EmployeeContribution" class="control-label"></label>
+                <input asp-for="EmployeeContribution" class="form-control" />
+                <span asp-validation-for="EmployeeContribution" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="EmployerContribution" class="control-label"></label>
+                <input asp-for="EmployerContribution" class="form-control" />
+                <span asp-validation-for="EmployerContribution" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Type" class="control-label"></label>
+                <input asp-for="Type" class="form-control" />
+                <span asp-validation-for="Type" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Create" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>
+

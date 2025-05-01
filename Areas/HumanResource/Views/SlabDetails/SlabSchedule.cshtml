@@ -1,8 +1,4 @@
 ﻿
-
-
-
-
 	
 	<div style="position:relative;float:right">
 		<input type="checkbox" id="selectAll" />Select All
@@ -45,8 +41,7 @@
 			url: '@Url.Action("Get_Schedules", "SlabDetails")', // Replace with your actual controller and action
 			type: 'GET',
 			data: {
-				slabid: @ViewData["slabid"],  // Razor will inject these values
-				detailsid: @ViewData["detailsid"]
+				deductionid: @ViewData["deductionid"]
 			},
 			success: function (result) {
 				for (let i=0;i<result.length;i++) {

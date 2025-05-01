@@ -27,8 +27,11 @@ a {
 }
 
 .flex-header-container {
-    display:flex;
-    flex-direction:row;
+    display: flex;
+    flex-direction: row;
+    justify-content: center; /* Vertically center the items */
+    align-items: center; /* Horizontally center the items */
+    height: 100%;
 }
 
     .flex-header-container > div {

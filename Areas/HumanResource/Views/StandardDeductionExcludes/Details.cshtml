@@ -1,14 +1,13 @@
-﻿@model Standus_5_0.Areas.HumanResource.Models.SlabDeductionExclude
+﻿@model Standus_5_0.Areas.HumanResource.Models.StandardDeductionExclude
 
 @{
     ViewData["Title"] = "Details";
     Layout = "~/Areas/HumanResource/Views/Shared/_Layout.cshtml";
 }
 
-<h1>Details</h1>
+<h5>Exception details</h5>
 
 <div>
-    <h4>SlabDeductionExclude</h4>
     <hr />
     <dl class="row">
         <dt class = "col-sm-2">
@@ -18,16 +17,22 @@
             @Html.DisplayFor(model => model.Exclude)
         </dd>
         <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.Include)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.Include)
+        </dd>
+        <dt class = "col-sm-2">
             @Html.DisplayNameFor(model => model.Employee)
         </dt>
         <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Employee.Discriminator)
+            @Html.DisplayFor(model => model.Employee.Name)
         </dd>
         <dt class = "col-sm-2">
             @Html.DisplayNameFor(model => model.Deduction)
         </dt>
         <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Deduction.CutOffType)
+            @Html.DisplayFor(model => model.Deduction.Name)
         </dd>
     </dl>
 </div>

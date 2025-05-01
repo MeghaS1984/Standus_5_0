@@ -5,66 +5,87 @@
     Layout = "~/Areas/HumanResource/Views/Shared/_Layout.cshtml";
 }
 
-<h1>Create</h1>
+<div class="row">
+    <div class="col-md-12">
+        <div class="form-group">
+            @Html.Raw(@ViewBag.Alert)
+        </div>
+    </div>
+</div>
 
-<h4>LoanRequest</h4>
+<h5>Loan Request</h5>
 <hr />
 <div class="row">
     <div class="col-md-4">
         <form asp-action="Create">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <div class="form-group">
-                <label asp-for="RequestNo" class="control-label"></label>
+                <label asp-for="RequestNo" class="control-label">Request No</label>
                 <input asp-for="RequestNo" class="form-control" />
                 <span asp-validation-for="RequestNo" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <label asp-for="EmployeeId" class="control-label"></label>
+                <label asp-for="EmployeeId" class="control-label">Employee</label>
                 <select asp-for="EmployeeId" class ="form-control" asp-items="ViewBag.EmployeeId"></select>
             </div>
             <div class="form-group">
-                <label asp-for="Date" class="control-label"></label>
+                <label asp-for="Date" class="control-label">Request Date</label>
                 <input asp-for="Date" class="form-control" />
                 <span asp-validation-for="Date" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <label asp-for="Amount" class="control-label"></label>
+                <label asp-for="Amount" class="control-label">Loan Amount</label>
                 <input asp-for="Amount" class="form-control" />
                 <span asp-validation-for="Amount" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <label asp-for="Reason" class="control-label"></label>
+                <label asp-for="Reason" class="control-label">Reason for Loan</label>
                 <input asp-for="Reason" class="form-control" />
                 <span asp-validation-for="Reason" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <label asp-for="LoanType" class="control-label"></label>
-                <input asp-for="LoanType" class="form-control" />
+                <label asp-for="LoanType" class="control-label">Type Of Loan</label>
+                <select asp-for="LoanType" class="form-control" asp-items="ViewBag.LoanType"></select>
                 <span asp-validation-for="LoanType" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <label asp-for="Bank" class="control-label"></label>
+                <label asp-for="Bank" class="control-label">Bank Name</label>
                 <input asp-for="Bank" class="form-control" />
                 <span asp-validation-for="Bank" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <label asp-for="Status" class="control-label"></label>
-                <input asp-for="Status" class="form-control" />
-                <span asp-validation-for="Status" class="text-danger"></span>
-            </div>
+                <label asp-for="Comment" class="control-label"></label>
+                <input asp-for="Comment" class="form-control" />
+                <span asp-validation-for="Comment" class="text-danger"></span>
+            </div><br>
             <div class="form-group">
-                <label asp-for="Comments" class="control-label"></label>
-                <input asp-for="Comments" class="form-control" />
-                <span asp-validation-for="Comments" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <input type="submit" value="Create" class="btn btn-primary" />
+                <input type="submit" value="Create" class="btn btn-primary" /> |
+                <a asp-action="Index">Back to List</a>
             </div>
         </form>
     </div>
 </div>
 
 <div>
-    <a asp-action="Index">Back to List</a>
+    
 </div>
 
+<script>
+
+    let currentDate = new Date().toISOString().split('T')[0];
+    $("#Date").val(currentDate);
+
+    $("#Bank").prop('disabled', true);
+    $("#Status").prop('disabled',true);
+    $("#RequestNo").prop('disabled',true);
+
+    $("#LoanType").on("change", function () {
+        var selectText = $("#LoanType option:selected").text().trim();
+        if (selectText == 'Advance') {
+            $("#Bank").prop('disabled',true); 
+        } else {
+            $("#Bank").prop('disabled',false);
+        }
+    })
+
+</script>

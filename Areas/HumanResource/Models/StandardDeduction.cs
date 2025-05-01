@@ -21,5 +21,6 @@ namespace Standus_5_0.Areas.HumanResource.Models
     public class StandardDeductionCalculation { 
         public int DeductionID { get; set; }    
         public int AllowanceID { get; set; }
+        public int For_AllowanceID { get; set; }
     }
 }

@@ -1,0 +1,147 @@
+﻿@model IEnumerable<Standus_5_0.Areas.HumanResource.Models.VariableDeductionModel>
+
+@{
+    ViewData["Title"] = "Index";
+    Layout = "~/Areas/HumanResource/Views/Shared/_Layout.cshtml";
+}
+
+<div class="row">
+	<div class="col-md-12">
+		<div class="form-group" id="message">
+		</div>
+	</div>
+</div>
+
+<div class="flex-header-container">
+	<div style="width:40% !important">
+		<h5>Variable deduction</h5>
+	</div>
+	<div style="width:20% !important;border-left:0px solid gray">
+		Select Payroll ID : <select asp-items="@ViewBag.Payroll" class="form-control" id="payroll"></select>
+	</div>
+	<div style="width:20% !important;border-left:0px solid gray">
+		Select Category : <select asp-items="@ViewBag.Category" class="form-control" id="category"></select>
+	</div>
+	<div style="width:20% !important;border-left:0px solid gray">
+		Select deduction : <select asp-items="@ViewBag.Deduction" class="form-control" id="deduction"></select>
+	</div>
+</div>
+<script>
+</script>
+<hr>
+<div class="flex-header-container">
+
+	<div style="width:70%;vertical-align:top !important">
+		<table class="table table-striped table-bordered">
+			<thead>
+				<tr class="table-success">
+					<th>
+						Name
+					</th>
+					<th>
+						Amount
+					</th>
+				</tr>
+			</thead>
+			<tbody>
+				@foreach (var item in Model)
+				{
+					<tr>
+						<td>
+							<input type="hidden" name="id_@item.employeeid" value="@item.employeeid">
+							@Html.DisplayFor(modelItem => item.employeename)
+						</td>
+						<td>
+							<input type="text" name="amount_@item.employeeid" value="@item.amount">
+						</td>
+					</tr>
+				}
+			</tbody>
+		</table>
+		<br>
+		<div class="form-group">
+			<input type="button" value="Save" class="btn btn-success" id="submit">
+		</div>
+	</div>
+</div>
+
+<script>
+
+	var payid = $("#payroll").val();
+	var deductionid = $("#deduction").val();
+	var categoryid = $("#category").val();
+
+	$("#payroll").on('change', function () {
+		payid = $("#payroll").val();
+		window.location.href = '/humanresource/VariableEarnings/index' +
+			'?payid=' + payid + '&deductionid=' + deductionid + '&categoryid=' + categoryid
+	})
+
+	$("#deduction").on('change', function () {
+		deductionid = $("#deduction").val();
+		window.location.href = '/humanresource/VariableEarnings/index' +
+			'?payid=' + payid + '&deductionid=' + deductionid + '&categoryid=' + categoryid
+	})
+
+	$("#category").on('change', function () {
+		categoryid = $("#category").val();
+		window.location.href = '/humanresource/VariableEarnings/index' +
+			'?payid=' + payid + '&deductionid=' + deductionid + '&categoryid=' + categoryid
+	})
+
+	$("#submit").on('click', function () {
+
+		let promises = [];
+
+		var promise = $.ajax({
+			url: '@Url.Action("DeleteConfirmed", "VariableEarnings")',
+			type: 'POST',
+			data: { id: payid }
+		}).done(function () {
+			$('tr').each(function (index, item) {
+				if (index > 0) {
+					var employeeid = $(item).find('input[name^="id_"]').val();
+					var employer = $(item).find('input[name^="amount_"]').val();
+					var formData = {
+						payid: payid,
+						deductionid: deductionid,
+						categoryid: categoryid,
+						employer: employer,
+						employeeid: employeeid
+					}
+					var promise = $.ajax({
+						url: '@Url.Action("Create", "VariableEarnings")',
+						type: 'POST',
+						data: JSON.stringify(formData),
+						contentType: 'application/json'
+					})
+				}
+				promises.push(promise);
+			})
+
+			var success = "<div class='alert alert-success alert-dismissable' id='alert'>" +
+				"<button type='button' class='close' data-dismiss='alert'>×</button>" +
+				"<strong> Success!</ strong > Data saved..</a>.</div>";
+
+			var error = "<div class='alert alert-danger alert-dismissible' id='alert'>" +
+				"<button type='button' class='close' data-dismiss='alert'>×</button>" +
+				"<strong> Error!</ strong > Failed to save data..</a>.</div>";
+
+			Promise.all(promises).then(function (responses) {
+				// Handle success
+				$("#message").html(success);
+				$("#message button").on("click", function () {
+					let div = $(this).closest('div');
+					div.fadeOut('3000', function () { div.css('display', 'none') });
+				});
+			}).catch(function (error) {
+				// Handle success
+				$("#message").html(error);
+				$("#message button").on("click", function () {
+					let div = $(this).closest('div');
+					div.fadeOut('3000', function () { div.css('display', 'none') });
+				});
+			});
+		});
+	});
+</script>

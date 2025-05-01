@@ -1,0 +1,67 @@
+﻿@model Standus_5_0.Areas.HumanResource.Models.StandardDeductionExclude
+
+@{
+    ViewData["Title"] = "Create";
+    Layout = "~/Areas/HumanResource/Views/Shared/_Layout.cshtml";
+}
+
+<<div class="row">
+    <div class="col-md-12">
+        <div class="form-group">
+            @Html.Raw(@ViewBag.Alert)
+        </div>
+    </div>
+</div>
+
+<h5>Add Deduction Exception</h5>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="Create">
+            <div asp-validation-summary="All" class="text-danger"></div>
+            <div class="form-group">
+                <label asp-for="EmployeeID" class="control-label">Employee</label>
+                <select asp-for="EmployeeID" class ="form-control" asp-items="ViewBag.EmployeeID"></select>
+            </div>
+            <div class="form-group">
+                <label asp-for="DeductionID" class="control-label">Deduction Type</label>
+                <select asp-for="DeductionID" class ="form-control" asp-items="ViewBag.DeductionID"></select>
+            </div>
+            <div class="form-group form-check">
+                <label class="form-check-label">
+                    <input class="form-check-input" asp-for="Exclude" /> @Html.DisplayNameFor(model => model.Exclude)
+                </label>
+            </div>
+            <div class="form-group form-check">
+                <label class="form-check-label">
+                    <input class="form-check-input" asp-for="Include" /> @Html.DisplayNameFor(model => model.Include)
+                </label>
+            </div><br>
+            <div class="form-group">
+                <input type="submit" value="Create" class="btn btn-primary" /> |
+                <a asp-action="Index">Back to List</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    
+</div>
+
+<script>
+$(document).ready(function () {
+    $('#Exclude').change(function () {
+        if ($(this).is(':checked')) {
+            $('#Include').prop('checked', false);
+        }
+    });
+
+    $('#Include').change(function () {
+        if ($(this).is(':checked')) {
+            $('#Exclude').prop('checked', false);
+        }
+    });
+});
+</script>
+

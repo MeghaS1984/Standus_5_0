@@ -53,21 +53,12 @@ namespace Standus_5_0.Areas.HumanResource.Models
 
         public int EmployerDebitTo { get; set; }
 
-        //public Slab slab { get; set; }
+        public Slab slab { get; set; }
         // Navigation property for Account
         //[ForeignKey("AccountID")]
         //public virtual Account Account { get; set; }
 
         // Optionally, you can create navigation properties for DebitTo, CreditTo, and EmployerDebitTo if they refer to other entities.
     }
-
-    [Table("SlabDeductionExclude")]
-    public class SlabDeductionExclude { 
-        public int EmployeeID { get; set; }
-        public int DeductionID { get; set; }
-        public bool Exclude {  get; set; }
-
-        public Employee Employee { get; set; }
-        public Deduction Deduction { get; set; }
-    }
+       
 }

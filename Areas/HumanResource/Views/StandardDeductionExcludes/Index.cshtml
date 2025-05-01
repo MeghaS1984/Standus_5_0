@@ -1,0 +1,63 @@
+﻿@model IEnumerable<Standus_5_0.Areas.HumanResource.Models.StandardDeductionExclude>
+
+@{
+    ViewData["Title"] = "Index";
+    Layout = "~/Areas/HumanResource/Views/Shared/_Layout.cshtml";
+}
+
+<div class="flex-header-container">
+    <div>
+        <h5>Deduction Exception</h5>
+    </div>
+
+    <div>
+        <a asp-action="Create">Add New Exception</a>
+    </div>
+</div>
+
+<table class="table table-striped table-bordered">
+    <thead>
+        <tr class="table-success">
+            <th>
+                @Html.DisplayNameFor(model => model.Employee)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Deduction)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Exclude)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Include)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model) {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.Employee.Name)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Deduction.Name)
+            </td>
+            <td>
+                @if (item.Exclude) {
+                    @Html.DisplayFor(modelItem => item.Exclude)
+                } 
+            </td>
+            <td>
+                @if (item.Include) {
+                    @Html.DisplayFor(modelItem => item.Include)
+                }
+            </td>
+            <td>
+                @Html.ActionLink("Edit", "Edit", new { eid=item.EmployeeID , did = item.DeductionID }) |
+                @Html.ActionLink("Details", "Details", new { eid = item.EmployeeID, did = item.DeductionID }) |
+                @Html.ActionLink("Delete", "Delete", new { eid = item.EmployeeID, did = item.DeductionID })
+            </td>
+        </tr>
+}
+    </tbody>
+</table>

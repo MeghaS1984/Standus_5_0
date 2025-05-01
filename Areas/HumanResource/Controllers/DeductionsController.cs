@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Operations;
 using Microsoft.EntityFrameworkCore;
 using Standus_5_0.Areas.HumanResource.Models;
@@ -116,85 +117,8 @@ namespace Standus_5_0.Areas.HumanResource.Controllers
             deduction_data.Fixed = data.deduction_fixed;
             deduction_data.InActive = data.inactive;
             deduction_data.Variable = false;
-			_context.Add(deduction_data);
+            _context.Add(deduction_data);
             _context.SaveChanges();
-
-            if (deduction_data.ID > 0) {
-                for (int i = 0; i < data.allowances.Count; i++) {
-                    var sdc = new StandardDeductionCalculation();
-                    sdc.DeductionID = deduction_data .ID;
-                    sdc.AllowanceID = data.allowances[i];
-                    _context.StandardDeductionCalculation.Add(sdc);
-                    _context.SaveChanges();
-                }
-
-                foreach (string mon in data.months) { 
-                    var sch = new SlabSchedule ();
-                    sch.DeductionID = deduction_data.ID;
-                    sch.AllowanceID = 0;
-                    sch.Month = mon;
-                    _context.SlabSchedule.Add(sch);
-                    _context.SaveChanges();
-                }
-            }
-
-            return Json(new { success = true, message = "Data save" });
-        }
-
-        // GET: HumanResource/Deductions/Edit/5
-        [HttpGet]
-        public async Task<IActionResult> Edit(int? id)
-        {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            var type = new List<SelectListItem>{
-                    new SelectListItem {Text = "Monthly", Value= "Monthly" },
-                    new SelectListItem {Text = "Yearly", Value = "Yearly" }
-                };
-
-            ViewData["TypeList"] = new SelectList(type, "Value", "Text");
-
-            var deduction = await _context.Deduction.FindAsync(id);
-            if (deduction == null)
-            {
-                return NotFound();
-            }
-            return View(deduction);
-        }
-
-        // POST: HumanResource/Deductions/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit([FromBody] Deduction_Data data)
-        {
-            var deduction_data = new Deduction();
-
-            deduction_data.ID = data.deductionid;
-            deduction_data.Name = data.name;
-            deduction_data.Description = data.description;
-            deduction_data.PayRollSlNo = data.payrollslno == "" ? 0 : Convert.ToInt16(data.payrollslno);
-            deduction_data.Type = data.deduction_type;
-            deduction_data.RoundOff = data.roundoff;
-            deduction_data.OnYearlyIncome = data.onyearlyincome;
-            deduction_data.Fixed = data.deduction_fixed;
-            deduction_data.InActive = data.inactive;
-            deduction_data.Variable = false;
-
-            _context.Update(deduction_data);
-            _context.SaveChanges();
-
-            var sdc_ext = _context.StandardDeductionCalculation.Where(sc => sc.DeductionID == data.deductionid);
-
-            _context.StandardDeductionCalculation.RemoveRange(sdc_ext);
-            _context.SaveChanges();
-
-            var slb_ext = _context.SlabSchedule.Where(sc => sc.DeductionID == data.deductionid);
-            _context.SlabSchedule.RemoveRange(slb_ext);
 
             if (deduction_data.ID > 0)
             {
@@ -216,9 +140,107 @@ namespace Standus_5_0.Areas.HumanResource.Controllers
                     _context.SlabSchedule.Add(sch);
                     _context.SaveChanges();
                 }
+                string success = CommonServices.ShowAlert(Alerts.Success, "Data saved.");
+                return Content(success, "text/plain");
+            }
+            else {
+                
+                string failure = CommonServices.ShowAlert(Alerts.Danger, "Error.");
+                return Content(failure, "text/plain");
             }
 
-            return Json(new { success = true, message = "Data save" });
+        }
+
+        // GET: HumanResource/Deductions/Edit/5
+        [HttpGet]
+        public async Task<IActionResult> Edit(int? id)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            
+
+            var deduction = await _context.Deduction.FindAsync(id);
+            if (deduction == null)
+            {
+                return NotFound();
+            }
+
+            var type = new List<SelectListItem>{
+                    new SelectListItem {Text = "Monthly", Value= "Monthly" },
+                    new SelectListItem {Text = "Yearly", Value = "Yearly" }
+                };
+
+            ViewData["TypeList"] = new SelectList(type, "Value", "Text",deduction.Type);
+
+            return View(deduction);
+        }
+
+        // POST: HumanResource/Deductions/Edit/5
+        // To protect from overposting attacks, enable the specific properties you want to bind to.
+        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
+        //[HttpPost]
+        //[ValidateAntiForgeryToken]
+        public ActionResult Edit([FromBody] Deduction_Data data)
+        {
+            var deduction_data = _context.Deduction.Where(d => d.ID == data.deductionid).FirstOrDefault();
+
+            try
+            {
+                deduction_data.Name = data.name;
+                deduction_data.Description = data.description;
+                deduction_data.PayRollSlNo = data.payrollslno == "" ? 0 : Convert.ToInt16(data.payrollslno);
+                deduction_data.Type = data.deduction_type;
+                deduction_data.RoundOff = data.roundoff;
+                deduction_data.OnYearlyIncome = data.onyearlyincome;
+                deduction_data.Fixed = data.deduction_fixed;
+                deduction_data.InActive = data.inactive;
+                deduction_data.Variable = false;
+
+                _context.Update(deduction_data);
+                _context.SaveChanges();
+
+                var sdc_ext = _context.StandardDeductionCalculation.Where(sc => sc.DeductionID == data.deductionid);
+
+                _context.StandardDeductionCalculation.RemoveRange(sdc_ext);
+                _context.SaveChanges();
+
+                var slb_ext = _context.SlabSchedule.Where(sc => sc.DeductionID == data.deductionid);
+                _context.SlabSchedule.RemoveRange(slb_ext);
+                _context.SaveChanges();
+
+                if (deduction_data.ID > 0)
+                {
+                    for (int i = 0; i < data.allowances.Count; i++)
+                    {
+                        var sdc = new StandardDeductionCalculation();
+                        sdc.DeductionID = deduction_data.ID;
+                        sdc.AllowanceID = data.allowances[i];
+                        _context.StandardDeductionCalculation.Add(sdc);
+                        _context.SaveChanges();
+                    }
+
+                    foreach (string mon in data.months)
+                    {
+                        var sch = new SlabSchedule();
+                        sch.DeductionID = deduction_data.ID;
+                        sch.AllowanceID = 0;
+                        sch.Month = mon;
+                        _context.SlabSchedule.Add(sch);
+                        _context.SaveChanges();
+                    }
+                }
+
+                string success = CommonServices.ShowAlert(Alerts.Success, "Data saved.");
+                return Content(success, "text/plain");
+            }
+            catch (Exception) {
+
+                string success = CommonServices.ShowAlert(Alerts.Danger, "Error.");
+                return Content(success, "text/plain");
+            }
         }
 
         // GET: HumanResource/Deductions/Delete/5

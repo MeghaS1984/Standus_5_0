@@ -5,74 +5,72 @@
     Layout = "~/Areas/HumanResource/Views/Shared/_Layout.cshtml";
 }
 
-<h1>Deduction</h1>
+<div class="flex-header-container">
+    <div>
+        <h5>Deduction | </h5>
+    </div>
 
-<p>
-    <a asp-action="Create">Create New</a>
-</p>
-<table class="table">
+    <div>
+        Total Employee Contribution :
+    </div>
+
+    <div>
+        <span id="employee"></span>
+    </div>
+    <div>
+        Total Employer Contribution :
+    </div>
+
+    <div>
+        <span id="employer"></span>
+    </div>
+</div>
+<table class="table table-bordered table-striped ">
     <thead>
-        <tr>
+        <tr class="table-success">
             <th>
-                @Html.DisplayNameFor(model => model.Name)
+                Deduction Type
             </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Amount)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Fixed)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.FromAmount)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.ToAmount)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Employee)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Employer)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.DetailsID)
-            </th>
-            <th></th>
+            <td>
+                Employee Contribution
+            </td>
+            <td>
+                Employer Contribution
+            </td>
         </tr>
     </thead>
     <tbody>
 @foreach (var item in Model) {
-        <tr>
+        <tr class="data">
             <td>
                 @Html.DisplayFor(modelItem => item.Name)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.Amount)
+                    @Html.DisplayFor(modelItem => item.Employee)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.Fixed)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.FromAmount)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.ToAmount)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Employee)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Employer)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.DetailsID)
-            </td>
-            <td>
-                <a asp-action="Edit" asp-route-id="@item.ID">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.ID">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.ID">Delete</a>
+                    @Html.DisplayFor(modelItem => item.Employer)
             </td>
         </tr>
 }
     </tbody>
 </table>
+<script>
+    $(document).ready(function() {
+        var employee;
+        var employer;
+        var amount ;
+
+        employee = 0 ; employer = 0; amount = 0;
+
+        $(".data").each(function(index,item){
+            amount = $(item).find('td').eq(1).text();
+            employee += Number(amount) ;
+            amount = $(item).find('td').eq(2).text();
+            employer += Number(amount) ;
+        })
+
+        $("#employee").html(employee);
+        $("#employer").html(employer);
+    })
+</script>
