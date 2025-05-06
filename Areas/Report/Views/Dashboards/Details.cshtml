@@ -1,0 +1,41 @@
+﻿@model Standus_5_0.Areas.Report.Models.Dashboard    
+
+@{
+    ViewData["Title"] = "Details";
+    Layout = "~/Areas/Report/Views/Shared/_Layout.cshtml";
+}
+
+<h2>Details</h2>
+
+<div>
+    <h4>Dashboard</h4>
+    <hr />
+    <dl class="row">
+
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.title)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.title)
+        </dd>
+
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.query)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.query)
+        </dd>
+
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.charttype)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.charttype)
+        </dd>
+    </dl>
+</div>
+
+<p>
+    <a asp-action="Edit" asp-route-id="@Model.ID" class="btn btn-primary">Edit</a>
+    <a asp-action="Index" class="btn btn-secondary">Back to List</a>
+</p>

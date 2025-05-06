@@ -1,0 +1,921 @@
+﻿@model Standus_5_0.Areas.Report.Models.ReportPreview;   
+@{
+    //on err|| resume next
+    ViewData["Title"] = "Preview ";
+    Layout = "~/Areas/Report/Views/Shared/_Layout.cshtml";
+
+    string sql="";
+
+    
+    int reportid=0;
+
+    reportid = (int)ViewData["ID"];
+
+    TempData["ReportID"] = reportid;
+    TempData["ReportName"] = ViewData["ReportName"];
+
+    var report =ViewBag.report;
+
+    var filts = ViewBag.filts;
+
+    var cols = ViewBag.cols;
+
+    var dchart = ViewBag.dchart;
+
+    var Filt_values = ViewBag.filters;
+
+    
+}
+
+@Html.Partial("_Filter", Model.Filter)
+
+@{
+    string selector;
+
+    selector = "";
+
+    if (Model.Report != null) {
+        
+        System.Data.DataTable dtGroup = new System.Data.DataTable();
+        dtGroup.Columns.Add("ColumnName");
+        dtGroup.Columns.Add("GroupBy");
+        dtGroup.Columns.Add("GroupValue");
+        dtGroup.Columns.Add("ColumnValue");
+
+        List<Standus_5_0.Areas.Report.Models.ReportColumns> grp = (from c in Model.Column  
+                where c.GroupBy != String.Empty
+                select c).ToList();
+
+        foreach (var gp in grp){
+            if (gp.GroupBy != "") {
+                // group_parameter = group_parameter & "," & gp.GroupBy
+                System.Data.DataRow row  = dtGroup.Rows.Add();
+                row[0] = gp.ColumnName;
+                row[1] = gp.GroupBy;
+            }
+        }
+
+        // 'group_parameter = group_parameter.Substring(0, group_parameter.Length - 1)
+        // '''''' end of grouping
+        // '''
+        sql = Model.Report.SqlQuery;
+
+        System.Data.DataTable dt = new System.Data.DataTable();
+        Microsoft.Data.SqlClient.SqlConnection conn = new Microsoft.Data.SqlClient.SqlConnection((string)ViewData["conn"]);
+        System.Data.IDataReader dr ;
+        Microsoft.Data.SqlClient.SqlCommand cmd = new Microsoft.Data.SqlClient.SqlCommand();
+
+        if (Filt_values == null)
+        {
+            foreach (var flt in Model.Filter) {
+                selector = selector + " " + flt.Name + " : ";
+                if (flt.Type == "Date") {
+                    if (flt.DefaultValue != null) {
+                        if (flt.DefaultValue.ToLower() == "first day of month"){
+                            string d = DateTime.Now.Month.ToString().PadLeft(2, '0') + "-01-" + DateTime.Now.Year.ToString();
+                            selector = selector + " " + d;
+                            sql = sql.Replace("@" + flt.Name + "@", d);
+                        } else if (flt.DefaultValue.ToLower() == "last day of month" ) {
+                            int dat;
+                            if (DateTime.Now.Month == 1 || DateTime.Now.Month == 3 || DateTime.Now.Month == 5 || DateTime.Now.Month == 7 
+                                || DateTime.Now.Month == 8 || DateTime.Now.Month == 10 || DateTime.Now.Month == 12) {
+                                dat = 31;
+                                } else if (DateTime.Now.Month == 2) {
+                                if ((DateTime.Now.Year % 4) == 0) {
+                                    dat = 29;
+                                } else {
+                                    dat = 28;
+                                }
+                                }else {
+                                dat = 30;
+                              }
+                            //string d = DateTime.Now.Month.ToString().PadLeft(2, '0') + "-" + dat + "-" + DateTime.Now.Year;
+                            string d =  dat + "-" + DateTime.Now.Month.ToString().PadLeft(2, '0') + "-" + DateTime.Now.Year;
+                            sql = sql.Replace("@" + flt.Name + "@", d);
+                            selector = selector + " " + d;
+                        }else if (flt.DefaultValue.ToLower() == "current date") {
+                            string d = DateTime.Now.Month.ToString().PadLeft(2, '0') + "-" + 
+                            DateTime.Now.Day.ToString().PadLeft(2, '0') + "-" + DateTime.Now.Year;
+                            sql = sql.Replace("@" + flt.Name + "@", d);
+                            selector = selector + " " + d;
+                        }
+                    }else {
+                        sql = sql.Replace("@" + flt.Name + "@", "1999-01-01");
+                    }
+                }else if (flt.Type == "Custom"){
+                    if (flt.DefaultValue != "") {
+                        sql = sql.Replace("@" + flt.Name + "@", flt.DefaultValue);
+                        selector = selector + " " + flt.DefaultValue;
+                    } else {
+                        sql = sql.Replace("@" + flt.Name + "@", "0");
+                        selector = selector + " " + flt.DefaultValue;
+                    }
+
+                }else if (flt.Type == "Multiselect List" ) {
+                    sql = sql.Replace("@" + flt.Name + "@", "0");
+                    selector = selector + " ";
+                } else if (flt.Type == "List") {
+                    sql = sql.Replace("@" + flt.Name + "@", "0");
+                    selector = selector + " ";
+                }
+            }
+        }
+        else {
+            foreach (var filt in Filt_values) {
+                /// commenting below line for testing once done decomment please
+               sql = sql.Replace("@" + filt.Name + "@", filt.Value);
+
+                    List<Standus_5_0.Areas.Report.Models.ReportFilters> typedFilts = ((IEnumerable<dynamic>)Model.Filter)
+                    .Select(f =>
+                    {
+                    var filter = new Standus_5_0.Areas.Report.Models.ReportFilters();
+                        foreach (var prop in f.GetType().GetProperties())
+                        {
+                            var value = prop.GetValue(f);
+                            filter.GetType().GetProperty(prop.Name)?.SetValue(filter, value);
+                        }
+                        return filter;
+                    })
+                    .ToList();
+
+
+                            var flt = from ff in typedFilts
+                                      where ff.Name == filt.Name
+                                      select ff;
+
+                // var flt = from ff in filts 
+                //         where ff.Name = filt.Name
+                //         select ff;
+                if (flt.First().Type == "Multiselect List"){
+                    string sqlfilt = "select " + flt.First().DisplayField + " from " + flt.First().Table +
+                    " where " + flt.First().ValueField + " in (" & filt.Value & ")";
+                    cmd.Connection = conn;
+                    cmd.CommandType = System.Data.CommandType.Text;
+                    cmd.CommandText = sqlfilt;
+                    conn.Open();
+                    dr = cmd.ExecuteReader();
+                    System.Data.DataTable dtfilt = new System.Data.DataTable();
+                    dtfilt.Load(dr);
+
+                    selector = selector & " " + filt.Name + " : ";
+
+                    foreach (System.Data.DataRow r in dtfilt.Rows)
+                    {
+                        selector = selector + r[0] + ",";
+                    }
+                    selector = selector.Substring(0, selector.Length - 1);
+                }else {
+                    selector = selector + " " + filt.Name + " : " + filt.Value;
+                }
+
+                if (flt.First().Type == "List") {
+                    string sqlfilt = "select " + flt.First().DisplayField + " from " + flt.First().Table +
+                            " where " + flt.First().ValueField + " in (" & filt.Value & ")";
+                    cmd.Connection = conn;
+                    cmd.CommandType = System.Data.CommandType.Text;
+                    cmd.CommandText = sqlfilt;
+                    conn.Open();
+                    dr = cmd.ExecuteReader();
+                    System.Data.DataTable dtfilt= new System.Data.DataTable();
+                    dtfilt.Load(dr);
+
+                    selector = selector + " " & filt.Name + " : ";
+
+                    foreach (System.Data.DataRow r in dtfilt.Rows) {
+                        selector = selector + r[0] + ",";
+                    }
+                    selector = selector.Substring(0, selector.Length - 1);
+                }else {
+                    //selector = selector & " " & filt.Name & " : " & filt.Value;
+                }
+                conn.Close();
+            }
+        }
+
+        if (Model.Report.ReportType != "Excel Import"){
+            // ''''' execute sub queries before executing main query
+            // '''
+            cmd.Connection = conn;
+            cmd.CommandTimeout = 0;
+            cmd.CommandType = System.Data.CommandType.Text;
+            conn.Open();
+            //Dim subquery As New SubqueryContext("ERP")
+
+            var query = from q in Model.subquery
+                        where q.ReportID == reportid 
+                        orderby q.ID
+                        select q;
+
+            string sql1  = "";
+
+            foreach (var seql in query) {
+                var this_sql = seql.Subquery;
+
+                //'''''' code block added on 09.05.2024
+                if (Filt_values.Count == 0) {
+                    foreach (Standus_5_0.Areas.Report.Models.ReportFilters flt in filts){
+                        //selector = selector & " " & flt.Name & " : "
+                        if (flt.Type == "Date"){
+                            if (flt.DefaultValue != null){
+                                if (flt.DefaultValue.ToLower() == "first day of month"){
+                                    string d = DateTime.Now.Month.ToString().PadLeft(2, '0') + "-" + "01-" + DateTime.Now.Year;
+                                    //selector = selector & " " & d
+                                    this_sql = this_sql.Replace("@" + flt.Name + "@", d);
+                                }else if (flt.DefaultValue.ToLower() == "last day of month") {
+                                    int dat;
+                                    if (DateTime.Now.Month == 1 || DateTime.Now.Month == 3 || DateTime.Now.Month == 5 
+                                        || DateTime.Now.Month == 7 || DateTime.Now.Month == 8 
+                                        || DateTime.Now.Month == 10 || DateTime.Now.Month == 12) {
+                                        dat = 31;
+                                     } else if (DateTime.Now.Month == 2) {
+                                        if ((DateTime.Now.Year % 4) == 0) {
+                                            dat = 29;
+                                        } else {
+                                            dat = 28;
+                                        }
+                                     } else {
+                                        dat = 30;
+                                     }
+                                    string d = dat + "-" + DateTime.Now.Month.ToString().PadLeft(2, '0') + "-" +  DateTime.Now.Year;
+                                    this_sql = this_sql.Replace("@" + flt.Name + "@", d);
+                                    //selector = selector & " " & d
+                                }else if (flt.DefaultValue.ToLower() == "current date"){
+                                    string d = DateTime.Now.Month.ToString().PadLeft(2, '0') + "-" + 
+                                        DateTime.Now.Day.ToString().PadLeft(2, '0') + "-" + DateTime.Now.Year;
+                                    this_sql = this_sql.Replace("@" + flt.Name + "@", d);
+                                    //selector = selector & " " & d
+                                }
+                            }else {
+                                this_sql = this_sql.Replace("@" + flt.Name + "@", "1999-01-01");
+                            }
+                        }else if (flt.Type == "Custom") 
+                        {
+                            if (flt.DefaultValue != "") {
+                                this_sql = this_sql.Replace("@" + flt.Name + "@", flt.DefaultValue);
+                            }else {
+                                this_sql = this_sql.Replace("@" + flt.Name + "@", "0");
+                            }
+                            //selector = selector & " "
+                        }else if (flt.Type == "Multiselect List") {
+                            this_sql = this_sql.Replace("@" + flt.Name + "@", "0");
+                        }
+                    }
+                }
+                    foreach (Standus_5_0.Areas.Report.Models.FilterValues filt in Filt_values){
+                        this_sql = this_sql.Replace("@" + filt.Name + "@", filt.Value);
+
+                    IEnumerable<Standus_5_0.Areas.Report.Models.ReportFilters> flt = from f in Model.Filter
+                                    where f.Name == filt.Name
+                                    select f;
+
+                        if (flt.First().Type == "Multiselect List"){
+                            string sqlfilt = "select " + flt.First().DisplayField + " from " + flt.First().Table + 
+                            " where " + flt.First().ValueField + " in (" + filt.Value + ")";
+                            cmd.Connection = conn;
+                            cmd.CommandType = System.Data.CommandType.Text;
+                            cmd.CommandText = sqlfilt;
+                            //conn.Open()
+                            dr = cmd.ExecuteReader();
+                            System.Data.DataTable dtfilt =new System.Data.DataTable();
+                            dtfilt.Load(dr);
+                        }
+                        //conn.Close()
+                    }
+                sql1 = sql1 + "  " + this_sql;
+                }
+                // end of code 09.05.2024
+                //                
+                //conn.close            
+
+            if (sql1 != "") {
+                cmd.CommandText = sql1;
+                cmd.ExecuteNonQuery();
+            }
+
+            // 'conn.Open()
+            // 'cmd.CommandText = sql
+            // 'cmd.CommandText = sql1 & " " & sql
+            // 'dr = cmd.ExecuteReader
+            // 'dt.Load(dr)
+            //Dim gd As New GetData;
+            cmd.CommandText = sql;
+            //Console.Write(sql);
+            dr = cmd.ExecuteReader();
+            dt.Load(dr);
+        
+    }
+
+        <div style="display:flex;flex-direction:column" id="top_section">
+            @foreach (Standus_5_0.Areas.Report.Models.ReportFilters flt in Model.Filter){
+                <div>
+                    @*@if flt.Type = "Date" Then
+                            @<label for="@flt.Name">@flt.Name</label>
+                            @<input type=Date name="@flt.Name">
+                        End If*@
+                </div>
+            }
+        </div>
+
+         if (Model.Report.ReportType == "Chart"){
+            int y;
+            y = 1;
+            foreach (Standus_5_0.Areas.Report.Models.ReportCharts ct in Model.Chart){
+                if (ct.ChartType == "Bar") {
+                    RouteValueDictionary  v = new RouteValueDictionary();
+                    //v.Add("sql", sql & "$$" & ct.XValue & "$$" & ct.YOValue & "$$" & ct.YTValue)
+                    v.Add("reportid",ct.ReportID);
+                    v.Add("chartid",ct.Id);
+
+                
+                    @*<div style="height:300px;width:500px;background-color:white;padding:5px;padding-top:12px;">*@
+                    <div id="chart-container" style="width: 500px; height: 250px;  margin: auto; background-color:white;padding:15px;">
+                        <canvas id="BarChart_@y" class="report_chart"> </canvas>
+                    </div>
+                    @*</div>*@
+
+                    <script>
+                                //@Url.Action("chartdata", "Preview", v)
+                                var sql = " + @sql + ";
+                                sql = sql.replace(/&#x27;/g, "'")
+                                    .replace(/&#xD;/g, '')
+                                    .replace(/&#xA;/g, '')
+                                    .replace(/&#x9;/g, '');
+
+                                console.log(sql);
+                            $.ajax({
+                                type: "POST",
+                                url: "/Report/Preview/chartdata?reportID=@ct.ReportID&chartid=@ct.Id&sql=" + sql,
+                                contentType: "application/json; charset=utf-8",
+                                dataType: "json",
+                                success: function (chData) {
+                                    var aData = chData;
+                                    var aLabels = aData[0];
+                                    var aDatasets1 = aData[1];
+                                    //var aDatasets2 = aData[2];
+                                    //alert(aLabels);
+                                    var dataT = {
+                                        labels: aLabels,
+                                        datasets: [{
+                                            label: "@ct.YOValue.Replace("[", "").Replace("]", "")",
+                                            data: aDatasets1,
+                                            fill: false,
+                                            backgroundColor: ["rgba(54, 162, 235, 0.2)"],
+                                            borderColor: ["rgb(54, 162, 235)"],
+                                            borderWidth: 1
+                                        }/*,
+                                        {
+                                            label: "InComplete",
+                                            data: aDatasets2,
+                                            fill: false,
+                                            backgroundColor: ["rgba(255, 99, 132, 0.2)"],
+                                            borderColor: ["rgb(255, 99, 132)"],
+                                            borderWidth: 1
+                                        }*/
+                                        ],
+                                    };
+                                    var ctx = $("#BarChart_@y").get(0).getContext("2d");
+                                    var myNewChart = new Chart(ctx, {
+                                        type: 'bar',
+                                        data: dataT,
+                                        options: {
+                                            //indexAxis: 'y',
+                                            responsive: true,
+                                            title: { display: true, text: 'CHART.JS DEMO CHART' },
+                                            legend: { position: 'bottom' },
+                                            scales: {
+                                                x: { stacked: true },
+                                                y: {
+                                                    beginAtZero: true, stacked: true
+                                                }
+                                            },
+                                        }
+                                    });
+                                }
+                            });
+        </script>
+                }
+                y = y + 1;
+            }
+         }
+    
+
+
+if (Model.Report.ReportType == "Tabular" || Model.Report.ReportType == "Chart"){
+    string colwidth ;
+    <table border="1px" style="padding:2px" Class="report" id="report_data">
+        <tr>
+            <td colspan="@Model.Column.Count" style="font-weight:bolder">
+                <div style="display:inline-flex">
+                    <div ><a href='javascript:void(0)' onclick='scroll_up_down("#bottom")'>Go to Bottom</a>&nbsp;&nbsp;|&nbsp;&nbsp;</div>
+                    <div>@selector</div>
+                </div>
+            </td>
+        </tr>
+        <tr>
+            @*@For Each col As System.Data.DataColumn In dt.Columns
+            colwidth = colwidth & "px"
+            @<th style='width:@colwidth'>@col.ColumnName </th>
+        Next*@
+            @foreach (Standus_5_0.Areas.Report.Models.ReportColumns col in Model.Column){
+                colwidth = col.Width + "px";
+                if (Convert.ToInt32(col.Width) > 0) {
+                    <th style='min-width:@colwidth;'>@col.ColumnName </th>
+                }else{
+                    <th style='min-width:@colwidth;'></th>
+                }
+            }
+        </tr>
+        @{
+            int row_counter = 0;
+            string previous_group_value  = "&&$$";
+            bool printGroup  = false;
+            bool GroupPrinted ;
+            string previous_col_value = "&$";
+            string hide_previous_group_value  = "&$";
+            decimal col_summary  = 0;
+        }
+        @foreach (System.Data.DataRow  row in dt.Rows){
+            row_counter = row_counter + 1;
+            GroupPrinted = false;
+            printGroup = false;
+            @foreach (System.Data.DataColumn col in dt.Columns){
+                List<Standus_5_0.Areas.Report.Models.ReportColumns>  ccl = (from ccol in Model.Column
+                        where ccol.ColumnName == col.ColumnName
+                        select ccol).ToList();
+                if (ccl != null) {
+                    foreach (System.Data.DataRow group_row in dtGroup.Rows){
+                        if (group_row[0].ToString().ToUpper() == col.ColumnName.ToString().ToUpper() ){
+                            string colname = group_row[1].ToString();
+                            string g_val = row[colname].ToString();
+                            if (previous_group_value != g_val){
+                                //previous_group_value = g_val
+                                //g_val = ""
+                                printGroup = true;
+                            }
+                        }
+                    }
+
+                    @if (printGroup && row_counter > 1 && GroupPrinted == false) {
+                        int col_count  = 0;
+                        <tr>
+                            @foreach (System.Data.DataColumn colp in dt.Columns){
+                                // 'Dim colname ="cou"
+                                // 'Dim grp_col =( From grow As System.Data.DataRow In dtGroup.Rows).Where(Function(f) f.Item(0)=colname)
+                                // '.Where grow.Item(0)="'" & colname & "'" 'col.ColumnName.trim
+                                col_count = col_count + 1;
+                                
+                                List<Standus_5_0.Areas.Report.Models.ReportColumns> cclp = (from ccol in Model.Column
+                                    where ccol.ColumnName == colp.ColumnName
+                                    select ccol).ToList();
+                                System.Data.DataRow grp_col  = null;
+                                string group_value = "";
+                                if (cclp != null){
+                                    foreach (System.Data.DataRow grow in dtGroup.Rows){
+                                        group_value = grow[2] != null? grow[2].ToString(): "";
+                                        if (grow[0].ToString().ToUpper() == colp.ColumnName.ToString().ToUpper()){
+                                            grp_col = grow;
+                                        }
+                                    }
+                                    if (grp_col != null) {
+                                        <td style='text-align:right;font-weight:bold'>@grp_col[3] </td>
+                                        grp_col[3] = 0;
+                                    }else {
+                                        if (col_count == 1) {
+                                            <td style='font-weight:bold'>@group_value</td>
+                                        }else{
+                                            <td style='text-align:right'>&nbsp;</td>
+                                        }
+                                    }
+                                }
+
+                                //'previous_group_value = ""
+                            }
+                        </tr>
+                        printGroup = false;
+                        GroupPrinted = true;
+                    }
+                }
+            }
+            <tr>               
+                @foreach (System.Data.DataColumn col in dt.Columns) {
+                    List<Standus_5_0.Areas.Report.Models.ReportColumns> ccl = (from ccol in Model.Column 
+                                where ccol.ColumnName.ToString().ToUpper() == col.ColumnName.ToString().ToUpper()
+                                select ccol).ToList();
+
+                    if (ccl != null ) {
+                        if (ccl.First().Width > 0 ) {
+                            if (ccl.First().HideDuplicates && previous_col_value != row[col.ColumnName].ToString()){
+                                if (col.DataType.Name == "Int" || col.DataType.Name == "Decimal" ){
+                                    <td style='text-align:right'>@row[col.ColumnName]</td>
+                                }else {
+                                    <td style='text-align:left'>@row.[col.ColumnName]</td>
+                                }
+                                decimal previousColValue;
+                                previous_col_value = row[col.ColumnName] != null? row[col.ColumnName].ToString(): "0";
+                                if (decimal.TryParse(previous_col_value,out previousColValue)){
+                                    col_summary += previousColValue;
+                                }
+                            }else if (ccl.First().HideDuplicates && previous_col_value == row[col.ColumnName].ToString()) {
+                                if (col.DataType.Name == "Int" || col.DataType.Name == "Decimal"){
+                                    <td style='text-align:right'></td>
+                                } else {
+                                    <td style='text-align:left'></td>
+                                }
+                            }else if (ccl.First().HideDuplicates != null) {
+                                if (col.DataType.Name == "Int" || col.DataType.Name == "Decimal"){
+                                    <td style='text-align:right'>@row[col.ColumnName]</td>
+                                }else {
+                                    <td style='text-align:left'>@row[col.ColumnName]</td>
+                                }
+                            }
+
+                            foreach (System.Data.DataRow group_row in dtGroup.Rows) {
+                                if (group_row[0].ToString().ToUpper() == col.ColumnName.ToString().ToUpper()){
+                                    string g_val = row[group_row[1].ToString()].ToString();
+                                    group_row[2] = g_val;
+
+                                    if (ccl.First().HideDuplicates && hide_previous_group_value != row[col.ColumnName].ToString()){
+                                                string colname = group_row[0].ToString();
+                                        group_row[3] =Convert.ToDecimal  (group_row[3] != null? group_row[3]: 0)  + 
+                                        Convert.ToDecimal (row[colname] != null? row[colname]: 0);
+                                        hide_previous_group_value = row[col.ColumnName] != null? row[col.ColumnName].ToString(): "0";
+                                    }else if (ccl.First().HideDuplicates != null) {
+                                        string col_name = group_row[0].ToString();
+                                        group_row[3] = (int)(group_row[3] == null ? group_row[3]: 0) 
+                                        + (int)(row[col_name] != null? row[col_name]: 0);
+                                        //Response.Write(row.Item(col.ColumnName).ToString)
+                                    }
+                                    previous_group_value = g_val;
+                                }
+                            }
+                        }
+                    }else {
+                        //<td style='text-align:left'></td>
+                    }
+                }
+            </tr>
+        }
+
+        {
+            @if (dtGroup.Rows.Count > 0){
+                int col_count = 0;
+                <tr>
+                    @foreach (System.Data.DataColumn colp in dt.Columns) {
+                        // // 'Dim colname ="cou"
+                        // // 'Dim grp_col =( From grow As System.Data.DataRow In dtGroup.Rows).Where(Function(f) f.Item(0)=colname)
+                        // // '.Where grow.Item(0)="'" & colname & "'" 'col.ColumnName.trim
+                        col_count = col_count + 1;
+                        List<Standus_5_0.Areas.Report.Models.ReportColumns> cclp = (from ccol in Model.Column 
+                        where ccol.ColumnName == colp.ColumnName
+                        select ccol).ToList();
+
+                        System.Data.DataRow grp_col = null;
+                        String group_value = "";
+                        if (cclp != null){
+                            foreach (System.Data.DataRow grow in dtGroup.Rows){
+                                group_value = grow[2] != null? "0": grow[2].ToString();
+                                if (grow[0].ToString().ToUpper() == colp.ColumnName.ToString().ToUpper() ){
+                                    grp_col = grow;
+                                }
+                            }
+                            if (grp_col != null){
+                                <td style="text-align:right;font-weight:bold">@grp_col[3] </td>
+                                grp_col[3]= 0;
+                            }else {
+                                if (col_count == 1) {
+                                    <td style='font-weight:bold'>@group_value</td>
+                                }else {
+                                    <td style='text-align:right'>&nbsp;</td>
+                                }
+                            }
+                        }else {
+                            <td style='text-align:right'>&nbsp;</td>
+                        }
+
+                        //'previous_group_value = ""
+                    }
+                </tr>
+            }
+
+        }
+        @{
+            List<Standus_5_0.Areas.Report.Models.ReportColumns> isSummaryExists = (from c in Model.Column
+            where c.SummeryType == "Sum" || c.SummeryType == "Avg" || c.SummeryType == "Count"
+            select c).ToList();
+        }
+        @if (isSummaryExists != null) {
+            int i  = 0;
+            <tr Class="total">
+                <td style="font-weight: bolder"> Total</td>
+                @foreach (Standus_5_0.Areas.Report.Models.ReportColumns col in Model.Column){
+                    if (i > 0){
+                        decimal total;
+                        if (col.SummeryType == "Sum" && col_summary > 0 && col.HideDuplicates){
+                            <td style='text-align:right;font-weight:bolder'>@col_summary</td>
+                        }else if (col.SummeryType == "Sum"){
+                             total =Convert.ToDecimal(dt.Compute("sum([" + col.ColumnName + "])", "1=1") == DBNull.Value? 0: 
+                             dt.Compute("sum([" + col.ColumnName + "])", "1=1"));
+                            <td style='text-align:right;font-weight:bolder'>@total</td>
+                        }else if (col.SummeryType == "Avg") {
+                                    total = Convert.ToDecimal(dt.Compute("avg([" + col.ColumnName + "])", "1=1") == DBNull.Value ? 0 :
+                            dt.Compute("avg([" + col.ColumnName + "])", "1=1"));
+                            <td style='text-align: right; font-weight: bolder'>@total</td>
+                        }else if (col.SummeryType == "Count") {
+                                    total = Convert.ToDecimal(dt.Compute("sum([" + col.ColumnName + "])", "1=1") == DBNull.Value ? 0 :
+                            dt.Compute("sum([" + col.ColumnName + "])", "1=1"));
+                            <td style='text-align: right; font-weight: bolder'>@total.ToString("F2");    </td>
+                        }else {
+                            <td></td>
+                        }
+                    }
+                    i = i + 1;
+                }
+            </tr>
+        }
+    </table>
+}
+
+if (Model.Report.ReportType == "Pivot") {
+
+    <table border="1px" style="padding:2px" Class="report" id="report_data">
+        <tr>
+            <td colspan="@dt.Columns.Count" style="font-weight:bolder">
+                <div style="display:inline-flex" id="top">
+                    <div><a href='javascript:void(0)' onclick='scroll_up_down("#bottom")'>Go to Bottom</a>&nbsp;&nbsp;|&nbsp;&nbsp;</div>
+                    <div>@selector</div>
+                </div>
+            </td>
+        </tr>
+        <tr>
+            @foreach (System.Data.DataColumn col in dt.Columns){
+                <th style='min-width:100px;'>@col.ColumnName </th>
+            }
+        </tr>
+        @foreach (System.Data.DataRow row in dt.Rows){
+            <tr>
+                @foreach (System.Data.DataColumn col in dt.Columns){
+                    @*If col.DataType.Name = "Int" Or col.DataType.Name = "Decimal" Then
+                        @<td style='text-align:right'>@row.Item(col.ColumnName)</td> Else
+                        @<td style='text-align:left'>@row.Item(col.ColumnName)</td>*@
+                    if (col.DataType.Name == "Int" || col.DataType.Name == "Decimal"){
+                        <td style='text-align:right'>@row[col.ColumnName]</td>
+                    }else {
+                        <td style='text-align:left'>@row.[col.ColumnName]</td>
+                    }
+                }
+            </tr>
+        }
+        @{
+            List<Standus_5_0.Areas.Report.Models.ReportColumns> isSummaryExists = (from c in Model.Column
+                where c.SummeryType == "Sum" || c.SummeryType == "Avg" || c.SummeryType == "Count"
+                select c).ToList();
+            int i = 0;
+            System.Data.DataColumn colss = new  System.Data.DataColumn();
+        }
+
+        <tr Class="total">
+            <td style="font-weight:bold"> Total</td>
+            @for (i = 1 ; i <= (dt.Columns.Count - 1);i++){
+                colss = dt.Columns[i];
+                if (i > 0) {
+                    decimal total;
+                    if (colss.DataType.Name == "Int" || colss.DataType.Name == "Decimal"){
+                        if ((dt.Compute("sum([" + colss.ColumnName + "])", "1=1") != null)) {                            
+                            total = Convert.ToDecimal(dt.Compute("sum([" + colss.ColumnName + "])", "1=1") == DBNull.Value? 0:
+                            dt.Compute("sum([" + colss.ColumnName + "])", "1=1"));
+                            <td style='text-align: right;font-weight: bold'>@total</td>
+                        }else{
+                            <td>0</td>
+                        }
+                    }else {
+                        <td></td>
+                    }
+                }
+            }
+        </tr>
+    </table>
+}
+
+if (Model.Report.ReportType == "Excel Import"){
+        System.Data.OleDb.OleDbConnection conexcel;
+        System.Data.DataSet DtSet;
+
+        // ' Use Microsoft.ACE.OLEDB.12.0 for .xlsx files
+        // 'conexcel = New System.Data.OleDb.OleDbConnection("Provider=Microsoft.Jet.OLEDB.4.0;Data Source=C:/test.xls;Extended Properties='Excel 8.0;HDR=Yes;IMEX=2'")
+
+        conexcel = new System.Data.OleDb.OleDbConnection("Provider=Microsoft.ACE.OLEDB.12.0;Data Source=" & report.First.FilePath & ";Extended Properties='Excel 12.0;HDR=Yes;IMEX=2'");
+
+        conexcel.Open();
+
+        System.Data.OleDb.OleDbDataAdapter MyCommand;
+
+        MyCommand = new System.Data.OleDb.OleDbDataAdapter("SELECT * FROM [Sheet1$]", conexcel) ;// Note the "$" after the sheet name
+        DtSet = new System.Data.DataSet();
+        MyCommand.Fill(DtSet);
+        conexcel.Close();
+
+        
+        int rreportid  = Model.Report.ReportID ; 
+        List<Standus_5_0.Areas.Report.Models.ExcelColumns> excols = (from ecol in Model.excelcolumns 
+            where ecol.ReportID == rreportid
+            select ecol).ToList();
+
+        string values;
+        int count;
+        //Dim sql = ""
+        count = excols.Count;
+        //Dim db As New System.Data.Entity.DbContext("ERP")
+
+        //'' commented on 26.12.2023 to import newer version of product line excel sheet received from Ankur Dhadoti
+        //'db.Database.ExecuteSqlCommand("delete from " & report.First.Ref_Table)
+
+        foreach (System.Data.DataRow row in DtSet.Tables[0].Rows){
+            values = " values (" ;
+            for (int i  = 0; i<= count - 1 ;i++) {
+                values = values + "'" + row[i] + "',";
+            }
+            values = values + "'" + DateTime.Now + "'";
+            values = values + ")";
+            sql = "insert into " & report.First.Ref_Table & values;
+            cmd.CommandText = sql;
+            cmd.Connection = conn;
+            cmd.ExecuteNonQuery(); 
+        }
+
+        <table border="1px" style="padding:2px" Class="report" id="report_data">           
+                <tr>
+                    @foreach (System.Data.DataColumn colm in DtSet.Tables[0].Columns) {
+
+                        <th>@colm.ColumnName</th>
+
+                    }
+                </tr>
+                @foreach ( System.Data.DataRow row in DtSet.Tables[0].Rows){
+                    <tr>
+                        @for (int i= 0 ; i<= (count-1);i++){
+                            <td>@row[i] </td>
+                        }
+                    </tr>
+                }
+        </table>
+        //Html.Action("Preview/ReadExcel")
+    }
+    
+    <form action="/Report/Preview/ToExcel" method="post" id="excel">
+        <input type="hidden" id="report_data_control" name="report_data_control" />
+    </form>
+    <form action="/Report/Preview/ToPDF" method="post" id="pdf">
+        <input type="hidden" id="report_topdf" name="report_topdf" />
+        <input type="hidden" id="chart_topdf" name="chart_topdf" />
+        <input type="hidden" id="@sql" name="sql"/>
+    </form>
+}
+
+}
+<form action="/Report/Preview/SendMail" method="post">
+    <div class="modal fade" id="mail_window" tabindex="-1" aria-labelledby="mailWindowLabel">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title" id="mailWindowLabel">Send Mail</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+
+                <div class="modal-body">
+                    <div id="message_dialog" style="display:none">
+                        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                            <div id="message"></div>
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    </div>
+
+                    <input type="hidden" id="report_tomail" name="report_tomail" />
+                    <input type="hidden" id="chart_tomail" name="chart_tomail" />
+
+                    @if (report != null)
+                    {
+                        <input type="hidden" id="report_name" name="report_name" value="@report.First.ReportName" />
+                    }
+
+                    <div class="mb-2">
+                        <small class="text-danger"><strong>*Note:</strong> Use ";" to separate multiple email addresses.</small>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="mail_address" class="form-label">Send mail To:</label>
+                        <input type="text" class="form-control" id="mail_address" name="mail_address" />
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="mail_subject" class="form-label">Subject:</label>
+                        <input type="text" class="form-control" id="mail_subject" name="mail_subject" />
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="mail_text" class="form-label">Text:</label>
+                        <textarea class="form-control" id="mail_text" name="mail_text" rows="4"></textarea>
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <input type="submit" value="Send" class="btn btn-primary" />
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+
+
+                <div id="bottom">
+    <b><a href='javascript:void(0)' onclick='scroll_up_down("#top_section")'>Go to Top</a></b>
+</div>
+<Style>
+    .report tr:nth-child(1) {
+        position: sticky;
+        top: -4px;
+        background-color: white;
+        height: 15px;
+        border: 1px solid black;
+    }
+
+    .report th {
+        padding: 2px;
+        font-weight: bold;
+        color: #cb4e4e;
+        border: 1px solid black;
+        position: sticky;
+        top: 19px;
+        background-color: #f2f2f2;
+    }
+
+    .report td {
+        padding: 2px;
+        border: 1px solid black;
+    }
+
+    .total {
+        font - weight: bold;
+        color: #cb4e4e;
+    }
+</Style>
+<Script>
+    //Function send_mail(userid) {
+
+
+    //    // Make an AJAX request to get updated content
+    //    $.ajax({
+    //        url: "/Preview/sendmail",
+    //        type: 'GET',
+    //        success: function (data) {  // Corrected to lowercase 'function'
+    //            // Update the modal content
+    //            $('#message').value='Mail sent.';
+    //            // Open the modal
+    //            $('#messagedialog').show();
+    //        },
+    //        error: function (error) {
+    //            $('#message').value = 'Error while sending mail.';
+    //            $('#messagedialog').show();
+    //        }
+    //    });
+    //}
+
+    function scroll_up_down(section) {
+        console.log(section);
+        $(section)[0].scrollIntoView({ behavior: "smooth" });
+    }
+
+    $("#mail").submit(function (e) {
+        e.preventDefault(); // Prevent the default form submission
+
+        // Serialize form data
+        var formData = $(this).serialize();
+
+        // Make AJAX request
+        $.ajax({
+            url: "/Report/Preview/sendmail", // Replace with your actual action and controller names
+            type: 'GET',
+            data: formData,
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            success: function (result) {
+                if (result.success) {
+                    alert();
+                    // Update the modal content
+                    $('#message').html(result);
+                    // Open the modal
+                    $('#messagedialog').show();
+                }
+                else {
+                    $('#message').html('Error while sending mail.');
+                    $('#messagedialog').show();
+                }
+            },
+            error: function () {
+                // Handle error
+                $('#message').html('Error while sending mail.');
+                $('#messagedialog').show();
+            }
+        });
+    });
+</Script>

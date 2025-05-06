@@ -1,0 +1,57 @@
+﻿@model IEnumerable<Standus_5_0.Areas.Report.Models.Reports>
+@{
+    ViewData["Title"] = "ExcelProcess";
+    Layout = "~/Areas/Report/Views/Shared/_Layout.cshtml";
+    int i = 0;
+}
+
+<h2>ExcelProcess</h2>
+
+<p>
+    <a asp-action="Create">Create New</a>
+</p>
+
+<form asp-action="dataimport" method="post">
+    <table class="table">
+        @foreach (var item in Model)
+        {
+            if (i == 0)
+            {
+                <input type="hidden" name="reportid" value="@item.ReportID" />
+            }
+
+            if (item.CustomFields != null) {            
+
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.CustomFields.First().FieldName)
+                </td>
+            </tr>
+
+            <tr>
+                <td>
+                    <input type="hidden"  value="@item.CustomFields.First().ID" />
+
+                    @if (item.CustomFields.First().FieldType == "Date")
+                    {
+                        <input type="date" />
+                    }
+                    else if (item.CustomFields.First().FieldType == "Text")
+                    {
+                        <input type="text" />
+                    }
+                </td>
+            </tr>
+
+            i++;
+        }
+        }
+        <tfoot class="w3-container w3-blue">
+            <tr>
+                <td>
+                    <input type="submit" value="Run Process" class="w3-blue w3-btn w3-right-align" />
+                </td>
+            </tr>
+        </tfoot>
+    </table>
+</form>

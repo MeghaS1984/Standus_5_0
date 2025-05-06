@@ -1,0 +1,184 @@
+﻿
+@{
+    ViewData["Title"] = "list";
+    Layout = "~/Areas/Report/Views/Shared/_Layout.cshtml";
+
+    var reps = ViewBag.Report;
+    var gps = ViewBag.Group;
+    var reprights = ViewBag.reprights;
+}
+
+<table class="w3-table-all" style="width:100%">
+    <tr>
+        <td style="padding:0px;width:20%;height:30px">
+            <select placeholder="Select Group" style="width:100%;height:30px" class="form-control" onchange="filter_report(this)">
+                <option>-- Select Group --</option>                
+                @foreach (var grp in gps){
+                    <option>@grp.Groupname</option>
+                }
+            </select>
+        </td>
+        <td style="padding: 0px; width: 80%">
+            <input type="text" placeholder="Search Report" style="width:100%" class="form-control" id="search" onkeyup="search_report()" />
+        </td>
+    </tr>
+</table>
+
+<div style="height:85%; overflow-y:auto;">
+    
+    <table class="table table-striped table-hover table-bordered" style="width:100%;" id="report_list">
+        <thead class="thead-dark sticky-top table-success">
+            <tr>
+                <th></th>
+                <th>Group</th>
+                <th>Report Type</th>
+                <th style="width:29%">Report Name</th>
+                @if (ViewBag.IsSuperUser == true || ViewBag.IsAdmin == true) {
+                    <th>Change Default Value</th>
+                }
+                else {
+                    <th></th>
+                }
+                <th>Date Created</th>
+                <th>Date Modified</th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (reps != null){
+                @* @if (ViewBag.IsSuperUser == true || ViewBag.IsAdmin == true) { *@ <!-- uncomment this line after testing -->
+                @if (ViewBag.IsSuperUser == false || ViewBag.IsAdmin == false)
+                {
+                    @foreach (var r in reps){
+                        <tr>
+                            <td>
+                                <a href=""><i class="fa fa-heart"></i></a>
+                            </td>
+                            <td>
+                                 @r.group.Groupname 
+                            </td>
+                            <td>
+                                @if (r.ReportType == "Tabular") {
+                                    <i class="fa fa-table text-primary"></i>
+                                }
+                                else if (r.ReportType == "Pivot")
+                                {
+                                    <i class="fa fa-qrcode text-primary"></i>
+                                }
+                                else if (r.ReportType == "Chart")
+                                {
+                                    <i class="fa fa-pie-chart text-primary"></i>
+                                }
+                                else if (r.ReportType == "Excel Import")
+                                {
+                                    <i class="fa fa-file-excel-o text-primary"></i>
+                                }
+                                &nbsp;@r.ReportType
+                            </td>
+                            <td>
+                                @if (r.ReportType != "Excel Import")
+                                {
+                                    <a href="/report/Preview/index?reportid=@r.ReportID&ReportName=@r.ReportName">@r.ReportName</a>
+                                } else {
+                                    <a href="/report/Preview/ExcelProcess?reportid=@r.ReportID">@r.ReportName</a>
+                                }
+                            </td>
+                            <td>
+                                <a href="/Report/preview/ChangeCustomDefaultValue?reportid=@r.ReportID">Reset Default</a>
+                            </td>
+                            <td>@r.Date_Created</td>
+                            <td>@r.Date_updated</td>
+                        </tr>
+                    }
+                } else {
+                    
+                    foreach (var rr in reprights) {
+                        <tr>
+                            <td style="width:20%;">@rr.Group</td>
+                            <td style="width:20%;">
+                                @if (rr.ReportType == "Tabular")
+                                {
+                                    <i class="fa fa-table text-primary"></i>
+                                }
+                                else if (rr.ReportType == "Pivot")
+                                {
+                                    <i class="fa fa-qrcode text-primary"></i>
+                                }
+                                else if (rr.ReportType == "Chart")
+                                {
+                                    <i class="fa fa-pie-chart text-primary"></i>
+                                }
+                                else if (rr.ReportType == "Excel Import")
+                                {
+                                    <i class="fa fa-file-excel-o text-primary"></i>
+                                }
+                                &nbsp;@rr.type
+                            </td>
+                            <td style="width:30%;">
+                                @if (rr.ReportType != "Excel Import")
+                                {
+                                    <a href="/Preview/index?id=@rr.ReportID&ReportName=@rr.ReportName">@rr.ReportName</a>
+                                }else {
+                                    <a href="/Preview/ExcelProcess?reportid=@rr.ReportID">@rr.ReportName</a>
+                                }
+                            </td>
+                            <td style="width:10%;">@rr.Date_Created</td>
+                            <td style="width:10%;">@rr.Date_updated</td>
+                            <td style="width:10%;"></td>
+                        </tr>
+                    }
+                }
+            }else {
+                <tr>
+                    <td colspan="7">There are no reports</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+<script>
+    function search_report() {
+        // Declare variables
+        //alert();
+        var input, filter, table, tr, td, i, txtValue;
+        input = document.getElementById("search");
+        filter = input.value.toUpperCase();
+        table = document.getElementById("report_list");
+        tr = table.getElementsByTagName("tr");
+
+        // Loop through all table rows, and hide those who don't match the search query
+        for (i = 0; i < tr.length; i++) {
+            td = tr[i].getElementsByTagName("td")[3];
+            if (td) {
+                txtValue = td.textContent || td.innerText;
+                if (txtValue.toUpperCase().indexOf(filter) > -1) {
+                    tr[i].style.display = "";
+                } else {
+                    tr[i].style.display = "none";
+                }
+            }
+        }
+    }
+
+    function filter_report(group_value) {
+        var table = document.getElementById("report_list");
+        var tr = table.getElementsByTagName("tr");
+        var rows = tr.length;
+
+        for (i = 0; i < rows; i++) {
+            var cell = tr[i].getElementsByTagName("td");
+            tr[i].style.display = "";
+        }
+
+        for (var i = 1; i < rows; i++) {
+            //alert(tr[i].getElementsByTagName("td")[1]);
+            var cell = tr[i].getElementsByTagName("td");
+            //alert(cell[0].innerText);
+            if (cell[1].innerText == group_value.value) {
+                tr[i].style.display = "";
+            }
+            else {
+                tr[i].style.display = "none";
+            }
+        }
+    }
+</script>

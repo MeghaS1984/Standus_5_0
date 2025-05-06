@@ -1,9 +1,89 @@
-﻿@{
+﻿
+@model List<MenuAccessViewModel >
+@{
     ViewData["Title"] = "Home Page";
 }
 
-<div class="text-center">
+@* <div class="text-center">
     <a class="nav-link text-dark" asp-area="HumanResource" asp-controller="Employees" asp-action="Index">Staff</a>
     <h1 class="display-4">Welcome</h1>
     <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+</div> *@
+
+<style>
+    #sidebar {
+        width: 220px;
+        height: 100vh;
+        overflow: hidden;
+        background-color: #f8f9fa;
+        border-right: 1px solid #dee2e6;
+    }
+
+    .sidebar-inner {
+        height: calc(100vh - 0px); /* no header space here */
+        overflow-y: auto;
+        padding: 0.5rem;
+    }
+
+    .card-header {
+        font-size: 0.95rem;
+        padding: 0.4rem 0.6rem;
+        background-color: #0d6efd;
+        color: white;
+        cursor: pointer;
+    }
+
+    .card-body {
+        padding: 0;
+    }
+
+    .list-group-item {
+        padding: 0.4rem 0.75rem;
+        font-size: 0.9rem;
+    }
+
+    .toggle-icon {
+        font-size: 1rem;
+    }
+
+    .main-content {
+        flex-grow: 1;
+        padding: 1.5rem;
+    }
+</style>
+
+<div class="d-flex">
+    <!-- Sidebar -->
+    <div id="sidebar">
+        <div class="sidebar-inner">
+            @foreach (var group in Model)
+            {
+                var collapseId = "collapse_" + group.GroupName.Replace(" ", "");
+                <div class="card mb-2">
+                    <div class="card-header d-flex justify-content-between align-items-center"
+                         data-bs-toggle="collapse" data-bs-target="#@collapseId" aria-expanded="false">
+                        <span>@group.GroupName</span>
+                        <span class="toggle-icon">+</span>
+                    </div>
+                    <div id="@collapseId" class="collapse">
+                        <div class="card-body">
+                            <ul class="list-group list-group-flush">
+                                @foreach (var menu in group.Menus)
+                                {
+                                    <li class="list-group-item">@menu.MenuName</li>
+                                }
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <h1>Welcome</h1>
+        <p>This is the content area beside the fixed side menu.</p>
+    </div>
 </div>
+

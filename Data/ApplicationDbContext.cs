@@ -3,18 +3,38 @@ using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Standus_5_0.Areas.AppSetup.Models;
 using Standus_5_0.Areas.HumanResource.Models;
+using Standus_5_0.Areas.Identity.Models;
+using Standus_5_0.Areas.Report;
+using Standus_5_0.Areas.Identity;
+using Standus_5_0.Areas.Report.Models;
 using System.Reflection.Emit;
 using YourNamespace.Models;
 
 namespace Standus_5_0.Data
 {
-    public class ApplicationDbContext : IdentityDbContext
+    public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
     {
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
             : base(options)
         {
+
         }
-                
+
+        public DbSet<Dashboard> Dashboards { get; set; } = default!;
+        public DbSet<DashboardFilter> DashboardFilters { get; set; } = default!;
+        public DbSet<Template> Templates { get; set; } = default!;
+        public DbSet<ApplicationUser> ApplicationUser { get; set; } = default!;
+        public DbSet<ApplicationRole> ApplicationRole { get; set; } = default!;
+        public DbSet<AccessClaims> AccessClaims { get; set; } = default!;
+        public DbSet<Standus_5_0.Areas.Report.Models.Groups> Groups { get; set; } = default!;
+        public DbSet<Standus_5_0.Areas.Report.Models.ReportsSubquery> ReportsSubquery { get; set; } = default!;
+        public DbSet<Standus_5_0.Areas.Report.Models.FilterValues> FilterValues { get; set; } = default!;
+        public DbSet<Standus_5_0.Areas.Report.Models.ReportFilters> ReportFilters { get; set; } = default!;
+        public DbSet<Standus_5_0.Areas.Report.Models.ReportCharts> ReportCharts { get; set; } = default!;
+        public DbSet<Standus_5_0.Areas.Report.Models.Reports> Reports { get; set; } = default!;
+        public DbSet<Standus_5_0.Areas.Report.Models.ExcelCustomFields> ExcelCustomFields { get; set; } = default!;
+        public DbSet<Standus_5_0.Areas.Report.Models.ExcelColumns> ExcelColumns { get; set; } = default!;
+        public DbSet<Standus_5_0.Areas.Report.Models.ReportColumns> ReportColumns { get; set; } = default!;
         public DbSet<Employee> Employee { get; set; } = default!;
         public DbSet<Department> Department { get; set; } = default!;
         public DbSet<Standus_5_0.Areas.HumanResource.Models.Education> Education { get; set; } = default!;
@@ -38,7 +58,6 @@ namespace Standus_5_0.Data
             modelBuilder.Entity<StandardDeduction>().HasKey(ck => new  { ck.EmployeeID, ck.DeductionID });
             modelBuilder.Entity<StandardDeductionCalculation>().HasKey(ck => new { ck.DeductionID , ck.AllowanceID });
             modelBuilder.Entity<FriengeAssign>().HasKey(ck => new { ck.FriengeID , ck.EmployeeID });
-            modelBuilder.Entity<LoanSchedule>().HasKey(ck => new { ck.SanctionID });
             //modelBuilder.Entity<SlabDeductionExclude>().HasKey(ck => new { ck.EmployeeID , ck.DeductionID });
             modelBuilder.Entity<IncentiveSetting>().HasKey(ck => new { ck.EmployeeID });
             modelBuilder.Entity<AttendanceDetails>().HasNoKey();
@@ -49,7 +68,7 @@ namespace Standus_5_0.Data
             modelBuilder.Entity<SlabCalculation>().HasKey(ck => new { ck.SlabID, ck.DetailsID, ck.AllowanceID, ck.DeductionID });
             modelBuilder.Entity<AttendanceDetails>().HasKey(ck => new { ck.AttendanceID });
             modelBuilder.Entity<AttendanceDetailsViewModel>().HasKey(ck => new { ck.AttendanceID, ck.EmployeeID });
-
+            modelBuilder.Entity<ReportComponent>().HasNoKey(); 
             modelBuilder.Entity<PayrollDetails>()
                 .HasOne(pd => pd.Payroll)
                 .WithMany(pd => pd.PayrollDetails) 
@@ -65,8 +84,10 @@ namespace Standus_5_0.Data
                 entity.Property(e => e.Include).HasColumnName("Include").HasColumnType("bit");
             });
 
-            
+            modelBuilder.Entity<FilterValues>().HasNoKey();
 
+            modelBuilder.Entity<ClaimDto>().HasNoKey();
+            //modelBuilder.Entity<MenuAccessDto>().Ignore(); 
             base.OnModelCreating(modelBuilder);
         }
         public DbSet<Standus_5_0.Areas.HumanResource.Models.Allowance> Allowance { get; set; } = default!;
@@ -114,6 +135,8 @@ namespace Standus_5_0.Data
 			optionsBuilder.LogTo(Console.WriteLine); // Logs SQL to console
 		}
         public DbSet<Standus_5_0.Areas.HumanResource.Models.StandardDeductionExclude> StandardDeductionExclude { get; set; } = default!;
+        public DbSet<Standus_5_0.Areas.Report.Models.ReportComponent> ReportComponent { get; set; } = default!;
+        public DbSet<Standus_5_0.Areas.Report.Models.Template> Template { get; set; } = default!;
 	}
 
     

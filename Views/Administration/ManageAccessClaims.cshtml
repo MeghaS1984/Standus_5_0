@@ -1,0 +1,69 @@
+﻿@model IEnumerable<Standus_5_0.Areas.Identity.Models.MenuGroupDto>
+
+
+<div class="container mt-4">
+    @foreach (var group in Model)
+    {
+        <div class="card mb-3">
+            <div class="card-header bg-primary text-white">
+                <h4 class="mb-0">@group.GroupName</h4>
+            </div>
+            <div class="card-body p-0">
+                <table class="table table-striped mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Menu</th>
+                            @foreach (var claimHeader in group.Menus.First().Claims)
+                            {
+                                <th>@claimHeader.ClaimType</th>
+                            }
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var menu in group.Menus)
+                        {
+                            <tr>
+                                <td>@menu.MenuName</td>
+                                @foreach (var claim in menu.Claims)
+                                {
+                                    <td>
+                                        <input type="checkbox" onchange="AllowAccess(@claim.ClaimId,@menu.MenuId,this)"
+                                            name="claims_@menu.MenuId@claim.ClaimId" @(claim.IsSelected ? "checked" : "") />
+                                    </td>
+                                }
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    }
+
+</div>
+<div>
+ @Html.Partial("ManageReportAccessClaims")     
+</div>
+    <script>
+    const user_Id = '@ViewBag.UserId'; // or however you're getting the user ID from server
+
+    function AllowAccess(claimId, menuId, option) {
+        var select = option.checked;
+        $.ajax({
+            url: '@Url.Action("UpdateAccess", "Administration")',
+            type: 'POST',
+            data: {
+                claimid: claimId,
+                menuid: menuId,
+                userid: user_Id,
+                select: select
+            },
+            success: function (response) {
+                console.log("Access updated:", response);
+            },
+            error: function (xhr, status, error) {
+                console.error("Error updating access:", error);
+            }
+        });
+    }
+</script>
+

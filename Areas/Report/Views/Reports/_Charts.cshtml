@@ -1,0 +1,139 @@
+﻿@model Standus_5_0.Areas.Report.Models.ReportComponent 
+
+<form action="/report/Add_chart" method="post" id="frmChart">
+
+    <!-- Add Chart button -->
+    <div class="mb-3 text-end">
+        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#new_chart">
+            + Add Chart
+        </button>
+    </div>
+
+    <!-- Charts table -->
+    <table class="table table-striped table-hover table-bordered" id="tblchart">
+        <thead class="table-success">
+            <tr>
+                <th>Chart Type</th>
+                <th>X Value</th>
+                <th>Y1 Value</th>
+                <th>Y2 Value</th>
+                <th>Width</th>
+                <th>Height</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @{
+                int j = 0;
+                if (Model.Chart != null)
+                {
+                    <input type="hidden" name="ReportID" value="@Model.Report.ReportID" />
+                    foreach (var chart in Model.Chart)
+                    {
+                        <input type="hidden" name="Charts[@j].id" value="@chart.Id" />
+                        <tr>
+                            <td>@chart.ChartType</td>
+                            <td>@chart.XValue</td>
+                            <td>@chart.YOValue</td>
+                            <td>@chart.YTValue</td>
+                            <td></td>
+                            <td></td>
+                            <td>
+                                <button type="button" class="btn btn-danger btn-sm" onclick="delete_chart(@chart.Id)">-</button>
+                            </td>
+                        </tr>
+                        j++;
+                    }
+                }
+            }
+        </tbody>
+    </table>
+
+    <br />
+
+    <!-- New Chart Modal -->
+    <div class="modal fade" id="new_chart" tabindex="-1" aria-labelledby="newChartModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+
+                <!-- Modal header -->
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title" id="newChartModalLabel">Add Chart</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+
+                <!-- Modal body -->
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="charttype" class="form-label">Chart Type:</label>
+                        <select id="charttype" name="ChartType" class="form-select">
+                            <option>Bar</option>
+                            <option>Doughnut</option>
+                            <option>Pie</option>
+                            <option>Gantt</option>
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="xvalue" class="form-label">X-Axis:</label>
+                        <select id="xvalue" name="xvalue" class="form-select">
+                            <option>None</option>
+                            @if (Model.Column != null)
+                            {
+                                foreach (var col in Model.Column)
+                                {
+                                    <option>@col.ColumnName</option>
+                                }
+                            }
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="yvalue" class="form-label">Y-Axis:</label>
+                        <select id="yvalue" name="yovalue" class="form-select">
+                            <option>None</option>
+                            @if (Model.Column != null)
+                            {
+                                foreach (var col in Model.Column)
+                                {
+                                    <option>@col.ColumnName</option>
+                                }
+                            }
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="y1value" class="form-label">Y1-Axis:</label>
+                        <select id="y1value" name="ytvalue" class="form-select">
+                            <option>None</option>
+                            @if (Model.Column != null)
+                            {
+                                foreach (var col in Model.Column)
+                                {
+                                    <option>@col.ColumnName</option>
+                                }
+                            }
+                        </select>
+                    </div>
+
+                </div>
+
+                <!-- Modal footer -->
+                <div class="modal-footer bg-primary">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <input type="submit" value="+ Add" class="btn btn-light" />
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+</form>
+
+
+<script>
+    function delete_chart(chart_id) {
+        window.location.href='@Url.Action("/delete_chart/")' + chart_id;
+    }
+
+</script>

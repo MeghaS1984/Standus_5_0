@@ -1,0 +1,240 @@
+﻿@using Microsoft.AspNetCore.Identity
+@inject SignInManager<Standus_5_0.Areas.Identity.Models.ApplicationUser> SignInManager
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - Mercury</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/Standus_5_0.styles.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/menu_items.css" asp-append-version="true">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+
+    <!-- Include jQuery from CDN -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="~/js/site.js"></script>
+    
+    <script src="~/js/jquery.js" tsype="text/javascript"></script>
+    <script src="~/js/jquery.min.js" tsype="text/javascript"></script>
+
+    <script src="~/js/jquery-1.4.1.js" type="text/javascript"></script>
+    <script src="~/js/jquery-1.4.1.min.js" type="text/javascript"></script>
+
+    <script src="~/js/chart.js" type="text/javascript"></script>
+    <script src="~/js/chart.min.js" type="text/javascript"></script>
+    
+</head>
+<body>
+    <div class="sticky-top">
+        <header>
+            <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3 ">
+                <div class="container-fluid ">
+                    <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">Standus Marcury</a>
+                    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
+                            aria-expanded="false" aria-label="Toggle navigation">
+                        <span class="navbar-toggler-icon"></span>
+                    </button>
+                    <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between ">
+                        <ul class="navbar-nav flex-grow-1">
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-area="HumanResource" asp-controller="Employees" asp-action="Index">Staff</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-area="AppSetup" asp-controller="Menus" asp-action="Index">Staff</a>
+                            </li>
+                        </ul>
+                        <partial name="_LoginPartial" />
+                        <div id="menu" class="d-flex justify-content-end flex-wrap gap-2">
+
+    
+    <div class="standus-container" id="standus-container">
+        <!-- Banenr  -->
+        @* <div class="w3-bar" id="top-bar">
+            <div id="top-menu">
+                @If ViewData("isHome") <> "true" And 1 = 0 Then
+                    @<div><button id="menu-toggle-button">&#9776;</button></div>
+                End If
+                <div id="product-name">
+                    <div>@ViewData("title")</div>&nbsp;
+                    @If ViewData("isHome") <> "true" Then
+                        @<div style="overflow-wrap:unset;">[ @ViewData("ReportName") ]</div>
+                    End If
+                </div> *@
+    @if (ViewData["isPreview"] != null) {
+        @if (ViewData["isPreview"] == "true" )
+        {        
+            <div class="d-inline-flex flex-wrap gap-2">
+                                                <div>
+                                                    <a href="/Home/index" class="btn btn-outline-primary btn-sm">
+                                                        <span class="glyphicon glyphicon-th-large"></span>&nbsp;Home
+                                                    </a>
+                                                </div>
+                <div>
+                    <a href="javascript:location.reload()" class="btn btn-outline-secondary btn-sm">
+                        <i class="fa fa-refresh"></i>&nbsp;Refresh
+                    </a>
+                </div>
+                <div>
+                    <a href="javascript:toexcel()" class="btn btn-outline-success btn-sm">
+                        <i class="fa fa-file-excel-o"></i>&nbsp;Excel
+                    </a>
+                </div>
+                <div>
+                    <a href="javascript:topdf()" class="btn btn-outline-danger btn-sm">
+                        <i class="fa fa-file-pdf-o"></i>&nbsp;PDF
+                    </a>
+                </div>
+                <div>
+                    <a href="javascript:display_filter()" class="btn btn-outline-info btn-sm">
+                        <i class="fa fa-filter"></i>&nbsp;Filter
+                    </a>
+                </div>
+                <div>
+                    <a href="javascript:send_mail()" class="btn btn-outline-primary btn-sm">
+                        <i class="glyphicon glyphicon-envelope"></i>&nbsp;Mail
+                    </a>
+                </div>
+            </div>
+        }
+        else
+        {
+            @if ((bool)ViewData["IsDesigner"] == true)
+            {
+                <div class="menu-item">
+                    <a href="javascript:display_setting()" class="btn btn-outline-warning btn-sm">
+                        <i class="fa fa-gear"></i>&nbsp;Report Setting
+                    </a>
+                </div>
+            }
+        }
+    }
+    </div>
+                            <div class="menu-item">
+                               @*  
+                                   TODO: replace with userid in link
+                               @HttpContext.Session.GetString("userid") *@
+                               @if (SignInManager.IsSignedIn(User))
+                        {
+                                <a href="/User/Logout/userid" class="btn btn-outline-secondary btn-sm">
+                                <i class="fa fa-sign-out"></i>&nbsp;Logout
+                                </a>
+                        }
+                            </div>
+
+    @* <div class="menu-item">
+        <a href="/Home/index" class="btn btn-outline-primary btn-sm">
+            <span class="glyphicon glyphicon-th-large"></span>&nbsp;Home
+        </a>
+    </div> *@
+</div>
+
+                    </div>
+                </div>
+            </nav>
+        </header>
+    </div>
+    <div style="display:flex;flex-flow:row;position:relative;">
+        @* <div id="menu-container" class="menu-container">
+            <partial name="/appsetup/views/menus/_MenuPartial" action="Menus/index" > 
+        </div> *@
+        <div class="data-container" style="width:100% !important">
+            <main role="main" class="pb-3">
+                @RenderBody()
+            </main>
+        </div>
+    </div>
+    @* <footer class="border-top footer text-muted">
+    <div class="container">
+    &copy; 2025 - Standus_5_0 - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+    </div>
+    </footer> *@
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>
+
+<style>
+    /* Container for the button and menu */
+    .standus-container {
+        display:flex;
+        flex-direction: column;
+        background-color: #f2f2f2;
+    }
+</style>
+
+<script>
+    // $(document).ready(function () {
+
+    //     // Call the Index action to get the partial view (menu items)
+    //     $.ajax({
+    //         url: '/appsetup/menus/MenuList', // Change "Home" to your controller's name if needed
+    //         type: 'GET',
+    //         data: { ModuleName: 'Human Resource' }, // Pass the ModuleName here
+    //         success: function (result) {
+    //             // Inject the result (partial view content) into the container
+    //             $('#menu-container').html(result);
+    //         }
+    //     });
+
+    // });
+
+    function toexcel() {
+        //alert();
+
+        var reportdata = document.getElementById("report_data").innerHTML;
+        //alert(reportdata)
+        document.getElementById("report_data_control").value = reportdata
+        //window.location.href = "/Preview/ToExcel/";
+        $("#excel").submit();
+    }
+
+    function topdf() {
+        if (document.getElementById("BarChart_1") != null) {
+            document.getElementById("chart_topdf").value = document.getElementById("BarChart_1").toDataURL("image/png");
+        }
+        var reportdata = document.getElementById("report_data").innerHTML;
+        document.getElementById("report_topdf").value = reportdata
+        $("#pdf").submit();
+    }
+
+    function display_filter() {
+        var divToMove = document.getElementById('filter_form');
+        var newContainer = document.getElementById('standus-container');
+        newContainer.appendChild(divToMove);
+        document.getElementById('report_filter').style.display = 'block';
+        document.getElementById('report_filter').style.zIndex = "999";
+    }
+
+    function display_setting() {
+        document.getElementById('report_setting').style.display = 'block';
+    }
+
+    function send_mail() {
+        
+        // var reportdata = document.getElementById("report_data").innerHTML;
+
+        // reportdata = reportdata.replace(/</gi, '&lt;')
+
+        // document.getElementById("report_tomail").value = reportdata;
+        // document.getElementById('mail_window').style.display = 'block';
+        // document.getElementById('mail_window').style.zIndex = "999";
+        
+            var reportdata = document.getElementById("report_data").innerHTML;
+            reportdata = reportdata.replace(/</gi, '&lt;');
+            document.getElementById("report_tomail").value = reportdata;
+
+            // Bootstrap 5 way to show modal
+            var myModal = new bootstrap.Modal(document.getElementById('mail_window'));
+            myModal.show();
+    }
+</script>

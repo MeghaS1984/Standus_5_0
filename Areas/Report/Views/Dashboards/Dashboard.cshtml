@@ -1,0 +1,579 @@
+﻿@model Standus_5_0.Areas.Report.Models.Dashboard
+<style>
+
+    .dashtitle {
+        border: 2px solid #34a5c9;
+        padding: 9px;
+        height: 100%;
+        border-bottom: 0px !important;
+        background-color: #64d3f6;
+        border-radius: 5px 5px 0px 0px;
+    }
+
+    .filter_container {
+        z-index: 199;
+        position: relative;
+        height: 20vw;
+        width: 80%;
+        background-color: white;
+        display: none;
+        margin-left: auto;
+        margin-right: auto;
+        border: 2px solid black;
+        border-radius: 5px 5px 5px 5px;
+        padding: 5px;
+    }
+
+</style>
+
+@{
+    string filter_content;
+
+    filter_content = "Date$From Date";
+    filter_content = filter_content + "$$Date$To Date";
+}
+
+<script>
+    function display_chart(id, filterid, _xvalue, title, chart_type) {
+
+        var container = document.getElementById(filterid);
+        var inputs = container.querySelectorAll('input[type="hidden"], input, select'); // Include hidden inputs
+        var values = "";
+
+        inputs.forEach(function (input) {
+            if (input.value == "") {
+                values = values + "$" + "0";
+            }
+            else {
+                values = values + "$" + input.value;
+            }
+        });
+
+        if (chart_type == 'Bar') {
+            $.ajax({
+                type: "POST",
+                url: "chartdata?id=" + id + "&filter=" + values,
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                success: function (chData) {
+                    var aData = chData;
+                    var aLabels = aData[0];
+                    var aDatasets1 = aData[1];
+                    var dataT = {
+                        labels: aLabels,
+                        datasets: [{
+                            label: _xvalue,
+                            data: aDatasets1,
+                            fill: false,
+                            backgroundColor: ["rgba(54, 162, 235, 0.2)"],
+                            borderColor: ["rgb(54, 162, 235)"],
+                            borderWidth: 1
+                        }
+                        ],
+                    };
+
+                    // Find the canvas element by its ID
+                    var canvas = document.getElementById("BarChart_1");
+
+                    // Check if the canvas element exists
+                    if (canvas) {
+                        // Get the chart instance associated with the canvas
+                        var chartInstance = Chart.getChart(canvas);
+
+                        // Check if a chart instance exists
+                        if (chartInstance) {
+                            // Destroy the chart
+                            chartInstance.destroy();
+                        }
+                    }
+
+                    var ctx = $("#BarChart_" + id).get(0).getContext("2d");
+
+                    var myNewChart = new Chart(ctx, {
+                        type: 'bar',
+                        data: dataT,
+                        options: {
+                            //indexAxis: 'y',
+                            responsive: true,
+                            title: { display: true, text: title },
+                            legend: { position: 'bottom' },
+                            scales: {
+                                x: { stacked: true },
+                                y: {
+                                    beginAtZero: true, stacked: true
+                                }
+                            },
+                        }
+                    });
+                }
+            });
+        }
+        // pie chart
+        else if ( chart_type == 'Pie'){
+            $.ajax({
+                type: "POST",
+                url: "chartdata?id=" + id + "&filter=" + values,
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                success: function (chData) {
+                    var aData = chData;
+                    var aLabels = aData[0];
+                    var aDatasets1 = aData[1];
+
+                    // // Base colors to repeat
+                    // var baseColors = [
+                    //     "#FF6384",
+                    //     "#36A2EB",
+                    //     "#FFCE56",
+                    //     "#4BC0C0",
+                    //     "#9966FF",
+                    //     "#FF9F40"
+                    // ];
+
+                    // Build repeating backgroundColor array
+                    var backgroundColors = [];
+
+                    for (var i = 0; i < aLabels.length; i++) {
+                        var hue = i * (360 / aLabels.length);
+                        backgroundColors.push("hsl(" + hue + ", 65%, 60%)");
+                    }
+
+                    var dataT = {
+                        labels: aLabels,
+                        datasets: [{
+                            label: _xvalue,
+                            data: aDatasets1,
+                            backgroundColor: backgroundColors,
+                            borderColor: "#fff",
+                            borderWidth: 1
+                        }]
+                    };
+
+                    // Find the canvas element by its ID
+                    var canvas = document.getElementById("BarChart_" + id);
+
+                    // Destroy old chart if exists
+                    if (canvas) {
+                        var chartInstance = Chart.getChart(canvas);
+                        if (chartInstance) {
+                            chartInstance.destroy();
+                        }
+                    }
+
+                    var ctx = $("#BarChart_" + id).get(0).getContext("2d");
+
+                    // Create the pie chart
+                    var myNewChart = new Chart(ctx, {
+                        type: 'pie',
+                        data: dataT,
+                        options: {
+                            responsive: true,
+                            plugins: {
+                                title: {
+                                    display: true,
+                                    text: title
+                                },
+                                legend: {
+                                    position: 'bottom'
+                                }
+                            }
+                        }
+                    });
+                },
+                error: function () {
+                    alert("Error loading chart data.");
+                }
+            });
+        }
+
+        // doughnut
+        else if(chart_type == 'Doughnut'){
+            $.ajax({
+                type: "POST",
+                url: "chartdata?id=" + id + "&filter=" + values,
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                success: function (chData) {
+                    var aData = chData;
+                    var aLabels = aData[0];
+                    var aDatasets1 = aData[1];
+
+                    
+                    var backgroundColors = [];
+
+                    for (var i = 0; i < aLabels.length; i++) {
+                        var hue = i * (360 / aLabels.length);
+                        backgroundColors.push("hsl(" + hue + ", 65%, 60%)");
+                    }
+
+                    var dataT = {
+                        labels: aLabels,
+                        datasets: [{
+                            label: _xvalue,
+                            data: aDatasets1,
+                            backgroundColor: backgroundColors,
+                            borderColor: "#fff",
+                            borderWidth: 1
+                        }]
+                    };
+
+                    
+                    var canvas = document.getElementById("BarChart_" + id);
+
+                   
+                    if (canvas) {
+                        var chartInstance = Chart.getChart(canvas);
+                        if (chartInstance) {
+                            chartInstance.destroy();
+                        }
+                    }
+
+                    var ctx = $("#BarChart_" + id).get(0).getContext("2d");
+
+                    
+                    var myNewChart = new Chart(ctx, {
+                        type: 'doughnut',
+                        data: dataT,
+                        options: {
+                            responsive: true,
+                            plugins: {
+                                title: {
+                                    display: true,
+                                    text: title
+                                },
+                                legend: {
+                                    position: 'bottom'
+                                }
+                            }
+                        }
+                    });
+                },
+                error: function () {
+                    alert("Error loading chart data.");
+                }
+            });
+        }
+    }
+
+    function show_dash_filter(id, main) {
+            var main_container = document.getElementById(main);
+            var container = document.getElementById(id);
+            main_container.style.display = "block";
+        }
+
+    function updatedash(id, filterid) {
+
+            var container = document.getElementById(filterid);
+            var inputs = container.querySelectorAll('input[type="hidden"], input, select'); // Include hidden inputs
+            var values = "";
+
+            inputs.forEach(function (input) {
+                values = values + "$" + input.value;
+            });
+
+            console.log(values);
+
+            $.ajax({
+                type: "GET",
+                url: "updateDash?id=" + id + "&filter=" + values,
+                contentType: "application/json; charset=utf-8",
+                dataType: "text",
+                success: function (data) {
+                    //console.log(data);
+                    $("#data_" + id).html(data);
+
+                },
+                error: function () {
+                    alert("Error retrieving data.");
+                }
+            });
+        
+    }
+
+    function reload_dash(id, filterid, _xvalue, title, chart_type) {
+        updatedash(id, filterid)
+        display_chart(id, filterid, _xvalue,title, chart_type)
+    }
+
+</script>
+@if (string.IsNullOrEmpty(Model.charttype))
+{
+    <div class="dashboard-container dashboard-table">
+        <div class="dashboard-header">
+            <span class="dashtitle"><strong>@Model.title</strong></span>
+            <span>
+                <a href="javascript:updatedash('@Model.ID','filter_container_@Model.ID')">Refresh</a>
+                |
+                <a href="javascript:show_dash_filter('filter_container_@Model.ID','dash_container_@Model.ID','@Model.charttype')">Filter</a>
+            </span>
+        </div>
+
+        <div class="filter_container" id="dash_container_@Model.ID">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+                <strong>@Model.title - Filter</strong>
+                <button type="button" class="btn-close"
+                        aria-label="Close"
+                        onclick="document.getElementById('dash_container_@Model.ID').style.display='none'"></button>
+            </div>
+            <div id="filter_container_@Model.ID">
+                @if (!string.IsNullOrEmpty(Model.filterstring))
+                {
+                    var filters = Model.filterstring.Split("$");
+                    foreach (var filter in filters)
+                    {
+                        var comp = filter.Split("@");
+                        if (comp[0] == "Custom")
+                        {
+                            <span>
+                                @comp[0]:
+                                <input type="hidden" id="label_@comp[1]_@Model.ID" value="@comp[1]" />
+                            </span>
+                            <span>
+                                <input type="text" id="@comp[1]_@Model.ID" class="form-control d-inline-block w-auto ms-1" />
+                            </span>
+                        }
+                        else if (comp[0] == "Date")
+                        {
+                            <span>
+                                @comp[0]:
+                                <input type="hidden" id="label_@comp[1]_@Model.ID" value="@comp[1]" />
+                            </span>
+                            <span>
+                                <input type="date" id="@comp[1]_@Model.ID" class="form-control d-inline-block w-auto ms-1" />
+                            </span>
+                        }
+                    }
+                }
+            </div>
+        </div>
+
+        <div class="dashboard-body">
+            <div>
+                @{
+                    var sql = Model.query;
+                    var data = new Standus_5_0.Data.GetData(TempData["CS"].ToString());
+                    System.Data.DataTable dt;
+
+                    if (!string.IsNullOrEmpty(Model.filterstring))
+                    {
+                        var filters = Model.filterstring.Split("$");
+                        foreach (var filter in filters)
+                        {
+                            var vals = filter.Split("@");
+                            if (vals[0].ToLower() == "custom")
+                            {
+                                sql = sql.Replace("@" + vals[1] + "@", "0");
+                            }
+                            else if (vals[0].ToLower() == "date")
+                            {
+                                sql = sql.Replace("@" + vals[1] + "@", "01/01/1991");
+                            }
+                        }
+                    }
+
+                    dt = data.Data(sql);
+                }
+                <table class="table table-bordered table-hover table-sm mt-2">
+                    <thead class="table-light">
+                        <tr>
+                            @foreach (System.Data.DataColumn col in dt.Columns)
+                            {
+                                <th>@col.ColumnName</th>
+                            }
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (System.Data.DataRow row in dt.Rows)
+                        {
+                            <tr>
+                                @foreach (System.Data.DataColumn col in dt.Columns)
+                                {
+                                    <td>@row[col.ColumnName]</td>
+                                }
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+}
+else
+{
+    <div class="dashboard-container dashboard-chart">
+        <div class="dashboard-header">
+            <span class="dashtitle"><strong>@Model.title</strong></span>
+            <span>
+                <a href="javascript:reload_dash('@Model.ID','filter_container_@Model.ID','@Model.xvalue','@Model.title','@Model.charttype')">Refresh</a>
+                |
+                <a href="javascript:show_dash_filter('filter_container_@Model.ID','dash_container_@Model.ID')">Filter</a>
+            </span>
+        </div>
+
+        <div class="filter_container" id="dash_container_@Model.ID">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+                <strong>@Model.title - Filter</strong>
+                <button type="button" class="btn-close"
+                        aria-label="Close"
+                        onclick="document.getElementById('dash_container_@Model.ID').style.display='none'"></button>
+            </div>
+            <div id="filter_container_@Model.ID">
+                @if (!string.IsNullOrEmpty(Model.filterstring))
+                {
+                    var filters = Model.filterstring.Split("$");
+                    foreach (var filter in filters)
+                    {
+                        var comp = filter.Split("@");
+                        if (comp[0] == "Custom")
+                        {
+                            <span>
+                                @comp[0]:
+                                <input type="hidden" id="label_@comp[1]_@Model.ID" value="@comp[1]" />
+                            </span>
+                            <span>
+                                <input type="text" id="@comp[1]_@Model.ID" class="form-control d-inline-block w-auto ms-1" />
+                            </span>
+                        }
+                        else if (comp[0] == "Date")
+                        {
+                            <span>
+                                @comp[0]:
+                                <input type="hidden" id="label_@comp[1]_@Model.ID" value="@comp[1]" />
+                            </span>
+                            <span>
+                                <input type="date" id="@comp[1]_@Model.ID" class="form-control d-inline-block w-auto ms-1" />
+                            </span>
+                        }
+                    }
+                }
+            </div>
+        </div>
+
+        <div class="dashboard-body">
+            <div>
+                @{
+                    var sql = Model.query;
+                    var data = new Standus_5_0.Data.GetData(TempData["CS"].ToString());
+                    System.Data.DataTable dt;
+
+                    if (!string.IsNullOrEmpty(Model.filterstring))
+                    {
+                        var filters = Model.filterstring.Split("$");
+                        foreach (var filter in filters)
+                        {
+                            var vals = filter.Split("@");
+                            if (vals[0].ToLower() == "custom")
+                            {
+                                sql = sql.Replace("@" + vals[1] + "@", "0");
+                            }
+                        }
+                    }
+
+                    dt = data.Data(sql);
+                }
+                <table class="table table-bordered table-hover table-sm mt-2" id="data_@Model.ID">
+                    <thead class="table-light">
+                        <tr>
+                            @foreach (System.Data.DataColumn col in dt.Columns)
+                            {
+                                <th>@col.ColumnName</th>
+                            }
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (System.Data.DataRow row in dt.Rows)
+                        {
+                            <tr>
+                                @foreach (System.Data.DataColumn col in dt.Columns)
+                                {
+                                    <td>@row[col.ColumnName]</td>
+                                }
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+            <div class="d-flex align-items-center justify-content-center">
+                <canvas id="BarChart_@Model.ID" class="report_chart" style="max-height:80%; max-width:90%;"></canvas>
+            </div>
+            <script>
+                display_chart('@Model.ID', 'filter_container_@Model.ID', '@Model.xvalue', '@Model.title', '@Model.charttype')
+            </script>
+        </div>
+    </div>
+}
+
+
+
+
+<style>
+    .dashtitle {
+        border: 2px solid #34a5c9;
+        padding: 6px 12px;
+        background-color: #64d3f6;
+        border-radius: 0.3rem 0.3rem 0 0;
+        display: inline-block;
+        font-size: 1rem;
+    }
+
+    .filter_container {
+        z-index: 199;
+        position: relative;
+        width: 80%;
+        background-color: #fff;
+        display: none;
+        margin: 1rem auto;
+        border: 2px solid #34a5c9;
+        border-radius: 0.3rem;
+        padding: 1rem;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+
+    .dashboard-container {
+        border: 2px solid #34a5c9;
+        border-radius: 0.3rem;
+        margin: 0.5rem;
+        display: inline-block;
+        vertical-align: top;
+    }
+
+    .dashboard-header {
+        border-bottom: 2px solid #34a5c9;
+        padding: 0.5rem;
+        background-color: #f8f9fa;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+        .dashboard-header a {
+            margin-left: 0.75rem;
+            text-decoration: none;
+            color: #0d6efd;
+        }
+
+            .dashboard-header a:hover {
+                text-decoration: underline;
+            }
+
+    .dashboard-body {
+        padding: 0.5rem;
+        display: flex;
+        height: calc(100% - 50px);
+    }
+
+        .dashboard-body > div {
+            flex: 1;
+            overflow-y: auto;
+        }
+
+    .dashboard-table {
+        width: 48%;
+        height: 300px;
+    }
+
+    .dashboard-chart {
+        width: 98%;
+        height: 300px;
+    }
+</style>

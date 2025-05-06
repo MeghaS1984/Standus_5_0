@@ -1,0 +1,55 @@
+﻿@model List<Standus_5_0.Areas.Report.Models.ReportFilters>
+@{
+    ViewData["Title"] = "Change Custom Default Value";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<form asp-action="ChangeDefaultValue" method="post">
+    @Html.AntiForgeryToken()
+
+    <div class="form-horizontal">
+        <hr />
+        @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+
+        @if (Model.Count == 0)
+        {
+            <div style="width:100%;height:200px;text-align:center;vertical-align:middle">
+                <p><h3>Filter/s not set for this report.</h3></p>
+            </div>
+        }
+        else
+        {
+            <table>
+                @foreach (var i in Model)
+                {
+                    <tr>
+                        <td>
+                            <input type="hidden" value="@i.Id" name="@i.Id" id="id_@i.Id" />
+                            @i.Name
+                        </td>
+                        <td>
+                            <input type="text" name="defaultvalue" id="defaultvalue_@i.Id" value="@i.DefaultValue" />
+                        </td>
+                        <td>
+                            <a href="javascript:changevalue(document.getElementById('id_@i.Id'), document.getElementById('defaultvalue_@i.Id'), 0, '')">Change</a>
+                        </td>
+                        <td>
+                            &nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;
+                            <a href="javascript:changevalue(document.getElementById('id_@i.Id'), document.getElementById('defaultvalue_@i.Id'), 1, '@i.Name')">Change All</a>
+                        </td>
+                    </tr>
+                }
+            </table>
+        }
+    </div>
+</form>
+
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>
+
+<script>
+    function changevalue(id, defaultvalue, change_all, field_name) {
+        window.location.href = "ChangeDefaultValue?fieldid=" + id.value + "&default_value=" + defaultvalue.value + "&change_all=" + change_all + "&field_name=" + field_name;
+    }
+</script>

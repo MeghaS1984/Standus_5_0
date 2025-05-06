@@ -1,0 +1,466 @@
+﻿@model Standus_5_0.Areas.Report.Models.ReportComponent
+
+@{
+    ViewData["Title"] = "Designer";
+    Layout = "~/Areas/Report/Views/Shared/_Layout.cshtml";
+
+    string reportname = "";
+    string reporttype;
+    int reportID;
+
+    if (Model.Report != null ) {
+        reportname = Model.Report.ReportName;
+        reporttype = Model.Report.ReportType;
+        reportID = Model.Report.ReportID;
+
+        <br />
+            // <a href="@Uri()"> Add Sub Query</a>
+        @Html.ActionLink("Add Subquery", "Index", "ReportsSubqueries", new { area = "Report", ReportID = reportID }, null)
+
+        <br />
+    }
+
+    reporttype = ViewBag.ReportType;
+
+    if (Model.Report == null) {
+        var error = TempData["Error"];
+        if (error != null){
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <h4 class="alert-heading">Error!</h4>
+                <p>@TempData["Error"]</p>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+
+        }
+    }
+    
+    int i;
+}
+
+@{
+    var group = ViewBag.Group;
+}
+<div style="width:100%">
+    
+    @{
+        if (Model.Report != null){
+            if (Model.Report.ReportType != "") {
+                <script>
+
+                </script>
+            }
+        }
+    }
+
+    <div class="d-flex justify-content-end flex-wrap gap-2 mb-3">
+        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#id01">Save Report</button>
+
+        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#new_group">Create Group</button>
+
+        <button type="button" class="btn btn-primary" onclick="CreateNewReport();">New Report</button>
+
+        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#copy">
+            Copy Report
+        </button>
+    </div>
+
+</div>
+
+<!-- Modal -->
+<form action="newGroup" method="post" onsubmit="return validategroup()">
+    <div class="modal fade" id="new_group" tabindex="-1" aria-labelledby="newGroupLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+
+                <!-- Modal Header -->
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title" id="newGroupLabel">Create New Group</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+
+                <!-- Modal Body -->
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="groupname" class="form-label">Group name:</label>
+                        <input type="text" name="groupname" class="form-control" id="groupname" />
+                    </div>
+                </div>
+
+                <!-- Modal Footer -->
+                <div class="modal-footer bg-primary">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <input type="submit" value="Save" class="btn btn-light" />
+                </div>
+
+            </div>
+        </div>
+    </div>
+</form>
+
+<form action="create" method="post" onsubmit="return validation()">
+
+    <!-- store selected report value if report exists -->
+    @if(Model.Report != null) {
+        <input type="hidden" name="ReportID" value="@Model.Report.ReportID" />
+    }    
+
+    @if (reporttype != "") {
+        <input type="hidden" name="ReportType" id="report_value" value="@reporttype" /> @* used To store report type value--> *@
+    } else {
+        <input type="hidden" name="ReportType" id="report_value" value="Tabular" />@*  used To store report type value--> *@
+    }
+    <!-- Modal -->
+    <div class="modal fade" id="id01" tabindex="-1" aria-labelledby="saveReportModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title" id="saveReportModalLabel">Save Report</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Select Directory:</label>
+                        
+                        <select name="GroupID" class="form-select">
+                            @if (Model.Report != null)
+                            {
+                                foreach (var gp in group)
+                                {
+                                    if (gp.GroupID == Model.Report.GroupID)
+                                    {
+                                        <option selected value="@gp.GroupID">@gp.Groupname</option>
+                                    }
+                                    else
+                                    {
+                                        <option value="@gp.GroupID">@gp.Groupname</option>
+                                    }
+                                }
+                            }
+                            else
+                            {
+                                foreach (var gp in group)
+                                {
+                                    <option value="@gp.GroupID">@gp.Groupname</option>
+                                }
+                            }
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Enter Report Name:</label>
+                        @if (reportname != null)
+                        {
+                            <input type="text" name="reportname" class="form-control" id="reportname" value="@reportname" />
+                        }
+                        else
+                        {
+                            <input type="text" name="reportname" class="form-control" id="reportname" />
+                        }
+                    </div>
+                </div>
+
+                <div class="modal-footer bg-primary">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <input type="submit" value="Save" class="btn btn-light" />
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    
+    <br /><br />
+
+    <!--- SQL QUERY-->
+    <!-- Button to toggle section -->
+    <button type="button" class="btn btn-primary w-100 text-start mb-2" onclick="$('#query').toggleClass('d-none')">
+        Add Query
+    </button>
+
+    <!-- Query section -->
+    <div id="query" class="d-none border rounded p-3">
+        <input type="hidden" name="reporttype" value="@reporttype" />
+
+        <div class="mb-3">
+            <label for="sqlquery" class="form-label">SQL Query:</label>
+            <textarea class="form-control" name="SqlQuery" id="sqlquery" rows="6">
+                @if (Model.Report != null)
+                {
+                    if (Model.Report.SqlQuery != null)
+                    {
+                        @Model.Report.SqlQuery
+                    }
+                }
+        </textarea>
+        </div>
+    </div>
+
+    <br />
+
+</form>
+<form action="copyReport" method="post">
+    <!-- Store selected report value if report exists -->
+    @if (Model.Report != null)
+    {
+        <input type="hidden" name="ReportID" value="@Model.Report.ReportID" />
+    }
+
+    @if (reporttype != "")
+    {
+        <input type="hidden" name="ReportType" id="report_value" value="@reporttype" />
+    }
+    else
+    {
+        <input type="hidden" name="ReportType" id="report_value" value="Tabular" />
+    }
+
+    <!-- The Modal -->
+    <div class="modal fade" id="copy" tabindex="-1" aria-labelledby="copyReportModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+
+                <!-- Modal header -->
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title" id="copyReportModalLabel">Copy Report</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+
+                <!-- Modal body -->
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="GroupID" class="form-label">Select Directory:</label>
+                        <select name="GroupID" class="form-select" id="GroupID">
+                            @if (Model.Report != null)
+                            {
+                                foreach (var gp in group)
+                                {
+                                    if (gp.GroupID == Model.Report.GroupID)
+                                    {
+                                        <option selected value="@gp.GroupID">@gp.Groupname</option>
+                                    }
+                                    else
+                                    {
+                                        <option value="@gp.GroupID">@gp.Groupname</option>
+                                    }
+                                }
+                            }
+                            else
+                            {
+                                foreach (var gp in group)
+                                {
+                                    <option value="@gp.GroupID">@gp.Groupname</option>
+                                }
+                            }
+                        </select>
+                    </div>
+
+                    @if (Model.Report != null && Model.Report.SqlQuery != null)
+                    {
+                        <input type="hidden" value="@(Model.Report.SqlQuery == null ? " " : Model.Report.SqlQuery.Trim())" name="SqlQuery" />
+                    }
+
+                    <div class="mb-3">
+                        <label for="reportname" class="form-label">Enter Report Name:</label>
+                        <input type="text" name="reportname" class="form-control" id="reportname" value="@reportname" />
+                    </div>
+                </div>
+
+                <!-- Modal footer -->
+                <div class="modal-footer bg-primary">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <input type="submit" value="Save" class="btn btn-light" />
+                </div>
+
+            </div>
+        </div>
+    </div>
+</form>
+
+
+<br />
+<!-- REPORT FILTERS-->
+<!-- Add Filters -->
+<button type="button" class="btn btn-primary w-100 text-start mb-2" onclick="$('#filter').toggleClass('d-none')">
+    Add Filters
+</button>
+
+<div id="filter" class="d-none border rounded p-3 mb-3">
+    <!-- Add filter to report -->
+    @Html.Partial("_filters", Model)
+</div>
+
+<!-- Column Properties -->
+<button type="button" class="btn btn-primary w-100 text-start mb-2" onclick="$('#col_adjust').toggleClass('d-none')">
+    Set Column Properties
+</button>
+
+<div id="col_adjust" class="d-none border rounded p-3 mb-3">
+    <!-- Add column partial view here -->
+    @if (Model.Column != null) {
+        @Html.Partial("_Columns", Model)
+    }
+</div>
+
+<!-- Chart Properties -->
+<button type="button" class="btn btn-primary w-100 text-start mb-2 d-flex align-items-center" onclick="$('#chart').toggleClass('d-none')">
+    <div>Set Chart Properties</div>
+</button>
+
+<div id="chart" class="d-none border rounded p-3 mb-3">
+    <!-- Add chart details -->
+    @Html.Partial("_Charts", Model)
+</div>
+
+
+<!-- setting -->
+@{
+    var Reports = Model.Report;
+}
+@Html.Partial("_Setting", Model)
+
+<Style>
+    textarea {
+        min-width: 100%;
+        height: 150px;
+        padding: 12px 20px;
+        box-sizing: border-box;
+        border: 2px solid #ccc;
+        border-radius: 4px;
+        background-color: #f8f8f8;
+        font-size: 16px;
+        resize: none;
+        margin-top: 5px;
+    }
+
+    .filter {
+        width: 100%;
+    }
+
+    input.right {
+        float: right;
+        margin: 10px;
+    }
+
+    .tblChartParam td {
+        padding: 10px;
+    }
+</Style>
+
+
+
+
+
+<Script>
+
+    function validation() {
+        var sql = document.getElementById("sqlquery");
+        var reportname = document.getElementById("reportname");
+        var reportvalue = document.getElementById("report_value");
+
+        if (sql.value == '') {
+            alert("Enter sql statement.");
+            return False;
+        } else if (reportvalue.value == '') {
+            alert("Select Report Type.");
+            return False;
+        } else if (reportname.value == '') {
+            alert("Enter report name.");
+            return False;
+        }
+        else {
+            return True;
+        }
+    }
+
+
+    function validategroup() {
+        var groupname = document.getElementById("groupname");
+        if (groupname.value == '') {
+            alert("Enter group name.");
+            return False;
+        }
+        else {
+            return True;
+        }
+    }
+
+
+    function addNewChart(ReportID) {
+        var tableString;
+        var chartType = document.getElementById("chart_value");
+
+        var Table = document.getElementById("tblchart");
+        var xvalue = document.getElementById("xvalue");
+        var yvalue = document.getElementById("yvalue");
+        var y1value = document.getElementById("y1value");
+
+        //alert(xvalue.value);
+        var counter = document.getElementById("tblchart").rows.length;
+
+        counter = counter - 1;
+
+        tableString = Table.innerHTML;
+        tableString = tableString + "<tr><td>" + chartType.value + "<input type=hidden name='Charts[" + counter + "].charttype' value='" + chartType.value + "'/>"
+        tableString = tableString + "<input type=hidden name='Charts[" + counter + "].ReportID' value'" + ReportID + "'/>"
+        tableString = tableString + "<input type=hidden name='Charts[" + counter + "].id' value='0'/>"
+        tableString = tableString + "</td>"
+        tableString = tableString + "<td> " + xvalue.value + "<input type=text name='Charts[" + counter + "].xValue' value='" + xvalue.value + "'/></td>"
+        tableString = tableString + "<td>" + yvalue.value + "<input type=text name='Charts[" + counter + "].y1Value' value='" + yvalue.value + "'/></td>"
+        tableString = tableString + "<td>" + y1value.value + "<input type=text name='Charts[" + counter + "].y2Value' value='" + y1value.value + "'/></td>"
+        tableString = tableString + "<td>200</td><td>200</td><td> - </td></tr>"
+        Table.innerHTML = tableString;
+        //alert(tableString);
+    }
+
+    function addNewChart(ReportID) {
+        var tableString;
+        var chartType = document.getElementById("chart_value");
+
+        var Table = document.getElementById("tblchart");
+        var xvalue = document.getElementById("xvalue");
+        var yvalue = document.getElementById("yvalue");
+        var y1value = document.getElementById("y1value");
+
+        //alert(xvalue.value);
+        var counter = document.getElementById("tblchart").rows.length;
+
+        counter = counter - 1;
+
+        tableString = Table.innerHTML;
+        tableString = tableString + "<tr><td>" + chartType.value + "<input type=hidden name='Charts[" + counter + "].charttype' value='" + chartType.value + "'/>"
+        tableString = tableString + "<input type=hidden name='Charts[" + counter + "].ReportID' value'" + ReportID + "'/>"
+        tableString = tableString + "<input type=hidden name='Charts[" + counter + "].id' value='0'/>"
+        tableString = tableString + "</td>"
+        tableString = tableString + "<td> " + xvalue.value + "<input type=text name='Charts[" + counter + "].xValue' value='" + xvalue.value + "'/></td>"
+        tableString = tableString + "<td>" + yvalue.value + "<input type=text name='Charts[" + counter + "].y1Value' value='" + yvalue.value + "'/></td>"
+        tableString = tableString + "<td>" + y1value.value + "<input type=text name='Charts[" + counter + "].y2Value' value='" + y1value.value + "'/></td>"
+        tableString = tableString + "<td>200</td><td>200</td><td> - </td></tr>"
+        Table.innerHTML = tableString;
+        //alert(tableString);
+    }
+
+    function addNewFilter(ReportID) {
+        var tableString;
+
+        var Table = document.getElementById("tblchart");
+
+        //alert(xvalue.value);
+        var counter = document.getElementById("tblchart").rows.length;
+
+        counter = counter - 1;
+
+        tableString = Table.innerHTML;
+        tableString = tableString + "<tr><td>" + chartType.value + "<input type=hidden name='Charts[" + counter + "].charttype' value='" + chartType.value + "'/>"
+        tableString = tableString + "<input type=hidden name='Charts[" + counter + "].ReportID' value'" + ReportID + "'/>"
+        tableString = tableString + "<input type=hidden name='Charts[" + counter + "].id' value='0'/>"
+        tableString = tableString + "</td>"
+        tableString = tableString + "<td> " + xvalue.value + "<input type=text name='Charts[" + counter + "].xValue' value='" + xvalue.value + "'/></td>"
+        tableString = tableString + "<td>" + yvalue.value + "<input type=text name='Charts[" + counter + "].y1Value' value='" + yvalue.value + "'/></td>"
+        tableString = tableString + "<td>" + y1value.value + "<input type=text name='Charts[" + counter + "].y2Value' value='" + y1value.value + "'/></td>"
+        tableString = tableString + "<td>200</td><td>200</td><td> - </td></tr>"
+        Table.innerHTML = tableString;
+        //alert(tableString);
+    }
+</Script>

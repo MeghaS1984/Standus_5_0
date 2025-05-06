@@ -1,0 +1,58 @@
+﻿@model Standus_5_0.Areas.Report.Models.ReportsSubquery
+
+@{
+    ViewData["Title"] = "Create";
+    Layout = "~/Areas/Report/Views/Shared/_Layout.cshtml";
+
+var val = new RouteValueDictionary();
+val.Add("ReportID", ViewData["ReportID"]);
+
+}
+
+<form asp-action="Create">
+    <div class="container mt-4">
+        <h4 class="mb-4">Reports Subquery</h4>
+
+        <div asp-validation-summary="All" class="text-danger"></div>
+        
+        <input type="hidden" name="reportid" id="reportid" value="@ViewData["ReportID"]" />
+
+        <!-- Subquery Textarea -->
+        <div class="mb-3">
+            <label asp-for="Subquery" class="form-label"></label>
+            <textarea asp-for="Subquery" class="form-control" rows="10"></textarea>
+            <span asp-validation-for="Subquery" class="text-danger"></span>
+        </div>
+
+        <!-- Submit Button -->
+        <div class="mb-3">
+            <button type="submit" class="btn btn-primary">Submit</button>
+        </div>
+    </div>
+</form>
+
+
+<!-- Back to List Link -->
+<div class="container mt-3">
+    @Html.ActionLink("Back to List", "Index", val)
+</div>
+
+<!-- Optional: You can keep your custom textarea styling if you want -->
+<style>
+    textarea {
+        min-width: 86vw;
+        min-height: 70vh;
+        padding: 12px 20px;
+        box-sizing: border-box;
+        border: 2px solid #ccc;
+        border-radius: 4px;
+        background-color: #f8f8f8;
+        font-size: 16px;
+        resize: none;
+        margin-top: 5px;
+    }
+</style>
+
+
+
+

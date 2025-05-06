@@ -1,0 +1,110 @@
+﻿@model IEnumerable<Standus_5_0.Areas.Report.Models.ReportFilters>
+@{
+    var v = new RouteValueDictionary();
+
+    v.Add("ID", TempData["ReportID"]);
+    v.Add("Reportname", TempData["ReportName"]);
+}
+@* ?reportid=@TempData["ReportID"]&ReportName=@TempData["ReportName"] *@
+<div id="filter_form">
+    <form action="/report/preview/index" method="post">
+        <div class="modal fade show" id="report_filter" tabindex="-1" style="display:none;" aria-modal="true" role="dialog">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header bg-primary text-white">
+                        <h5 class="modal-title">Filters</h5>
+                        <button type="button" class="btn-close" aria-label="Close"
+                                onclick="document.getElementById('report_filter').style.display = 'none';document.getElementById('content').style.overflow = 'auto';">
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <input type="hidden" name="reportid" value="@TempData["ReportID"]" />
+                        <input type="hidden" name="ReportName" value="@TempData["ReportName"]" />
+                        @if (Model.Any())
+                        {
+                            <table class="table table-bordered table-sm">
+                                @foreach (var item in Model)
+                                {
+                                    <tr>
+                                        <td style="width: 200px;">
+                                            <label class="form-label fw-bold">@item.Name :</label>
+                                        </td>
+                                        <td>
+                                            @if (item.Type == "Date")
+                                            {
+                                                <input type="date" name="@item.Name" class="form-control" />
+                                            }
+                                            else if (item.Type == "Custom")
+                                            {
+                                                <input type="text" name="@item.Name" value="@item.DefaultValue" class="form-control" />
+                                            }
+                                            else if (item.Type == "Multiselect List")
+                                            {
+                                                <!-- Placeholder for multiselect list -->
+                                                <select name="@item.Name" multiple class="form-select" id="ListValue">
+                                                    <!-- Options should be rendered via AJAX or a controller method -->
+                                                </select>
+                                            }
+                                        </td>
+                                    </tr>
+                                }
+                            </table>
+                        }
+                    </div>
+                    <div class="modal-footer">
+                        <button type="submit" class="btn btn-primary">Refresh</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+
+
+<script>
+    //$(function () {
+    //    $('#Country').multiselect({
+    //        includeSelectAllOption: true,
+    //    });
+    //});
+</script>
+
+@*<style>
+    
+
+    .modal-open {
+        overflow: hidden;
+    }
+
+    .modal {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: sticky;
+        margin-top: 0;
+        margin-left:0;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        background-color: rgba(0, 0, 0, 0.5); /* semi-transparent background */
+        overflow: auto; /* allows scroll if content overflows */
+        z-index: 9999; /* make sure it is above other content */
+    }
+
+    .modal-dialog {
+        margin: 0;
+        max-width: 90%; /* limits the width of the modal */
+        max-height: 90%; /* limits the height of the modal */
+        z-index: 9999;
+    }
+
+    .modal-content {
+        max-height: 100%;
+        overflow: auto; /* allows scrolling inside the modal if needed */
+        background: white;
+        border-radius: 5px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+</style>*@

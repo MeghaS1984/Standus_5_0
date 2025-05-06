@@ -1,0 +1,16 @@
+﻿@model IEnumerable<Standus_5_0.Areas.Report.Models.Dashboard>
+
+@{
+    ViewData["Title"] = "Dashboard";
+    Layout = "~/Areas/Report/Views/Shared/_Layout.cshtml";
+
+}
+
+<br />
+
+<div style="width:100%; display:inline-block">
+    @foreach (var item in Model)
+    {
+        @Html.Partial("Dashboard", item)
+    }
+</div>

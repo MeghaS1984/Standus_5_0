@@ -1,0 +1,167 @@
+﻿@model Standus_5_0.Areas.Report.Models.ReportComponent 
+
+<form action="/report/add_column" method="post" id="frmColumn">
+    <table class="table table-striped table-hover table-bordered">
+        <thead class="table-success">
+            <tr >
+                <th>Column No</th>
+                <th>Column Name</th>
+                <th>Width</th>
+                <th>Summary Type</th>
+                <th>Link To</th>
+                <th>Group By</th>
+                <th>Group Level</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @{
+                int i;
+                i = 0;
+            }
+            @if (Model.Report.Columns != null)
+            {
+                <input type="hidden" name="reportid" value="@Model.Report.ReportID" />
+                @foreach (var col in Model.Report.Columns ) {
+                    <input type="hidden" name="Columns[@i].id" value="@col.Id" />
+                    <tr>
+                        <td>
+                            <input type="text" class="form-control" name="Columns[@i].columnno" value="@col.ColumnNo" />
+                        </td>
+                        <td>
+                            <input type="text" class="form-control" name="Columns[@i].columnname" value="@col.ColumnName" />
+                        </td>
+                        <td>
+                            <input type="text" class="form-control" name="Columns[@i].width" value="@col.Width" />
+                        </td>
+                        <td>
+                            <select class="form-select" name="Columns[@i].SummeryType">
+                                <option>None</option>
+                                @if (col.SummeryType != "Sum") {
+                                    <option>Sum</option>
+                                }else {
+                                    <option selected>Sum</option>
+                                }
+                                @if (col.SummeryType != "Avg") {
+                                    <option>Avg</option>
+                                }else {
+                                    <option selected>Avg</option>
+                                }
+                                @if (col.SummeryType != "Count"){
+                                    <option>Count</option>
+                                } else {
+                                    <option selected>Count</option>
+                                }
+                            </select>
+                        </td>
+                        <td>
+                            <input type="text" class="form-control" name="Columns[@i].linkto" value="@col.LinkTo">
+                        </td>
+                        <td>
+                            <select class="form-select" name="Columns[@i].GroupBy">
+                                <option value=""></option>
+                                @{
+                                    // ' Your existing GroupBy column dynamic loading code remains unchanged
+                                    if (Model.Report != null) {
+                                        // ' Build SQL
+                                        // ' Execute and populate GroupBy options
+                                        // ' (same logic you already have)
+                                        // Try
+                                        //     Dim con As New System.Data.SqlClient.SqlConnection(ConfigurationManager.ConnectionStrings("datastore").ConnectionString)
+                                        //     Dim dr As System.Data.IDataReader
+                                        //     Dim cmd As New System.Data.SqlClient.SqlCommand
+                                        //     cmd.Connection = con
+                                        //     cmd.CommandType = System.Data.CommandType.Text
+                                        //     cmd.CommandText = sql
+                                        //     con.Open()
+                                        //     dr = cmd.ExecuteReader
+                                        //     Dim dt As New System.Data.DataTable
+                                        //     dt.Load(dr)
+                                        //     For Each gcol As System.Data.DataColumn In dt.Columns
+                                        //         If gcol.ColumnName = col.GroupBy then
+                                        //             @<option selected>@gcol.ColumnName</option>
+                                        //         Else
+                                        //             @<option>@gcol.ColumnName</option>
+                                        //         End if
+                                        //     Next
+                                        // Catch ex As Exception
+                                        // End Try
+                                    }
+                                }
+                            </select>
+                        </td>
+                        <td>
+                            <input type="text" class="form-control" name="Columns[@i].GroupLevel" value="@col.GroupLevel">
+                        </td>
+                        <td>
+                            <input type="button" class="btn btn-danger" value="-" onclick="delete_column(@col.Id)" />
+                        </td>
+                    </tr>
+                    i = i + 1;
+                }
+            }
+
+            <!-- Add New Row -->
+            <tr>
+                <td>
+                    <input type="text" class="form-control" name="columnno">
+                </td>
+                <td>
+                    <input type="text" class="form-control" name="columnname">
+                </td>
+                <td>
+                    <input type="text" class="form-control" name="width" />
+                </td>
+                <td>
+                    <select class="form-select" name="SummeryType">
+                        <option>None</option>
+                        <option>Sum</option>
+                        <option>Avg</option>
+                        <option>Count</option>
+                    </select>
+                </td>
+                <td>
+                    <input type="text" class="form-control" name="linkto" />
+                </td>
+                <td>
+                    <select class="form-select" name="GroupBy">
+                        <option value=""></option>
+                        @* @code
+                            If Not Model.report Is Nothing then
+                                ' Same logic for new row GroupBy
+                                Try
+                                    Dim con As New System.Data.SqlClient.SqlConnection(ConfigurationManager.ConnectionStrings("datastore").ConnectionString)
+                                    Dim dr As System.Data.IDataReader
+                                    Dim cmd As New System.Data.SqlClient.SqlCommand
+                                    cmd.Connection = con
+                                    cmd.CommandType = System.Data.CommandType.Text
+                                    cmd.CommandText = sql
+                                    con.Open()
+                                    dr = cmd.ExecuteReader
+                                    Dim dt As New System.Data.DataTable
+                                    dt.Load(dr)
+                                    For Each col As System.Data.DataColumn In dt.Columns
+                                        @<option>@col.ColumnName</option>
+                                    Next
+                                Catch ex As Exception
+                                End Try
+                            End If
+                        End Code *@
+                    </select>
+                </td>
+                <td>
+                    <input type="text" class="form-control" name="GroupLevel" value="0">
+                </td>
+                <td>
+                    <input type="submit" class="btn btn-primary" value="+" />
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</form>
+
+<script>
+    function delete_column(column_id) {
+        window.location.href = '@Url.Action("/delete_column/")' + column_id;
+    }
+</script>

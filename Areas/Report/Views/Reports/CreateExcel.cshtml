@@ -1,0 +1,158 @@
+﻿@model Standus_5_0.Areas.Report.Models.Reports
+@{
+    ViewData["Title"] = "CreateExcel";
+    Layout = "~/Areas/Report/Views/Shared/_Layout.cshtml";
+
+    if (ViewData["Saved"] == "1"){
+        @Html.Partial("_Information");
+    }
+
+    if (ViewData["Error"] == "True"){
+        @Html.Partial("_ErrorMessage", ViewData["Message"]);
+    }
+
+}
+
+<div>
+    <form action="/report/reports/CreateExcel" method="post" enctype="multipart/form-data">
+        <input type="hidden" name="ReportType" value="@ViewData["type"]" />
+
+        <div class="container my-3">
+            <div class="row mb-3">
+                <label class="col-sm-4 col-form-label">Select Directory:</label>
+                <div class="col-sm-8" id="group">
+                    <!-- You can render your groups dropdown here -->
+                     @* Example: *@
+                    <select name="GroupID" class="form-select">
+                    @foreach (var gp in ViewBag.Group) {
+                    <option value="@gp.GroupID">@gp.Groupname</option>
+                    }
+                    </select>
+                    
+                </div>
+            </div>
+
+            <div class="row mb-3">
+                <label for="reportname" class="col-sm-4 col-form-label">Enter Report Name:</label>
+                <div class="col-sm-8">
+                    <input type="text" name="reportname" id="reportname" class="form-control" />
+                </div>
+            </div>
+
+            <div class="row mb-3">
+                <label for="FilePath" class="col-sm-4 col-form-label">File Path:</label>
+                <div class="col-sm-8">
+                    <input type="file" name="FilePath" class="form-control" />
+                </div>
+            </div>
+
+            <div class="row mb-3">
+                <label class="col-sm-4 col-form-label">Auto Import:</label>
+                <div class="col-sm-8">
+                    <div class="form-check">
+                        <input type="checkbox" name="import" class="form-check-input" id="importCheckbox" />
+                        <label class="form-check-label" for="importCheckbox">Enable Auto Import</label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Excel columns table -->
+            <h5>Excel Columns</h5>
+            <table class="table table-hover table-bordered" id="tblexcel">
+                <thead class="table-light">
+                    <tr>
+                        <th>Name</th>
+                        <th>Excel Column Number</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><input type="text" name="excelcolumns[0].ColumnName" class="form-control" /></td>
+                        <td><input type="text" name="excelcolumns[0].number" class="form-control" /></td>
+                        <td>
+                            <button type="button" class="btn btn-primary" onclick="addExcelColumn()">+</button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <!-- Custom fields table -->
+            <h5>Custom Fields</h5>
+            <table class="table table-hover table-bordered" id="tblcustom">
+                <thead class="table-light">
+                    <tr>
+                        <th>Name</th>
+                        <th>Type</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><input type="text" name="CustomFields[0].FieldName" class="form-control" /></td>
+                        <td>
+                            <select name="CustomFields[0].FieldType" class="form-select">
+                                <option>Date</option>
+                                <option>Text</option>
+                            </select>
+                        </td>
+                        <td>
+                            <button type="button" class="btn btn-primary" onclick="addCustomField()">+</button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <!-- Submit button -->
+            <div class="d-flex justify-content-end mt-3">
+                <input type="submit" value="Save" class="btn btn-success" />
+            </div>
+        </div>
+    </form>
+
+
+</div>
+
+<script>
+    function addExcelColumn() {
+        var table = document.getElementById("tblexcel");
+        var trs = table.getElementsByTagName("tr");
+
+        var total_rows = trs.length - 1;
+        var tr = document.createElement("tr");
+        var columnname = document.createElement("td");
+        columnname.innerHTML = "<input type='text' name='excelcolumns[" + total_rows + "].ColumnName' class='form-control'/>";
+        tr.appendChild(columnname);
+
+        var number = document.createElement("td");
+        number.innerHTML = "<input type='text' name='excelcolumns[" + total_rows + "].number' class='form-control'/>";
+        tr.appendChild(number);
+
+        var but = document.createElement("td");
+        but.innerHTML = "<input type='button' class='btn btn-primary' value='+' onclick='addExcelColumn()'/>"
+        tr.appendChild(but);
+
+        table.appendChild(tr);
+    }
+
+    function addCustomField() {
+        var table = document.getElementById("tblcustom");
+        var trs = table.getElementsByTagName("tr");
+
+        var total_rows = trs.length - 1;
+        var tr = document.createElement("tr");
+        var fieldname = document.createElement("td");
+        fieldname.innerHTML = "<input type='text' name='CustomFields[" + total_rows + "].FieldName' class='form-control'/>";
+        tr.appendChild(fieldname);
+
+        var fieldtype = document.createElement("td");
+        fieldtype.innerHTML = "<Select name='CustomFields[" + total_rows + "].FieldType' class='form-select'><option>Date</Option><option>Text</Option></select>";
+        tr.appendChild(fieldtype);
+
+        var but = document.createElement("td");
+        but.innerHTML = "<input type='button' class='btn btn-primary' value='+' onclick='addCustomField()'/>"
+        tr.appendChild(but);
+
+        table.appendChild(tr);
+    }
+</script>

@@ -1,0 +1,96 @@
+﻿@model Standus_5_0.Areas.Report.Models.Template
+
+@{
+    ViewData["Title"] = "Create";
+    Layout = "~/Areas/Report/Views/Shared/_Layout.cshtml";
+}
+
+<form asp-action="Create" method="post">
+    @Html.AntiForgeryToken()
+    <div>
+        @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+
+        <div class="row">
+            <div class="form-group col">
+                <label for="name">Name</label>
+                <input type="text" name="name" id="name" class="form-control" />
+                @Html.ValidationMessageFor(model => model.Name, "", new { @class = "text-danger" })
+            </div>
+
+            <div class="form-group col">
+                @Html.LabelFor(model => model.Screen, htmlAttributes: new { @class = "control-label col-md-2" })
+                <div class="col-lg-12">
+                    @Html.TextBoxFor(model => model.Screen, new { @class = "form-control" })
+                    @Html.ValidationMessageFor(model => model.Screen, "", new { @class = "text-danger" })
+                </div>
+            </div>
+
+            <div class="form-group col">
+                @Html.LabelFor(model => model.FilterString, htmlAttributes: new { @class = "control-label col-md-2" })
+                <div class="col-lg-12">
+                    @Html.TextBoxFor(model => model.FilterString, new { @class = "form-control" })
+                    @Html.ValidationMessageFor(model => model.FilterString, "", new { @class = "text-danger" })
+                </div>
+            </div>
+        </div>
+
+        <br />
+
+        <div class="form-group">
+            @Html.LabelFor(model => model.Query, htmlAttributes: new { @class = "control-label col-md-2" })
+            <button type="submit" style="margin:5px;float:right;margin-right:100px">Execute</button>
+            <div>
+                <textarea name="query" id="query" cols="200" class="form-control"></textarea>
+                @Html.ValidationMessageFor(model => model.Query, "", new { @class = "text-danger" })
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label for="header">Header</label>
+            <div>
+                <textarea name="header" id="header" cols="200" class="form-control"></textarea>
+                @Html.ValidationMessageFor(model => model.Header, "", new { @class = "text-danger" })
+            </div>
+        </div>
+
+        <div class="form-group">
+            @Html.LabelFor(model => model.Footer, htmlAttributes: new { @class = "control-label col-md-2" })
+            <div>
+                <textarea name="footer" id="footer" cols="200" class="form-control"></textarea>
+                @Html.ValidationMessageFor(model => model.Footer, "", new { @class = "text-danger" })
+            </div>
+        </div>
+
+        <div class="form-group">
+            @Html.LabelFor(model => model.Details, htmlAttributes: new { @class = "control-label col-md-2" })
+            <div>
+                <textarea name="details" id="details" cols="200" class="form-control"></textarea>
+                @Html.ValidationMessageFor(model => model.Details, "", new { @class = "text-danger" })
+            </div>
+        </div>
+
+        <div class="form-group">
+            <div class="col-md-offset-2 col-md-12">
+                <input type="submit" value="Create" class="btn btn-default" />
+            </div>
+        </div>
+    </div>
+</form>
+
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>
+
+<style>
+    textarea {
+        max-width: 100% !important;
+        height: 200px;
+    }
+
+    input[type=text] {
+        width: 100% !important;
+        height: 35px !important;
+    }
+</style>
+
+

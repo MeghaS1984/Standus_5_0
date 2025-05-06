@@ -1,0 +1,250 @@
+﻿@model IEnumerable<Standus_5_0.Areas.Report.Models.Reports>
+
+@{
+    ViewData["Title"] = "Index";
+    Layout = "~/Areas/Report/Views/Shared/_Layout.cshtml";
+
+    var gps = ViewBag.Group;
+}
+
+<div style="display:inline-flex;width:100%;">
+    <div style="padding: 30px;margin-left: auto;">
+        <h4><i class="fa fa-table" style="font-size:48px;color:#3c457c"></i></h4>
+        <p>
+            <a href="/report/reports/Designer?ReportType=Tabular&Id=0">
+                Tabular
+            </a>
+        </p>
+    </div>
+    <div style="padding:30px">
+        <h4><i class="fa fa-qrcode" style="font-size:48px;color:#3c457c"></i></h4>
+        <p>
+            <a href="/report/reports/Designer?ReportType=Pivot&Id=0">
+                Pivot
+            </a>
+        </p>
+    </div>
+    <div style="padding:30px">
+        <h4><i class="fa fa-pie-chart" style="font-size:48px;color:#3c457c"></i></h4>
+        <p>
+            <a href="/report/reports/Designer?ReportType=Chart&Id=0">
+                Chart
+            </a>
+        </p>
+    </div>
+    <div style="padding: 30px;">
+        <h4><i class="fa fa-file-excel" style="font-size:48px;color:#3c457c"></i></h4>
+        <p>
+            <a href="/report/reports/CreateExcel?type=Excel Import">
+                Excel
+            </a>
+        </p>
+    </div>
+    <div style="padding: 30px; margin-right: auto;">
+        <h4><i class="fa fa-dashcube" style="font-size:48px;color:#3c457c"></i></h4>
+        <p>
+            <a href="/report/Dashboards">
+                Add Dashboard item
+            </a>
+        </p>
+    </div>
+    <div style="padding: 30px; margin-right: auto;">
+        <h4><i class="fa fa-dashcube" style="font-size:48px;color:#3c457c"></i></h4>
+        <p>
+            <a href="/report/Templates">
+                Template
+            </a>
+        </p>
+    </div>
+</div>
+<table class="w3-table-all" style="width:100%">
+    <tr>
+        <td style="padding:0px;width:20%;height:30px">
+            <select placeholder="Select Group" style="width:100%;height:30px" class="form-control" onchange="filter_report(this)">
+                <option>-- Select Group --</option>
+                @foreach (var grp in gps)
+                {
+                    <option>@grp.Groupname</option>
+                }
+            </select>
+        </td>
+        <td style="padding: 0px; width: 80%">
+            <input type="text" placeholder="Search Report" style="width:100%" class="form-control" id="search" onkeyup="search_report()" />
+        </td>
+    </tr>
+</table>
+<table class="table table-striped table-bordered" id="report_list">
+    <thead>
+        <tr class="table-success">
+            <th>Group</th>
+            <th>Report Type</th>
+            <th style="width:200px;">Report Name</th>
+            <th style="text-align:left"></th>
+            <th>Date Created</th>
+            <th>Date Updated</th>
+            <th>Hide</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @if (Model.Any())
+        {
+            foreach (var item in Model)
+            {
+                <tr>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.group.Groupname)
+                    </td>
+                    <td>
+                        @if (item.ReportType == "Tabular")
+                        {
+                            <i class="fa fa-table" style="font-size: 18px; color:#3c457c"></i>
+                        }
+                        else if (item.ReportType == "Pivot")
+                        {
+                            <i class="fa fa-qrcode" style="font-size:18px;color:#3c457c"></i>
+                        }
+                        else if (item.ReportType == "Chart")
+                        {
+                            <i class="fa fa-pie-chart" style="font-size:18px;color:#3c457c"></i>
+                        }
+                        else if (item.ReportType == "Excel Import")
+                        {
+                            <i class="fa fa-file-excel-o" style="font-size:18px;color:#3c457c"></i>
+                        }
+                        @item.ReportType
+                    </td>
+                    <td>
+                        @if(item.ReportType != "Excel Import") {
+                            <a href="/report/reports/designer?id=@item.ReportID&ReportName=@item.ReportName&reporttype=@item.ReportType" id="reportname_@item.ReportID">@item.ReportName</a>
+                        }
+                        else 
+                        {
+                            <a href="/report/reports/CreateExcel?id=@item.ReportID&ReportName=@item.ReportName&reporttype=@item.ReportType" id="reportname_@item.ReportID">@item.ReportName</a>
+                        }
+                        <input type="text" id="editname_@item.ReportID" style="display:none" />
+                    </td>
+                    <td>
+                        <a href="javascript:changename(@item.ReportID,'@item.ReportName')" id="namechange_@item.ReportID">Change Name</a>
+                        <div id="save_cancel_@item.ReportID" style="display:none">
+                            <a href="javascript:savename(@item.ReportID,'@item.ReportName')">Save</a>&nbsp;|&nbsp;
+                            <a href="javascript:cancelname(@item.ReportID,'@item.ReportName')">Cancel</a>
+                        </div>
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Date_Created)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Date_updated)
+                    </td>
+                    <td>
+                        <input type="checkbox" id="hide_@item.ReportID" onchange="hide_unhide_report(@item.ReportID, document.getElementById('hide_@item.ReportID'))" title="hide" @(item.Hide ? "checked" : "") />
+                    </td>
+                    <td style="width:5%">
+                        <a href="javascript:delete_report(@item.ReportID)" title="Delete report"><i class="fa fa-remove" style="color:orangered"></i></a>
+                    </td>
+                </tr>
+            }
+        }
+        else
+        {
+            <tr><td colspan="8">There are no reports</td></tr>
+        }
+    </tbody>
+</table>
+
+
+<script>
+    var table = document.getElementById("report_list");
+
+    function delete_report(reportid) {
+        if (confirm("Do you want to delete?")) {
+            //alert();
+            window.location.href = "/report/reports/delete_report?reportid=" + reportid;
+        }
+    }
+
+
+    function filter_report(group_value) {
+
+        var tr = table.getElementsByTagName("tr");
+        var rows = tr.length;
+
+        for (i = 0; i < rows; i++) {
+            var cell = tr[i].getElementsByTagName("td");
+            tr[i].style.display = "";
+        }
+
+        for (var i = 1; i < rows; i++) {
+            //alert(tr[i].getElementsByTagName("td")[1]);
+            var cell = tr[i].getElementsByTagName("td");
+            //alert(cell[0].innerText);
+            if (cell[1].innerText == group_value.value) {
+                tr[i].style.display = "";
+            }
+            else {
+                tr[i].style.display = "none";
+            }
+        }
+    }
+
+    function search_report() {
+        // Declare variables
+        //alert();
+        var input, filter, table, tr, td, i, txtValue;
+        input = document.getElementById("search");
+        filter = input.value.toUpperCase();
+        table = document.getElementById("report_list");
+        tr = table.getElementsByTagName("tr");
+
+        // Loop through all table rows, and hide those who don't match the search query
+        for (i = 0; i < tr.length; i++) {
+            td = tr[i].getElementsByTagName("td")[3];
+            if (td) {
+                txtValue = td.textContent || td.innerText;
+                if (txtValue.toUpperCase().indexOf(filter) > -1) {
+                    tr[i].style.display = "";
+                } else {
+                    tr[i].style.display = "none";
+                }
+            }
+        }
+    }
+
+    function hide_unhide_report(reportid, hide_unhide) {
+        var hide_unhide;
+        //hide_unhide = document.getElementById("hide");
+        if (hide_unhide.checked == true) {
+            console.log(hide_unhide.value);
+            window.location.href = "hide_unhide_report?id=" + reportid + "&hide=1"
+        }
+        else {
+            console.log(hide_unhide.value);
+            window.location.href = "hide_unhide_report?id=" + reportid + "&hide=0"
+        }
+    }
+
+    function changename(id, reportname) {
+        document.getElementById("editname_" + id).value = document.getElementById("reportname_" + id).innerText;
+        document.getElementById("editname_" + id).style.display = "";
+        document.getElementById("reportname_" + id).style.display = "none";
+        document.getElementById("save_cancel_" + id).style.display = "";
+        document.getElementById("namechange_" + id).style.display = "none";
+    }
+
+    function cancelname(id, reportname) {
+        document.getElementById("namechange_" + id).style.display = "";
+        document.getElementById("save_cancel_" + id).style.display = "none";
+        document.getElementById("editname_" + id).style.display = "none";
+        document.getElementById("reportname_" + id).style.display = "";
+    }
+
+    function savename(id, reportname) {
+        document.getElementById("namechange_" + id).style.display = "";
+        document.getElementById("save_cancel_" + id).style.display = "none";
+        document.getElementById("editname_" + id).style.display = "none";
+        document.getElementById("reportname_" + id).style.display = "";
+        var new_name = document.getElementById("editname_" + id).value;
+        window.location.href = "change_name?id=" + id + "&changeto=" + new_name
+    }
+</script>

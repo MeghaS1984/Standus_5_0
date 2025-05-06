@@ -1,0 +1,73 @@
+﻿@model Standus_5_0.Areas.Report.Models.Dashboard    
+
+@{
+    ViewData["Title"] = "Dashboard";
+    Layout = "~/Areas/Report/Views/Shared/_Layout.cshtml";
+}
+
+<h2>@ViewData["Title"]</h2>
+
+<form asp-action="Create" method="post">
+    @Html.AntiForgeryToken()
+
+    <div class="mb-3 mt-3">
+        @* Title *@
+        <label asp-for="title" class="control-label form-control-lg"></label>
+        <input asp-for="title" class="form-control form-control-lg" />
+        <span asp-validation-for="title" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3 mt-3">
+        @* Query *@
+        <label asp-for="query" class="control-label form-control-lg"></label>
+        <textarea asp-for="query" rows="10" class="form-control w-100"></textarea>
+        <span asp-validation-for="query" class="text-danger"></span>
+    </div>
+
+    @* ChartType Dropdown *@
+    <div class="mb-3 mt-3">
+        <label asp-for="charttype" class="control-label">Chart Type</label>
+        <select asp-for="charttype" class="form-control form-control-lg" asp-items="@(new SelectList(new List<string> { "Bar", "Pie", "Doughnut", "Gantt" }))">
+            <option value="">-- Select --</option>
+        </select>
+        <span asp-validation-for="charttype" class="text-danger"></span>
+    </div>
+
+    @* X-Axis *@
+    <div class="mb-3 mt-3">
+        <label for="XValue" class="control-label">X-Axis</label>
+        <input name="XValue" class="form-control form-control-lg" />
+    </div>
+
+    @* Y1-Axis *@
+    <div class="mb-3 mt-3">
+        <label for="Yovalue" class="control-label">Y1-Axis</label>
+        <input name="Yovalue" class="form-control form-control-lg" />
+    </div>
+
+    @* Y2-Axis *@
+    <div class="mb-3 mt-3">
+        <label for="Ytvalue" class="control-label">Y2-Axis</label>
+        <input name="Ytvalue" class="form-control form-control-lg" />
+    </div>
+
+    @* Filter String *@
+    <div class="mb-3 mt-3">
+        <label for="FilterString" class="control-label">Filter String</label>
+        <textarea name="FilterString" rows="3" class="form-control form-control-lg"></textarea>
+    </div>
+
+    <div class="form-group">
+        <input type="submit" value="Create" class="btn btn-primary" />
+    </div>
+</form>
+
+<div>
+    <a asp-action="Index" class="btn btn-link">Back to List</a>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

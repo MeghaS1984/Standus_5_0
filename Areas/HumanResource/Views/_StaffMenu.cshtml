@@ -12,7 +12,7 @@
     <li><a asp-controller="EmploymentHistories" asp-action="Create" asp-route-id="@ViewData["EmployeeID"]">History</a></li>
 </ul> *@
 
-<div class="progress">
+@* <div class="progress">
     <div class="circle done">
         <div class="label_box">
             <span class="label"></span>
@@ -91,116 +91,127 @@
         </div>
     </div>
 
-</div>
+</div> *@
 
-<style>
-    *,
-    *:after,
-    *:before {
-        margin: 0;
-        padding: 0;
-        box-sizing: border-box;
-        /* font-family: "Open Sans"; */
-    }
-    /* Form Progress */
-
-    /*add*/
-    .label_box {
-        display: inline-flex;
-        align-items: center;
-    }
-    /*--------------*/
-
-    .progress {
-        margin: 20px auto;
-        text-align: center;
-        padding-bottom: 80px;
-        display: flex; /*add*/
-        flex-direction: column; /*add*/
-        align-items: center; /*add*/
-        justify-content: space-between; /*add*/
-        height: 500px;
-        width:200px !important;
-        background-color:white;
-    }
-
-        .progress .circle,
-        .progress .bar {
-            display: inline-block;
-            background:lightgray;
-            width: 40px;
-            height: 40px;
-            border-radius: 40px;
-            border: 1px solid #d5d5da;
-            vertical-align: top;
-        }
-
-        .progress .bar {
+    <style>
+        .progress-container {
             position: relative;
-            width: 20px;
-            height: 6px;
-            /*margin: 0 -5px 17px -5px;*/ /*remove*/
-            border-left: none;
-            border-right: none;
-            border-radius: 0;
-            /*top:16px;*/ /*remove*/
-            vertical-align: top; /*add*/
-            transform: rotate(90deg); /*add*/
-            /* background-color:whitesmoke; */
+            margin: 50px;
         }
 
-        .progress .circle .label {
-            display: inline-block;
-            width: 32px;
-            height: 32px;
-            line-height: 32px;
-            border-radius: 32px;
-            margin-top: 3px;
-            margin-left: 3px; /*add*/
-            /* color: #b5b5ba; */
-            font-size: 17px;
+        .step {
+            position: relative;
+            padding-left: 35px; /* extra space for larger dot */
+            height: 45px; /* slightly taller to center larger dots */
+            display: flex;
+            align-items: center;
         }
 
-        .progress .circle .title {
-            /* color: #b5b5ba; */
-            font-size: 13px;
-            line-height: 18px;
-            /*margin-left: -30px;*/ /*remove*/
-            display: block;
-            width: 100px;
-            /*margin-top: 5px;*/ /*remove*/
-
-            margin-left: 10px; /*add*/
-            text-align: start; /*add*/
-        }
-        /* Done / Active */
-
-        .progress .bar.done,
-        .progress .circle.done {
-            background: #eee;
+        .dot {
+            width: 13px;
+            height: 13px;
+            border-radius: 50%;
+            background-color: #ccc;
+            position: absolute;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            z-index: 1;
         }
 
-        .progress .bar.active {
-            background: linear-gradient(to right, #EEE 10%, #FFF 30%);
+            .dot.active {
+                background-color: #4caf50;
+            }
+
+        .label {
+            font-size: 14px;
+            white-space:nowrap;
+            flex-shrink:0;
         }
 
-        .progress .circle.done .label {
-            color: #FFF;
-            background: #8bc435;
-            box-shadow: inset 0 0 2px rgba(0, 0, 0, .2);
+        /* vertical line connecting to next dot */
+        .step:not(:last-child)::after {
+            content: '';
+            position: absolute;
+            left: 5.5px; /* 13px / 2 - 1px for line width */
+            top: 50%;
+            height: 45px; /* same as step height */
+            width: 2px;
+            background-color: #ccc;
+            z-index: 0;
         }
 
-        .progress .circle.done .title {
-            color: #444;
+        .step.active:not(:last-child)::after {
+            background-color: #4caf50;
         }
+    </style>
 
-        .progress .circle.active .label {
-            color: #FFF;
-            background: #0c95be;
-            box-shadow: inset 0 0 2px rgba(0, 0, 0, .2);
-        }
+    <div class="progress-container">
+        <div class="step active">
+            <div class="dot active"></div>
+        <div class="label">
+            @if (ViewData["mode"] == "Create")
+            {
+                <a asp-controller="Employees" asp-action="Create">Staff</a>
+            }
+            else
+            {
+                <a asp-controller="Employees" asp-action="Edit" asp-route-id="@ViewData["EmployeeID"]">Staff</a>
+            }
+        </div>
+        </div>
+    @if (ViewData["mode"] == "Create"){
+        <div class="step active">
+            <div class="dot"></div>
+            <div class="label"> Details</div>
+        </div>
+        <div class="step">
+            <div class="dot"></div>
+            <div class="label">Bank Details</div>
+        </div>
+        <div class="step">
+            <div class="dot"></div>
+            <div class="label">Education</div>
+        </div>
+        <div class="step">
+            <div class="dot"></div>
+            <div class="label">Statutory</div>
+        </div>
+        <div class="step">
+            <div class="dot"></div>
+            <div class="label">Family</div>
+        </div>
+        <div class="step">
+            <div class="dot"></div>
+            <div class="label">History</div>
+        </div>
+    } else {
+        <div class="step active">
+            <div class="dot"></div>
+        <div class="label"> <a asp-controller="EmployementDetails" asp-action="Edit" asp-route-id="@ViewData["EmployeeID"]">Details</a></div>
+        </div>
+        <div class="step">
+            <div class="dot"></div>
+        <div class="label"><a asp-controller="BankDetails" asp-action="Create" asp-route-id="@ViewData["EmployeeID"]">Bank Details</a></div>
+        </div>
+        <div class="step">
+            <div class="dot"></div>
+        <div class="label"><a asp-controller="Educations" asp-action="Create" asp-route-id="@ViewData["EmployeeID"]">Education</a></div>
+        </div>
+    <div class="step">
+        <div class="dot"></div>
+        <div class="label"><a asp-controller="Statutories" asp-action="Create" asp-route-id="@ViewData["EmployeeID"]">Statutory</a></div>
+    </div>
+    <div class="step">
+        <div class="dot"></div>
+        <div class="label"><a asp-controller="Families" asp-action="Create" asp-route-id="@ViewData["EmployeeID"]">Family</a></div>
+    </div>
+    <div class="step">
+        <div class="dot"></div>
+        <div class="label"><a asp-controller="EmploymentHistories" asp-action="Create" asp-route-id="@ViewData["EmployeeID"]">History</a></div>
+        </div>
+    }
+    </div>
 
-        .progress .circle.active .title {
-            color: #0c95be;
-        }
-</style>
+
+

@@ -1,5 +1,5 @@
 ﻿@model IEnumerable<Standus_5_0.Areas.HumanResource.Models.LoanRequest>
-
+<input type="hidden" id="RequestID">
 <table class="table table-stripped table-bordered">
     <thead>
         <tr class="table-success">
@@ -65,10 +65,44 @@
             </td>
             <td>
                 <a asp-action="create" asp-route-requestid="@item.RequestID">Approve</a> |
-                <a asp-action="Reject" asp-route-id="@item.RequestID">Reject</a> |
+                    <a href="javascript:void()" onclick="openModal(@item.RequestID)">Reject</a> |
                 <a asp-action="Delete" asp-route-id="@item.RequestID">Delete</a>
             </td>
         </tr>
 }
     </tbody>
 </table>
+
+<!-- Modal Container -->
+<div class="modal fade" id="add_comment" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content" id="modalContent">
+            <!-- Content loaded here dynamically -->
+            <div class="modal-header">
+                <h5 class="modal-title">Comment</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                Add Comment : <br>
+                <textarea cols="50" rows="5" id="comment" placeholder="add comment..." class="form-control"></textarea>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" id="reject" onclick='reject()'>Reject</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    function reject() {
+        var comment = $("#comment").val();
+        var id = $("#RequestID").val();
+        window.location.href='@Url.Action("Reject","LoanRequests")' + '?id=' + id + '&comment=' + comment;
+    }
+
+    function openModal(requestid) {
+        $("#RequestID").val(requestid);
+        var add_comment = new bootstrap.Modal(document.getElementById('add_comment'), {});
+            add_comment.show();
+    }
+</script>

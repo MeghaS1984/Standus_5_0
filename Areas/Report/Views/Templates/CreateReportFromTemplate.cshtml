@@ -1,0 +1,16 @@
+﻿@using Microsoft.AspNetCore.Routing
+
+@{
+    var rtval = new RouteValueDictionary {
+        { "screenName", "serviceInvoice" }
+    };
+
+    var rtval1 = new RouteValueDictionary {
+        { "templateid", "id" },
+        { "filtervalue", "filter" },
+        { "screenName", "serviceInvoice" }
+    };
+}
+
+
+@Url.Action("../../Template/GenerateTemplate", rtval)

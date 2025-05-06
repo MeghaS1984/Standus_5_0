@@ -1,0 +1,72 @@
+﻿@model Standus_5_0.Areas.Report.Models.Template
+@{
+    ViewData["Title"] = "Filter";
+    Layout = "~/Areas/Report/Views/Shared/_Layout.cshtml";
+
+    var filts = Model.FilterString?.Split(';') ?? new string[0];
+}
+
+<h5>Add @Model.Name Filter values.</h5>
+
+<input type="hidden" id="templateid" value="@Model.ID" />
+<input type="hidden" id="screenname" value="@Model.Screen" />
+
+<div>
+    @for (int i = 0; i < filts.Length - 1; i++)  // assuming last semicolon is extra
+    {
+        <div style="display:flex">            
+            <div id="filters">
+                @filts[i] : <input type="text" name="@filts[i]" id="@filts[i]" class="form-control" />
+            </div>
+        </div>
+    }
+</div>
+
+<br />
+
+<div>
+    <p>
+        <input type="button" value="Preview Report" onclick="preview()" />
+        <input type="button" value="Generate Pdf" onclick="topdf()" />
+        <a asp-action="Index">Back to List</a>
+    </p>
+</div>
+
+<div id="report_data">
+
+</div>
+
+<form action="/Report/Preview/ToPDF" method="post" id="pdf">
+    <input type="hidden" id="report_topdf" name="report_topdf" />
+    <input type="hidden" id="chart_topdf" name="chart_topdf" />
+</form>
+
+<script>
+    function preview() {
+        var container = document.getElementById("filters");
+
+        var templateid = document.getElementById("templateid").value;
+        var screenname = document.getElementById("screenname").value;
+
+        var inputs = container.querySelectorAll('input[type="hidden"], input, select'); // Include hidden inputs
+        var values = "";
+
+        inputs.forEach(function (input) {
+            values = values + "$" + input.value;
+        });
+
+        //window.location.href = "GenerateTemplate?templateid=" + templateid + "&filtervalue=" + values + "&screenname=" + screenname;
+
+       var promise = $.ajax({
+            url:'@Url.Action("GenerateTemplate")',
+            type:'POST',
+            data:{
+                templateid : templateid , 
+                filtervalue : values , 
+                screenname : screenname
+            }
+       }).done(function(result){
+            $('#report_data').html(result);
+       })
+    }
+</script>

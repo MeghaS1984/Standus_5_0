@@ -239,5 +239,18 @@ namespace Standus_5_0.Areas.HumanResource.Controllers
         {
             return _context.LoanRequest.Any(e => e.RequestID == id);
         }
+
+        public ActionResult Reject(int id, string comment) { 
+        
+            var reqst = _context.LoanRequest.FirstOrDefault(e => e.RequestID == id);
+
+            reqst.Status = "Reject";
+            reqst.Comment = comment;
+
+            _context.LoanRequest.Update(reqst);
+            _context.SaveChanges();
+
+            return new EmptyResult ();
+        }
     }
 }

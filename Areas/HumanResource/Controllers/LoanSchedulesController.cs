@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
@@ -7,6 +8,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Standus_5_0.Areas.HumanResource.Models;
 using Standus_5_0.Data;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace Standus_5_0.Areas.HumanResource.Controllers
 {
@@ -14,17 +16,28 @@ namespace Standus_5_0.Areas.HumanResource.Controllers
     public class LoanSchedulesController : Controller
     {
         private readonly ApplicationDbContext _context;
+        private readonly ILogger<LoanSchedulesController> _logger;
 
-        public LoanSchedulesController(ApplicationDbContext context)
+        public LoanSchedulesController(ApplicationDbContext context, ILogger<LoanSchedulesController> logger)
         {
             _context = context;
+            _logger = logger;  // Initialize the logger
         }
 
         // GET: HumanResource/LoanSchedules
-        public async Task<IActionResult> Index()
+        public ActionResult Index(int sanctionid)
         {
-            var applicationDbContext = _context.LoanSchedule.Include(l => l.Sanction);
-            return View(await applicationDbContext.ToListAsync());
+            var applicationDbContext = _context.LoanSchedule;
+
+            ViewData["Employee"] = applicationDbContext.Select(ap => ap.Sanction.Request.Employee.Name).FirstOrDefault();
+            ViewData["Request"] = applicationDbContext.Select(ap => ap.Sanction.Request.RequestNo).FirstOrDefault();
+            //.Where(ls => ls.SanctionID == sanctionid);
+
+            //var data = applicationDbContext.ToList();
+
+            //_logger.LogInformation($"Returned {data.Count} rows for SanctionID {sanctionid}");
+
+            return View(applicationDbContext.ToList());
         }
 
         // GET: HumanResource/LoanSchedules/Details/5
@@ -36,7 +49,6 @@ namespace Standus_5_0.Areas.HumanResource.Controllers
             }
 
             var loanSchedule = await _context.LoanSchedule
-                .Include(l => l.Sanction)
                 .FirstOrDefaultAsync(m => m.SanctionID == id);
             if (loanSchedule == null)
             {
@@ -132,7 +144,6 @@ namespace Standus_5_0.Areas.HumanResource.Controllers
             }
 
             var loanSchedule = await _context.LoanSchedule
-                .Include(l => l.Sanction)
                 .FirstOrDefaultAsync(m => m.SanctionID == id);
             if (loanSchedule == null)
             {
@@ -160,6 +171,37 @@ namespace Standus_5_0.Areas.HumanResource.Controllers
         private bool LoanScheduleExists(int id)
         {
             return _context.LoanSchedule.Any(e => e.SanctionID == id);
+        }
+
+        public ActionResult updateSchedule(int id, int sanctionid) {
+
+            var sched = _context.LoanSchedule.Where(ls => ls.ID == id).FirstOrDefault() ;
+            
+            sched.Forward = true ;
+
+            DateTime schDate = sched.Date;
+
+            _context.Update(sched);
+            _context.SaveChanges();
+
+            var newSched = new LoanSchedule();
+            schDate = schDate.AddMonths(1);
+            newSched = sched;
+            newSched.Forward = false;
+            newSched.Date = schDate;
+            _context.Add(newSched);
+            _context.SaveChanges();
+
+            var updtSched = _context.LoanSchedule.Where(ls => ls.SanctionID == sanctionid && ls.ID > id && ls.ID != newSched.ID);
+
+            foreach (var sch in updtSched)
+            {
+                sch.Date = schDate.AddMonths(1);
+                _context.Update(sch);
+                _context.SaveChanges();
+            }
+
+            return new EmptyResult(); 
         }
     }
 }

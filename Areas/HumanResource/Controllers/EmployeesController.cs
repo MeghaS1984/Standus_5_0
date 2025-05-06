@@ -1,23 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Data;
-using System.Linq;
-using System.Threading.Tasks;
-using Humanizer;
-using Microsoft.AspNetCore.Http.Features;
+﻿using System.Data;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.CodeAnalysis.Operations;
 
 //using Microsoft.CodeAnalysis.Elfie.Diagnostics;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.VisualStudio.Web.CodeGenerators.Mvc.Templates.Blazor;
 using Standus_5_0.Areas.HumanResource.Models;
 using Standus_5_0.Data;
 using Standus_5_0.Enums;
 using Standus_5_0.Services;
-using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace Standus_5_0.Areas.HumanResource.Controllers
 {

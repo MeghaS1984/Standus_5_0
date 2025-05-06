@@ -1,0 +1,52 @@
+﻿@model IEnumerable<Standus_5_0.Areas.Report.Models.Dashboard>
+@{
+    ViewData["Title"] = "Dashboard";
+    Layout = "~/Areas/Report/Views/Shared/_Layout.cshtml";
+}
+
+<h5>Dashboard</h5>
+
+<p>
+    @Html.ActionLink("Create New", "Create")
+</p>
+<div class="table-responsive">
+    <table class="table table-bordered w-100">
+        <thead>
+            <tr>
+                <th style="width: 20%;">Title</th>
+                <th style="width: 50%;">Query</th>
+                <th style="width: 15%;">Chart Type</th>
+                <th style="width: 15%;"></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>@Html.DisplayFor(modelItem => item.title)</td>
+                    <td>@Html.DisplayFor(modelItem => item.query)</td>
+                    <td>@Html.DisplayFor(modelItem => item.charttype)</td>
+                    <td>
+                        @Html.ActionLink("Edit", "Edit", new { id = item.ID }) |
+                        @Html.ActionLink("Details", "Details", new { id = item.ID }) |
+                        @Html.ActionLink("Delete", "Delete", new { id = item.ID })
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+
+<style>
+    .table-fit {
+        width: auto;
+        table-layout: auto;
+    }
+
+        .table-fit th,
+        .table-fit td {
+            white-space: nowrap;
+            vertical-align: middle;
+        }
+</style>

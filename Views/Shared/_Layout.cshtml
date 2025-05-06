@@ -1,4 +1,6 @@
-﻿<!DOCTYPE html>
+﻿@using Microsoft.AspNetCore.Identity 
+@inject SignInManager<Standus_5_0.Areas.Identity.Models.ApplicationUser> SignInManager
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
@@ -24,18 +26,36 @@
                 </button>
                 <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between ">
                     <ul class="navbar-nav flex-grow-1">
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
+                            </li>
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
+                            <a class="nav-link text-dark" asp-area="Report" asp-controller="Preview" asp-action="list">Reports</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+                            <a class="nav-link text-dark" asp-area="Report" asp-controller="Reports" asp-action="Index">Designer</a>                            
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="HumanResource" asp-controller="Employees" asp-action="Index">Staff</a>
+                            <a class="nav-link text-dark" asp-area="Report" asp-controller="Dashboards" asp-action="Preview">Dashboard</a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link text-dark" asp-area="AppSetup" asp-controller="Menus" asp-action="Index">Staff</a>
                         </li>
+                           @*  @if (SignInManager.IsSignedIn(User) && User.IsInRole("Admin"))
+                            { *@
+                                <li class="nav-item dropdown">
+                                    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" role="button"
+                                       data-bs-toggle="dropdown" aria-expanded="false">
+                                        Manage
+                                    </a>
+                                    <ul class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
+                                        <a class="dropdown-item" asp-controller="Administration"
+                                           asp-action="ListUsers">Users</a>
+                                        <a class="dropdown-item" asp-controller="Administration"
+                                           asp-action="ListRoles">Roles</a>
+                                    </ul>
+                                </li>
+                            @* } *@
                     </ul>
                     <partial name="_LoginPartial" />
                 </div>

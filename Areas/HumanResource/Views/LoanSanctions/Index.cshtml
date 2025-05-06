@@ -85,12 +85,16 @@
                 <a asp-action="Edit" asp-route-id="@item.SanctionId">Edit</a> |
                 <a asp-action="Details" asp-route-id="@item.SanctionId">Details</a> |
                 <a asp-action="Delete" asp-route-id="@item.SanctionId">Delete</a> |
-                <a asp-action="index" asp-controller="LoanSchedules" asp-route-id="@item.SanctionId">Schedule</a>
+                <a asp-action="index" asp-controller="LoanSchedules" asp-route-sanctionid="@item.SanctionId">Schedule</a>
             </td>
-        </tr>
-}
+        </tr>}
     </tbody>
 </table>
+<span>Rejected Loan Requests</span>
+<div class="col-md-12">
+    <div id="rejected" style="width:100%">
+    </div>
+</div>
 <script>
     $(document).ready(function () {
         $.ajax({
@@ -98,6 +102,17 @@
             type: 'GET',
             success: function (result) {
                 $('#pending').html(result);
+            },
+            error: function (xhr, status, error) {
+                console.error("AJAX Error: " + error);
+            }
+        });
+
+        $.ajax({
+            url: '/humanresource/LoanSanctions/Rejected',
+            type: 'GET',
+            success: function (result) {
+                $('#rejected').html(result);
             },
             error: function (xhr, status, error) {
                 console.error("AJAX Error: " + error);

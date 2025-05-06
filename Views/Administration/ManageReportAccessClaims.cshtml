@@ -1,0 +1,75 @@
+﻿@model IEnumerable<Standus_5_0.Areas.Identity.Models.MenuGroupDto>
+
+<style>
+    .card-header {
+        position: sticky;
+        top: 0;
+        z-index: 1;
+        background-color :cornflowerblue;
+    }
+</style>
+
+<div class="container mt-4 d-flex flex-wrap gap-3">
+    @foreach (var group in Model)
+    {
+        <div class="card mb-3 flex-fill" style="min-width: 500px; max-width: 500px;max-height:300px;overflow-y:auto">
+            <div class="card-header text-white" >
+                <h5 class="mb-0">@group.GroupName</h5>
+            </div>
+            <div class="card-body p-0">
+                <table class="table table-striped mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Menu</th>
+                            @foreach (var claimHeader in group.Menus.First().Claims)
+                            {
+                                <th>@claimHeader.ClaimType</th>
+                            }
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var menu in group.Menus)
+                        {
+                            <tr>
+                                <td>@menu.MenuName</td>
+                                @foreach (var claim in menu.Claims)
+                                {
+                                    <td>
+                                        <input type="checkbox" onchange="AllowAccess(@claim.ClaimId,@menu.MenuId,this)"
+                                               name="claims_@menu.MenuId@claim.ClaimId" @(claim.IsSelected ? "checked" : "") />
+                                    </td>
+                                }
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    }
+
+</div>
+
+<script>
+    const user_Id = '@ViewBag.UserId'; // or however you're getting the user ID from server
+
+    function AllowAccess(claimId, menuId, option) {
+        var select = option.checked;
+        $.ajax({
+            url: '@Url.Action("UpdateReportAccess", "Administration")',
+            type: 'POST',
+            data: {
+                claimid: claimId,
+                menuid: menuId,
+                userid: user_Id,
+                select: select
+            },
+            success: function (response) {
+                console.log("Access updated:", response);
+            },
+            error: function (xhr, status, error) {
+                console.error("Error updating access:", error);
+            }
+        });
+    }
+</script>
+

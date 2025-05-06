@@ -1,0 +1,52 @@
+﻿@model Standus_5_0.Areas.Report.Models.ReportComponent 
+
+@if(Model.Report != null) {
+
+    <form action="/report/setting/@Model.Report.ReportID" method="post">
+        <input type="hidden" name="reportid" value="@Model.Report.ReportID" />
+
+        <!-- Modal -->
+        <div class="modal fade" id="report_setting" tabindex="-1" aria-labelledby="reportSettingLabel" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+
+                    <!-- Modal header -->
+                    <div class="modal-header bg-primary text-white">
+                        <h5 class="modal-title" id="reportSettingLabel">Report Setting</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+
+                    <!-- Modal body -->
+                    <div class="modal-body">
+                        <div class="alert alert-warning" role="alert">
+                            <strong>*Note:</strong> Use `;` to separate multiple email addresses.
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="AutoMailTo" class="form-label">Send Mail To:</label>
+                            <input type="text" name="AutoMailTo" value="@Model.Report.AutoMailTo" class="form-control" />
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="pdfpagesize" class="form-label">PDF Page Orientation:</label>
+                            <select name="pdfpagesize" class="form-select">
+                                <option value="Landscape" selected="@(Model.Report.PDFPageSize == "Landscape" ? "selected" : "")">Landscape</option>
+                                <option value="Potrait" selected="@(Model.Report.PDFPageSize == "Potrait" ? "selected" : "")">Potrait</option>
+                            </select>
+                        </div>
+
+                    </div>
+
+                    <!-- Modal footer -->
+                    <div class="modal-footer bg-primary">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        <input type="submit" value="Save" class="btn btn-light" />
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </form>
+
+
+}

@@ -1,0 +1,63 @@
+﻿@model IEnumerable<Standus_5_0.Areas.Report.Models.ReportsSubquery>
+
+@{
+    ViewData["Title"] = "Index";
+    Layout = "~/Areas/Report/Views/Shared/_Layout.cshtml";
+}
+@{
+    var val = new RouteValueDictionary();
+    val.Add("ReportID", ViewData["ReportID"]);
+}
+
+@if (Model.Count() == 0) {
+    <div style="width:100%;height:200px;text-align:center;vertical-align:middle">
+        <p><h3>Subquery/s not found for this report. To add subquery click on create new.</h3></p>
+        <p>
+            <h4>@Html.ActionLink("Create New", "Create", val)</h4>
+        </p>
+    </div>
+} else {
+        <h4>@Html.ActionLink("Create New", "Create", val)</h4>
+}
+
+<table class="table">
+    @foreach (var item in Model) {
+        <tr>
+            <td style="display:none">
+                @Html.DisplayFor(modelItem => item.ReportID)
+            </td>
+            <td>
+            @Html.TextArea("Subquery",item.Subquery, new { @class = "form-control", rows = 4 })
+
+            </td>
+            <td>
+                @Html.ActionLink("Edit", "Edit", new {id = item.ID}) |
+                @Html.ActionLink("Details", "Details", new {id = item.ID}) |
+                @Html.ActionLink("Delete", "Delete", new {id = item.ID})
+            </td>
+        </tr>
+    }
+</table>
+<div>
+    @Html.ActionLink("Back to List", "Index", val)
+</div>
+<style>
+
+    .table td:nth-child(3) {
+        width: 150px;
+        border: 0px solid red;
+    }
+
+    textarea {
+        min-width: 100%;
+        height: 150px;
+        padding: 12px 20px;
+        box-sizing: border-box;
+        border: 2px solid #ccc;
+        border-radius: 4px;
+        background-color: #f8f8f8;
+        font-size: 16px;
+        resize: none;
+        margin-top: 5px;
+    }
+</style>

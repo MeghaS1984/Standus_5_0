@@ -1,0 +1,173 @@
+﻿@model Standus_5_0.Areas.Report.Models.ReportComponent     
+    <br />
+
+
+<span>
+    <button type="button" class="btn btn-primary float-end" data-bs-toggle="modal" data-bs-target="#add_filter">
+        + Add Filter
+    </button>
+</span>
+
+
+<br />
+<form action="/report/add_filters" id="frmFilter" method="post">
+
+    <!-- Filter list table -->
+    <div style="overflow-x:auto; width:100%">
+        <table class="table table-striped table-hover table-bordered">
+            <thead class="table-success">
+                <tr>
+                    <th width="10%">Name</th>
+                    <th width="10%">Filter Type</th>
+                    <th width="10%">Table</th>
+                    <th width="10%">Value Field</th>
+                    <th width="10%">Display Field</th>
+                    <th width="10%">Default Value</th>
+                    <th width="10%">Do not show All</th>
+                    <th width="10%">Custom filter</th>
+                    <th width="10%">Link To</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model.Report != null)
+                {
+                    int k = 0;
+                    <input type="hidden" value="@Model.Report.ReportID" name="reportid" />
+                    foreach (var flt in Model.Filter)
+                    {
+                        <input type="hidden" value="@flt.Id" name="filter[@k].id" />
+                        <tr>
+                            <td>@flt.Name</td>
+                            <td>@flt.Type</td>
+                            <td>@flt.Table</td>
+                            <td>@flt.ValueField</td>
+                            <td>@flt.DisplayField</td>
+                            <td>@flt.DefaultValue</td>
+                            <td>@flt.ShowAll</td>
+                            <td>@flt.CustomFilter</td>
+                            <td>@flt.LinkField</td>
+                            <td>
+                                <button type="button" class="btn btn-danger btn-sm" onclick="delete_filter(@flt.Id)">-</button>
+                            </td>
+                        </tr>
+                        k++;
+                    }
+                }
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Add Filter Modal -->
+    <div class="modal fade" id="add_filter" tabindex="-1" aria-labelledby="addFilterModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content">
+
+                <!-- Modal header -->
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title" id="addFilterModalLabel">Add Filter</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+
+                <!-- Modal body -->
+                <div class="modal-body">
+
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Name</label>
+                            <input type="text" name="name" class="form-control" />
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">Type</label>
+                            <select name="type" onchange="change_default(this)" id="type" class="form-select">
+                                <option>Date</option>
+                                <option>List</option>
+                                <option>Multiselect List</option>
+                                <option>Custom</option>
+                            </select>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">Table</label>
+                            <input type="text" name="table" class="form-control" />
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">Value Field</label>
+                            <input type="text" name="ValueField" class="form-control" />
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">Display Field</label>
+                            <input type="text" name="DisplayField" class="form-control" />
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">Default Value</label>
+                            <select name="DefaultValue" id="not_custom" class="form-select">
+                                <option></option>
+                                <option>First day of month</option>
+                                <option>Last day of month</option>
+                                <option>Current date</option>
+                            </select>
+                            <input type="text" name="DefaultValue" id="is_custom" class="form-control mt-2" style="display:none" />
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">Show All</label><br />
+                            <input type="checkbox" name="showall" class="form-check-input" />
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">Custom Filter</label>
+                            <input type="text" name="CustomFilter" class="form-control" />
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">Link Field</label>
+                            <input type="text" name="LinkField" class="form-control" />
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- Modal footer -->
+                <div class="modal-footer bg-primary">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-light" onclick="frmsubmit()">+ Add</button>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+</form>
+
+
+<script>
+    function delete_filter(filter_id) {
+        window.location.href='@Url.Action("/delete_filter/")' + filter_id;
+    }
+
+    function change_default(option) {
+        //alert($('#is_custom').style.display);
+        if (option.value == 'Custom') {
+            document.getElementById('not_custom').style.display='none';
+            document.getElementById('is_custom').style.display = "";            
+        }
+        else {
+            document.getElementById('not_custom').style.display = "";
+            document.getElementById('is_custom').style.display = 'none';
+        }
+    }
+
+    function frmsubmit() {
+        var not_custom = document.getElementById('not_custom')
+        var option = document.getElementById('type')
+        if (option.value == 'Custom') {
+            document.getElementById('not_custom').value = document.getElementById('is_custom').value
+        }
+        document.getElementById("frmFilter").submit();
+    }
+</script>
