@@ -219,5 +219,15 @@ namespace Standus_5_0.Areas.HumanResource.Controllers
 
             return PartialView("Pending",pending);
         }
+
+        public ActionResult Rejected()
+        {
+            var rejected = _context.LoanRequest
+                .Where(r => r.Status == "Reject")
+                .Include(p => p.Employee)
+                .ToList();
+
+            return PartialView("Rejected", rejected);
+        }
     }
 }

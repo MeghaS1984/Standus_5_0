@@ -38,7 +38,6 @@ namespace Standus_5_0.Data
             modelBuilder.Entity<StandardDeduction>().HasKey(ck => new  { ck.EmployeeID, ck.DeductionID });
             modelBuilder.Entity<StandardDeductionCalculation>().HasKey(ck => new { ck.DeductionID , ck.AllowanceID });
             modelBuilder.Entity<FriengeAssign>().HasKey(ck => new { ck.FriengeID , ck.EmployeeID });
-            modelBuilder.Entity<LoanSchedule>().HasKey(ck => new { ck.SanctionID });
             //modelBuilder.Entity<SlabDeductionExclude>().HasKey(ck => new { ck.EmployeeID , ck.DeductionID });
             modelBuilder.Entity<IncentiveSetting>().HasKey(ck => new { ck.EmployeeID });
             modelBuilder.Entity<AttendanceDetails>().HasNoKey();

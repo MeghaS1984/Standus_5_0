@@ -4,17 +4,14 @@
     ViewData["Title"] = "Index";
     Layout = "~/Areas/HumanResource/Views/Shared/_Layout.cshtml";
 }
-
-<h1>Index</h1>
-
-<p>
-    <a asp-action="Create">Create New</a>
-</p>
-<table class="table">
+<span>Employee : @ViewData["Employee"]</span>   |  
+<span>Request # : @ViewData["Request"]</span>   |
+<span><a href="loansanctions/index">Back to Loan List</a></span>
+<table class="table table-bordered table-striped">
     <thead>
-        <tr>
+        <tr class="table-success">
             <th>
-                @Html.DisplayNameFor(model => model.Installment)
+                Installment #
             </th>
             <th>
                 @Html.DisplayNameFor(model => model.Amount)
@@ -29,12 +26,9 @@
                 @Html.DisplayNameFor(model => model.Date)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.SalaryDate)
+                Salary Date
             </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Sanction)
-            </th>
-            <th></th>
+            @* <th></th> *@
         </tr>
     </thead>
     <tbody>
@@ -50,7 +44,9 @@
                 @Html.DisplayFor(modelItem => item.Paid)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.Forward)
+                @if (item.Paid == 0) {
+                    @Html.DisplayFor(modelItem => item.Forward)
+                }
             </td>
             <td>
                 @Html.DisplayFor(modelItem => item.Date)
@@ -58,15 +54,17 @@
             <td>
                 @Html.DisplayFor(modelItem => item.SalaryDate)
             </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Sanction.SanctionId)
-            </td>
-            <td>
+            @* <td>
                 <a asp-action="Edit" asp-route-id="@item.SanctionID">Edit</a> |
                 <a asp-action="Details" asp-route-id="@item.SanctionID">Details</a> |
                 <a asp-action="Delete" asp-route-id="@item.SanctionID">Delete</a>
-            </td>
+            </td> *@
         </tr>
-}
+        }
     </tbody>
 </table>
+<script>
+    $("#Forward").on('click', function() {
+        window.location.href='@Url.Action("updateSchedule","LoanSchedules")';
+    });
+</script>

@@ -6,6 +6,8 @@ namespace Standus_5_0.Areas.HumanResource.Models
     [Table("LoanSchedule")]
     public class LoanSchedule
     {
+        [Key]
+        public int ID { get; set; }
         public int SanctionID { get; set; }          // Primary key for the sanction (int type)
         public int Installment { get; set; }     // The installment amount (decimal type)
         public decimal Amount { get; set; }          // Total amount for the installment (decimal type)
